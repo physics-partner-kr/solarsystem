@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>지구의 자전·공전과 시공간의 휘어짐</title>
+<title>태양계 탐험</title>
 <style>
 :root {
   --scene-ink: #eef3ff;
@@ -257,6 +257,132 @@ p.formula { text-align: center; font-size: 1.08rem; margin: .5rem 0 .9rem; color
 #nasaBtn b { font-weight: 650; }
 .btn.wide { width: 100%; height: 2.4rem; margin: .2rem 0 .5rem; }
 
+#focusCard h2 { margin-top: .2rem; }
+#focusCard .tagline { margin: -.3rem 0 .6rem; color: var(--ink-3); font-size: .85rem; }
+#focusCard .readouts dd { font-size: 1rem; }
+#focusCard ul.bullets { margin-top: .5rem; }
+
+#moonHist td:last-child { font-size: .8rem; color: var(--ink-3); text-align: left; }
+#moonHist td:first-child, #moonHist th { white-space: nowrap; }
+#moonHist th small { font-weight: 500; color: var(--ink-3); }
+#pdTable th small { font-weight: 500; color: var(--ink-3); }
+
+/* ---------- 탐험 ---------- */
+#quest {
+  position: absolute; right: calc(1rem + env(safe-area-inset-right, 0px)); top: calc(1rem + env(safe-area-inset-top, 0px));
+  width: clamp(20rem, 33vw, 27rem); max-height: calc(100% - 7.6rem); overflow: auto; padding: 1rem 1.1rem 1.1rem;
+  border-radius: 1.1rem; background: rgba(9, 16, 38, .88); border: 1px solid rgba(170, 190, 255, .22); color: var(--scene-ink);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); box-shadow: 0 1rem 2.6rem rgba(0, 0, 0, .45);
+}
+#quest[hidden], body:not(.quest-on):not(.lab-on) #quest { display: none; }
+.qhead { display: flex; align-items: baseline; gap: .6rem; margin-bottom: .6rem; user-select: none; -webkit-user-select: none; }
+.qhead b { font-size: 1.2rem; font-weight: 700; }
+.qhead span { font-size: .8rem; color: var(--scene-ink-2); }
+.qprog { display: flex; gap: .25rem; margin: 0 0 .9rem; }
+.qprog i { flex: 1; height: .32rem; border-radius: 999px; background: rgba(226, 234, 255, .14); }
+.qprog i.done { background: #6fd39a; } .qprog i.now { background: #ffd66b; }
+#quest h3 { font-size: .95rem; margin: .7rem 0 .35rem; color: #ffd66b; }
+#quest ul { margin: 0 0 .4rem; padding-left: 1.1rem; } #quest li { margin: .25rem 0; font-size: .92rem; line-height: 1.5; color: var(--scene-ink); }
+.qref { display: inline-block; margin: -.1rem 0 .45rem; padding: .15rem .55rem; border-radius: .45rem; font-size: .8rem;
+  color: #ffe6a6; background: rgba(255, 214, 107, .14); border: 1px solid rgba(255, 214, 107, .35); }
+.qtext { font-size: 1rem; font-weight: 600; line-height: 1.5; margin: .2rem 0 .6rem; }
+.qopts { display: grid; gap: .45rem; }
+.qopt { text-align: left; min-height: 2.9rem; padding: .55rem .8rem; border-radius: .7rem; border: 1px solid rgba(170, 190, 255, .28);
+  background: rgba(226, 234, 255, .06); color: var(--scene-ink); font-size: .95rem; line-height: 1.4; cursor: pointer; }
+.qopt:hover { background: rgba(226, 234, 255, .12); }
+.qopt.ok { border-color: #6fd39a; background: rgba(111, 211, 154, .2); }
+.qopt.bad { border-color: #ff8a7a; background: rgba(255, 138, 122, .15); opacity: .7; }
+.qfb { margin: .6rem 0 0; font-size: .9rem; line-height: 1.5; color: var(--scene-ink-2); }
+.qfb.ok { color: #9ee6bb; } .qfb.bad { color: #ffb3a8; }
+.qfacts { margin-top: .8rem; padding: .7rem .8rem; border-radius: .7rem; background: rgba(226, 234, 255, .06); }
+.qfacts b { color: #ffd66b; font-size: .85rem; }
+.qbtn { min-height: 2.9rem; padding: 0 1.2rem; border-radius: .8rem; border: 0; background: #ffd66b; color: #1b1606; font-weight: 700;
+  font-size: 1rem; cursor: pointer; margin-top: .9rem; width: 100%; }
+.qbtn:disabled { background: rgba(226, 234, 255, .14); color: rgba(226, 234, 255, .45); cursor: default; }
+.qbtn.ghost { background: transparent; color: var(--scene-ink); border: 1px solid rgba(170, 190, 255, .35); width: auto; }
+body.quest-on #dock [data-view], body.quest-on #seasonBtn, body.quest-on #moreBtn, body.quest-on #panelBtn,
+body.quest-on #nasaBtn, body.quest-on .tour-btn, body.quest-on #labBtn { display: none !important; }
+
+#orderBox {
+  position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(5.4rem + env(safe-area-inset-bottom, 0px));
+  width: min(64rem, calc(100% - 1.6rem)); padding: 1rem 1.1rem; border-radius: 1.1rem; background: rgba(9, 16, 38, .9);
+  border: 1px solid rgba(170, 190, 255, .24); color: var(--scene-ink); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  box-shadow: 0 1rem 2.6rem rgba(0, 0, 0, .45); user-select: none; -webkit-user-select: none;
+}
+#orderBox[hidden] { display: none; }
+.ob-head b { display: block; font-size: 1.15rem; } .ob-head span { font-size: .85rem; color: var(--scene-ink-2); }
+.ob-row { display: flex; align-items: stretch; gap: .5rem; margin: .8rem 0; }
+.ob-sun { flex: none; width: 4.6rem; border-radius: .8rem; display: grid; place-items: end center; padding-bottom: .5rem; font-weight: 700;
+  color: #fff; text-shadow: 0 1px 6px rgba(0, 0, 0, .8); background: #1a0d02 no-repeat; background-size: 15rem 15rem;
+  background-position: -11rem 50%; box-shadow: inset 0 0 1.4rem rgba(255, 150, 40, .35); overflow: hidden; }
+.ob-slots { flex: 1; display: grid; grid-template-columns: repeat(8, 1fr); gap: .45rem; }
+.ob-slot { position: relative; min-height: 5.6rem; border-radius: .8rem; border: 2px dashed rgba(170, 190, 255, .35);
+  display: grid; place-items: center; padding-top: 1rem; }
+.ob-slot::before { content: attr(data-n); position: absolute; top: .25rem; left: .45rem; font-size: .75rem; color: var(--scene-ink-2); }
+.ob-slot.hover { border-color: #ffd66b; background: rgba(255, 214, 107, .08); }
+.ob-slot.ok { border-style: solid; border-color: #6fd39a; background: rgba(111, 211, 154, .12); }
+.ob-slot.bad { border-style: solid; border-color: #ff8a7a; background: rgba(255, 138, 122, .1); }
+.ob-pool { display: flex; flex-wrap: wrap; gap: .45rem; min-height: 4.2rem; padding: .5rem; border-radius: .8rem; background: rgba(226, 234, 255, .05); }
+.chip { touch-action: none; display: flex; flex-direction: column; align-items: center; gap: .25rem; width: 5.6rem; padding: .45rem .2rem;
+  border-radius: .8rem; border: 1px solid rgba(170, 190, 255, .3); background: rgba(20, 30, 60, .95); color: var(--scene-ink);
+  font-size: .9rem; font-weight: 600; cursor: grab; }
+.ob-slot .chip { width: 100%; }
+.chip.sel { outline: 3px solid #ffd66b; outline-offset: 1px; }
+.chip.dragging { position: relative; z-index: 50; cursor: grabbing; box-shadow: 0 .8rem 1.6rem rgba(0, 0, 0, .5); }
+.chip .ball { width: auto; max-width: 100%; height: 3.1rem; object-fit: contain; pointer-events: none; -webkit-user-drag: none; filter: drop-shadow(0 .15rem .35rem rgba(0, 0, 0, .55)); }
+.ob-foot { display: flex; align-items: center; gap: .6rem; margin-top: .6rem; }
+.ob-foot .ob-fb { flex: 1; margin: 0; font-size: .92rem; color: var(--scene-ink-2); }
+.ob-foot .ob-fb.ok { color: #9ee6bb; } .ob-foot .ob-fb.bad { color: #ffb3a8; }
+.ob-foot .qbtn { width: auto; margin: 0; }
+@media (orientation: portrait) {
+  body.quest-on #toast { bottom: auto; top: calc(6.5rem + env(safe-area-inset-top, 0px)); }
+  #quest { left: .8rem; right: .8rem; top: auto; bottom: calc(6.2rem + env(safe-area-inset-bottom, 0px)); width: auto; max-height: 46%; }
+  .ob-slots { grid-template-columns: repeat(4, 1fr); }
+  .chip { width: 4.6rem; font-size: .82rem; }
+}
+
+/* 읽고 빈칸 채우기 */
+.qread { font-size: 1rem; line-height: 2.25; margin: .2rem 0 .5rem; }
+.blank { display: inline-block; min-width: 4.4rem; min-height: 1.9rem; margin: 0 .15rem; padding: 0 .45rem; vertical-align: middle;
+  border-radius: .45rem; border: 0; border-bottom: 2px dashed rgba(255, 214, 107, .75); background: rgba(255, 214, 107, .1);
+  color: #ffe6a6; font: inherit; font-weight: 700; line-height: 1.9rem; text-align: center; cursor: pointer; }
+.blank.sel { outline: 2px solid #ffd66b; outline-offset: 1px; }
+.blank.bad { border-bottom-color: #ff8a7a; background: rgba(255, 138, 122, .18); color: #ffc2b8; }
+.blank.ok { border-bottom: 2px solid #6fd39a; background: rgba(111, 211, 154, .15); color: #b8f0cc; cursor: default; }
+.qbank { display: flex; flex-wrap: wrap; gap: .45rem; margin: .3rem 0 .2rem; }
+.word { min-height: 2.7rem; padding: 0 .95rem; border-radius: .7rem; border: 1px solid rgba(170, 190, 255, .4); background: rgba(226, 234, 255, .08);
+  color: var(--scene-ink); font-size: .98rem; font-weight: 600; cursor: pointer; }
+.word:active { transform: scale(.97); }
+.qhint { font-size: .8rem; color: var(--scene-ink-2); margin: .4rem 0 0; }
+details.qdet { margin: .5rem 0 .2rem; font-size: .88rem; color: var(--scene-ink-2); }
+details.qdet summary { cursor: pointer; color: #ffd66b; }
+.qbtn.full { width: 100%; margin-top: .5rem; }
+/* 우주 실험실 */
+.qx { margin-left: auto; width: 2.3rem; height: 2.3rem; border-radius: .6rem; border: 0; background: rgba(226, 234, 255, .1);
+  color: var(--scene-ink); font-size: 1.3rem; line-height: 1; cursor: pointer; }
+.labtabs { display: flex; gap: .3rem; margin-bottom: .8rem; }
+.labtab { flex: 1; min-height: 2.7rem; padding: 0 .35rem; border-radius: .6rem; border: 1px solid rgba(170, 190, 255, .3); background: transparent;
+  color: var(--scene-ink-2); font-size: .82rem; font-weight: 650; cursor: pointer; }
+.labtab.on { background: #ffd66b; color: #1b1606; border-color: #ffd66b; }
+.labp { font-size: .93rem; line-height: 1.55; margin: .2rem 0 .6rem; }
+.labin { display: flex; align-items: center; gap: .6rem; font-size: .92rem; margin: .5rem 0; }
+.labin input[type=date] { flex: 1; min-height: 2.7rem; border-radius: .6rem; border: 1px solid rgba(170, 190, 255, .4);
+  background: rgba(226, 234, 255, .08); color: var(--scene-ink); padding: 0 .6rem; font-size: 1rem; color-scheme: dark; }
+.labin input[type=range] { flex: 1; accent-color: #7fb8ff; }
+.labin output { min-width: 4.6rem; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+#quest .readouts { margin: .6rem 0; }
+#quest .readouts dt { color: var(--scene-ink-2); }
+#quest .readouts dd { color: var(--scene-ink); }
+#quest .readouts dd small { color: var(--scene-ink-2); }
+#quest .note { color: var(--scene-ink-2); font-size: .84rem; line-height: 1.5; }
+.ages { width: 100%; border-collapse: collapse; font-size: .92rem; margin-bottom: .4rem; }
+.ages td { padding: .32rem .2rem; border-bottom: 1px solid rgba(170, 190, 255, .12); }
+.ages td:last-child { text-align: right; font-weight: 700; color: #ffe6a6; font-variant-numeric: tabular-nums; }
+.wibtns { display: grid; grid-template-columns: repeat(3, 1fr); gap: .35rem; margin: .3rem 0 .4rem; }
+.wibtn { min-height: 2.6rem; border-radius: .6rem; border: 1px solid rgba(170, 190, 255, .3); background: rgba(226, 234, 255, .06);
+  color: var(--scene-ink); font-size: .86rem; cursor: pointer; }
+.wibtn.on { border-color: #7fb8ff; background: rgba(127, 184, 255, .22); }
+
 #toast {
   position: absolute; left: 50%; bottom: calc(8.6rem + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, .5rem);
   padding: .6rem 1.1rem; border-radius: .8rem; background: rgba(8, 14, 34, .82); color: var(--scene-ink); font-size: .95rem;
@@ -313,7 +439,7 @@ p.formula { text-align: center; font-size: 1.08rem; margin: .5rem 0 .9rem; color
   <div id="labels" aria-hidden="true"></div>
 
   <header id="almanac">
-    <h1>지구의 자전·공전과 시공간의 휘어짐</h1>
+    <h1>태양계 탐험</h1>
     <p class="date" id="dateText">&nbsp;</p>
     <p class="time" id="timeText">&nbsp;</p>
     <div id="legend">
@@ -327,10 +453,7 @@ p.formula { text-align: center; font-size: 1.08rem; margin: .5rem 0 .9rem; color
     </div>
   </header>
 
-  <button id="grToggle" type="button" role="switch" aria-checked="false" title="시공간 휘어짐 켜기/끄기 (G)">
-    <span class="track"><span class="knob"></span></span>
-    <span><b>시공간 휘어짐</b><small id="grState">꺼짐 · 평평하게 그린 공간</small></span>
-  </button>
+
 
   <button class="tour-btn prev" id="tourPrev" type="button" title="이전 천체 ([)">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><span id="tourPrevName">해왕성</span>
@@ -344,14 +467,22 @@ p.formula { text-align: center; font-size: 1.08rem; margin: .5rem 0 .9rem; color
     <span>NASA에서 <b id="nasaName">지구</b> 비교하기</span>
   </button>
 
+  <section id="quest" aria-live="polite"></section>
+  <section id="orderBox" hidden>
+    <div class="ob-head"><b>행성을 태양에서 가까운 순서대로 놓아 보세요</b><span>카드를 끌어다 칸에 놓거나, 카드를 누른 뒤 칸을 누르세요.</span></div>
+    <div class="ob-row"><div class="ob-sun">태양</div><div class="ob-slots" id="obSlots"></div></div>
+    <div class="ob-pool" id="obPool"></div>
+    <div class="ob-foot"><p class="ob-fb" id="obFb"></p><button type="button" class="qbtn ghost" id="obShuffle">다시 섞기</button><button type="button" class="qbtn" id="obCheck">확인</button></div>
+  </section>
+
   <nav id="dock" aria-label="시간과 시점">
     <div class="grp">
       <button class="btn icon" id="playBtn" type="button" aria-label="일시 정지" title="재생/일시 정지 (Space)">
         <svg viewBox="0 0 24 24" id="playIcon" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
       </button>
       <label class="speed"><span class="sr">시간이 흐르는 빠르기</span>
-        <input type="range" id="speed" min="0" max="9" step="1" value="5" aria-describedby="speedOut">
-        <output id="speedOut" for="speed">1초에 1일</output>
+        <input type="range" id="speed" min="0" max="9" step="1" value="4" aria-describedby="speedOut">
+        <output id="speedOut" for="speed">1초에 6시간</output>
       </label>
       <button class="btn" id="nowBtn" type="button" title="오늘 이 시각으로 (N)">지금</button>
     </div>
@@ -363,6 +494,8 @@ p.formula { text-align: center; font-size: 1.08rem; margin: .5rem 0 .9rem; color
       <button class="btn" type="button" id="topBtn" aria-pressed="false" title="위에서 내려다보기 (T)">위에서</button>
     </div>
     <span class="sep" aria-hidden="true"></span>
+    <button class="btn" type="button" id="labBtn" aria-pressed="false" title="우주 실험실">실험실</button>
+    <button class="btn" type="button" id="seasonBtn" aria-pressed="false" title="춘분·하지·추분·동지 위치와 근일점·원일점 보기 (V)">계절 보기</button>
     <button class="btn" type="button" id="moreBtn" aria-pressed="false" title="천체의 특징 말풍선 (M)">더보기</button>
     <button class="btn" type="button" id="panelBtn" aria-pressed="true" aria-controls="panel" title="자세히 보기 (I)">자세히</button>
     <button class="btn icon" type="button" id="fsBtn" aria-pressed="false" aria-label="전체 화면" title="전체 화면 (F)">
@@ -381,6 +514,7 @@ p.formula { text-align: center; font-size: 1.08rem; margin: .5rem 0 .9rem; color
   </div>
 
   <section class="pane" id="pane-obs" role="tabpanel" aria-labelledby="tab-obs">
+    <div id="focusCard"></div>
     <h2>지금 지구는</h2>
     <dl class="readouts">
       <div><dt>태양까지 거리</dt><dd id="rDist">&nbsp;</dd></div>
@@ -409,13 +543,9 @@ p.formula { text-align: center; font-size: 1.08rem; margin: .5rem 0 .9rem; color
     </div>
     <p class="note">누르면 가장 가까운 다음 순간으로 이동한 뒤 멈춰요. 프레젠터의 다음/이전 버튼(PageDown/PageUp)으로도 넘길 수 있어요.</p>
 
-    <h2>시공간 휘어짐의 과장 정도</h2>
-    <div class="row"><input type="range" id="grAmp" min="0" max="1000" step="1" aria-label="휘어짐 과장 정도"><output id="grAmpOut" for="grAmp"></output></div>
-    <p class="note">지구 궤도에서 실제 휘어짐은 약 1억분의 1(10<sup>−8</sup>) 수준이라 그대로 그리면 보이지 않아요. 화면의 깊이는 실제보다 이만큼 과장한 값이에요.</p>
-
     <h2>화면에 표시</h2>
     <div class="checks">
-      <label class="check"><input type="checkbox" id="tSeasons" checked> 계절별 지구 위치와 근일점·원일점</label>
+      <label class="check"><input type="checkbox" id="tSeasons"> 계절별 지구 위치와 근일점·원일점</label>
       <label class="check"><input type="checkbox" id="tNames" checked> 천체 이름</label>
       <label class="check"><input type="checkbox" id="tOrbits" checked> 궤도</label>
       <label class="check"><input type="checkbox" id="tAxis" checked> 지구 자전축·적도·자전 방향</label>
@@ -446,7 +576,7 @@ p.formula { text-align: center; font-size: 1.08rem; margin: .5rem 0 .9rem; color
     <p id="cmpText" class="note"></p>
     <button class="btn wide" type="button" id="cmpNasa" hidden>NASA 'Eyes'에서 <b id="cmpNasaName">지구</b> 비교하기 ↗</button>
     <p class="note">NASA의 ‘Eyes on the Solar System’이 새 창에서 열려요. 고른 천체와 다른 천체를 나란히 놓고 크기·질량·중력·온도를 견주어 볼 수 있어요. 인터넷이 될 때만 열려요.</p>
-    <p class="note">부피는 지름을 세제곱해서 구한 값이에요. 지름이 2배면 부피는 8배가 돼요.</p>
+    <p class="note">부피는 지름을 세제곱해서 구한 값이에요. 지름이 2배면 부피는 8배가 돼요. 목성·토성처럼 적도가 불룩한 행성은 부피를 바르게 견주려고 평균 지름을 썼어요.</p>
 
     <h2>태양에서의 평균 거리</h2>
     <table id="distTable"><thead><tr><th>행성</th><th>AU</th><th>km</th><th>햇빛 도착</th></tr></thead><tbody></tbody></table>
@@ -517,8 +647,15 @@ p.formula { text-align: center; font-size: 1.08rem; margin: .5rem 0 .9rem; color
     </div>
     <div class="svgwrap"><svg id="pdChart" viewBox="0 0 360 124" role="img" aria-label="행성 비교 막대그래프"></svg></div>
     <p class="note">파란색이 지구형, 주황색이 목성형이에요. 질량과 반지름은 지구를 1로 본 값이에요.</p>
-    <table id="pdTable"><thead><tr><th>행성</th><th>질량</th><th>반지름</th><th>위성 수</th><th>고리</th><th>표면</th></tr></thead><tbody></tbody></table>
-    <p class="note">위성 수는 2026년 기준이에요. 교과서의 숫자(목성 95개, 토성 146개)와 다른 것은 위성이 계속 발견되기 때문이에요. 토성은 2025년에 128개, 2026년에 11개가 더 확인되어 293개가 되었어요. ‘자료는 바뀔 수 있다’는 이야기를 나누기 좋은 지점이에요.</p>
+    <table id="pdTable"><thead><tr><th>행성</th><th>질량</th><th>반지름</th><th>위성<br><small>2023</small></th><th>위성<br><small>2026</small></th><th>고리</th><th>표면</th></tr></thead><tbody></tbody></table>
+    <p class="note">위성 수는 교과서(2023년 미국항공우주국 자료)와 2026년 값을 함께 적었어요. 막대그래프의 ‘위성 수’를 누르면 두 해를 나란히 볼 수 있어요.</p>
+    <table id="moonHist"><thead><tr><th>행성</th><th>2023<br><small>교과서</small></th><th>2026</th><th>어떻게 늘었나</th></tr></thead><tbody>
+      <tr><td>목성</td><td>95</td><td>115</td><td>2025년 4월 97 → 2026년 3월 101 → 4월 115</td></tr>
+      <tr><td>토성</td><td>146</td><td>293</td><td>2025년 3월 128개가 한꺼번에 확인되어 274 → 2026년 3월 285 → 6월 293</td></tr>
+      <tr><td>천왕성</td><td>27</td><td>29</td><td>2024년 2월 28 → 2025년 8월 제임스 웹 망원경으로 29</td></tr>
+      <tr><td>해왕성</td><td>14</td><td>16</td><td>2024년 2월 2개 확인</td></tr>
+    </tbody></table>
+    <p class="note">새로 찾은 위성은 원래부터 있었지만 지름 1~몇 km로 너무 작고 어두워 보이지 않던 것들이에요. 행성이 달라진 게 아니라 관측 기술이 좋아진 거예요. 앞으로도 늘어날 수 있어서, ‘과학 자료는 언제 조사한 값인지가 중요하다’는 이야기를 나누기 좋아요.</p>
 
     <h2>태양의 표면과 대기</h2>
     <p>태양에서 밝게 보이는 둥근 표면을 <strong>광구</strong>라고 해요. 온도는 약 6,000 °C이고, 쌀알을 뿌려 놓은 것 같은 쌀알 무늬와 어두운 흑점이 보여요.</p>
@@ -547,21 +684,9 @@ p.formula { text-align: center; font-size: 1.08rem; margin: .5rem 0 .9rem; color
     <p>태양 지름은 지구의 109배이고, 태양까지의 거리는 태양 지름의 약 107배예요. 실제 비율 그대로 그리면 행성은 한 점보다도 작아져요.</p>
     <p>그래서 이 자료는 <strong>거리는 언제나 실제 비율</strong>로 두고, 크기만 확대해서 보여 줘요. 확대 배율은 화면 왼쪽 위에 늘 적혀 있어요. ‘실제 크기’를 고른 뒤 지구를 누르면 진짜 비율의 지구까지 다가가 볼 수 있어요.</p>
 
-    <h2>시공간의 휘어짐</h2>
-    <p>일반 상대성 이론에 따르면 질량은 둘레의 시공간을 휘게 하고, 행성은 휘어진 시공간에서 가장 ‘곧은’ 길(측지선)을 따라 움직여요. 우리가 중력이라고 부르는 것이 바로 이것이에요.</p>
-    <ul>
-      <li>격자의 깊이는 태양의 중력 퍼텐셜(−GM/r)에 비례하게 그렸어요. 안쪽일수록 비탈이 가파르고, 그만큼 행성도 빨리 돌아요(수성 초속 47 km, 지구 30 km, 해왕성 5.4 km).</li>
-      <li>이 ‘고무판’은 비유예요. 실제로는 공간만이 아니라 <strong>시간도</strong> 휘어요(태양 표면에서는 시계가 약 100만분의 2만큼 느리게 가요). 고무판 위의 공이 굴러 내려가는 것은 판 아래쪽으로 당기는 지구 중력 덕분이라는 점도 비유의 약점이에요.</li>
-      <li>증거: 수성의 근일점이 100년에 43″씩 더 도는 현상, 1919년 일식 때 태양 가장자리를 지난 별빛이 1.75″ 휘어진 관측, GPS 위성 시계를 하루 약 38 μs씩 고쳐 주는 일.</li>
-    </ul>
-
-    <h3>태양만 시공간을 휘게 할까요?</h3>
-    <p>아니에요. 질량이 있는 것은 모두 시공간을 휘게 하고, 약한 중력에서는 여러 천체가 만든 휘어짐이 그대로 더해져요. 태양이 태양계 질량의 99.86%라서 태양계 규모의 그림에서는 태양의 우물만 보이는 거예요. 목성은 태양 질량의 1/1047, 지구는 1/33만이에요.</p>
-    <p>행성의 우물은 깊지만 폭이 아주 좁아서 그 행성 크기 규모에서만 보여요. 휘어짐을 켠 채 행성을 누르거나 ‘지구’ 시점으로 가면, 태양 우물과 같은 배율(깊이÷거리를 실제의 약 3,000만 배)로 그린 그 행성의 우물이 나타나요. 목성은 반지름의 약 0.6배 깊이로 또렷하지만, 지구는 약 0.02배라 거의 보이지 않아요. 표면에서의 휘어짐(Φ/c² = GM/Rc²)이 목성은 2×10<sup>−8</sup>, 지구는 7×10<sup>−10</sup>로 30배쯤 차이 나기 때문이에요.</p>
-    <p class="note">휘어짐을 켜면 화면의 높이는 ‘우물의 깊이’를 뜻해요. 그래서 그동안에는 궤도면의 작은 기울기(수성 7°, 나머지는 3.4° 이하)를 펴서 모든 행성을 한 판 위에 올려놓고, 끄면 원래의 3차원 위치로 돌아가요.</p>
-    <p class="note">행성은 자기가 만든 우물이 아니라 태양이 만든 우물을 따라 공전해요. 자기 자신의 중력은 자기를 끌어당기지 못하기 때문이에요.</p>
-
     <h2>선생님 메모</h2>
+    <p class="note">탐험 진행 단계는 태블릿에 저장돼요. 다음 시간에 열면 ‘지난번에 이어서’ 버튼으로 그 천체부터 다시 시작할 수 있어요. 탐험을 마치면 ‘우주 실험실’(내 생일의 태양계, 만약에 실험실, 진짜 크기 체험)이 열리고, 아래 막대의 ‘실험실’ 버튼으로 다시 열 수 있어요.</p>
+    <p class="note">처음 열면 ‘탐험’이 시작돼요. 태양계 전체를 본 뒤 행성 순서를 맞히고, 태양 → 수성 → … → 해왕성 순서로 관찰하며 문제를 맞혀야 다음 천체가 열려요. 끝나면 모든 기능을 자유롭게 쓸 수 있어요. 시연할 때는 탐험 카드 제목을 1초 넘게 누르고 있거나 Shift + → 를 누르면 다음 단계로 건너뛰어요.</p>
     <p class="note">달의 위치는 실제로 계산해서 위상과 거리가 맞아요(오차 약 0.2°). 달 무늬도 비의 바다, 고요의 바다처럼 실제 위치에 맞췄고 티코의 빛줄기도 넣었어요. 다른 위성은 공전 주기만 실제와 같고 궤도 위의 위치는 임의로 두었어요. 위성 궤도도 거리는 실제 비율로 그리는 것이 원칙이에요. 다만 행성을 1,000배로 키우면 달이 지구 안에 묻히기 때문에, 그럴 때만 위성이 행성 바로 밖에 보이도록 궤도를 좁히고 화면 왼쪽에 몇 배로 좁혔는지 적어 둬요. ‘실제 크기’로 두면 달까지의 실제 거리(지구 지름의 30배)를 그대로 볼 수 있어요.</p>
     <p class="note">행성 표면 무늬는 NASA·ESA의 관측 사진을 참고해 코드로 그린 그림이에요(사진을 붙인 것이 아니에요). 화성의 어두운 무늬는 시르티스 메이저·아키달리아처럼 실제 위치에 맞췄고, 목성의 대적점과 흰 타원, 토성 고리의 카시니 간극, 수성의 광조 분화구도 실제 모습을 따랐어요. 토성 고리가 행성에 드리우는 그림자와 행성이 고리에 드리우는 그림자는 햇빛 방향에 따라 계산해 그려요.</p>
     <p class="note">천왕성과 해왕성 색은 2024년 재보정 연구를 따랐어요. 보이저 2호가 보낸 해왕성 사진은 대비를 크게 높인 것이라 실제보다 훨씬 진한 파랑이었고, 실제로는 두 행성 모두 옅은 청록색이며 해왕성이 조금 더 푸르러요. 교과서 사진과 색이 다른 까닭을 이야기해 볼 수 있어요.</p>
@@ -575,7 +700,6 @@ p.formula { text-align: center; font-size: 1.08rem; margin: .5rem 0 .9rem; color
       <kbd>← →</kbd><span>시간 빠르기 낮추기 / 높이기</span>
       <kbd>1 2 3</kbd><span>지구 / 지구 궤도 / 태양계 전체</span>
       <kbd>T</kbd><span>위에서 내려다보기</span>
-      <kbd>G</kbd><span>시공간 휘어짐 켜기 / 끄기 (프레젠터의 화면 끄기 버튼도 같아요)</span>
       <kbd>S</kbd><span>크기 배율 바꾸기</span>
       <kbd>PageDown / PageUp</kbd><span>다음 / 이전 분점·지점으로</span>
       <kbd>N</kbd><span>지금 시각으로</span>
@@ -586,6 +710,7 @@ p.formula { text-align: center; font-size: 1.08rem; margin: .5rem 0 .9rem; color
       <kbd>M</kbd><span>더보기: 천체 옆에 특징 말풍선</span>
       <kbd>C</kbd><span>NASA ‘Eyes on the Solar System’에서 비교하기(새 창, 인터넷 필요)</span>
       <kbd>P</kbd><span>티티우스·보데 예측 고리</span>
+      <kbd>V</kbd><span>계절 보기: 춘분·하지·추분·동지 위치와 근일점·원일점</span>
       <kbd>F</kbd><span>전체 화면(자세히 패널은 접혀요)</span>
     </div>
     <p class="note">한/영 키가 한글 상태여도 단축키가 그대로 작동해요. 천체를 누르면 그 천체를 따라가며 다가가요.</p>
@@ -1473,9 +1598,37 @@ const TEX = (() => {
     return c;
   }
 
-  function venus(W, H) {     // 눈으로 보면 거의 무늬 없는 노란빛 크림색
-    return banded(W, H, [[-90, '#d5c39c'], [-55, '#e4d4ac'], [-20, '#eee0bb'], [0, '#f1e5c4'], [20, '#ecdeb8'], [55, '#e0d0a6'], [90, '#d3c199']],
-      { seed: 41, turb: 7, streak: 0.05 });
+  function venus(W, H) {     // 두꺼운 구름: 부드러운 소용돌이와, 적도를 따라 V자로 휘는 옅은 줄무늬
+    const c = canvas(W, H), x2 = c.getContext('2d'), img = x2.createImageData(W, H), d = img.data;
+    const nA = noiseGrid(41, 5, 3, 256, 128, 4), nB = noiseGrid(43, 14, 7, 256, 128, 4), nC = noiseGrid(47, 3, 2, 128, 64, 2);
+    const light = [238, 218, 168], mid = [214, 184, 128], dark = [176, 144, 94];
+    for (let y = 0; y < H; y++) {
+      const v = (y + 0.5) / H, lat = 90 - v * 180, al = Math.abs(lat);
+      for (let x = 0; x < W; x++) {
+        const u = (x + 0.5) / W, a = nA(u, v);
+        const wu = (u + (a - 0.5) * 0.09 + 1) % 1, wv = Math.min(1, Math.max(0, v + (nA((u + 0.37) % 1, v) - 0.5) * 0.06));
+        const n = nB(wu, wv), big = nC(u, v);
+        const phase = al * 2.0 + u * 360 * 0.5 + (a - 0.5) * 90;                       // 남북이 거울처럼 기울어 V자가 됨
+        const band = Math.sin(phase * Math.PI / 180 * 5.5) * Math.exp(-Math.pow(al / 55, 2));
+        let tt = 0.53 + 0.16 * band + 0.38 * (n - 0.5) + 0.34 * (big - 0.5);
+        tt = tt + (0.62 - tt) * smooth(58, 84, al) * 0.6;                              // 극지방은 밝고 고르게
+        const col = tt < 0.5 ? mix(dark, mid, clamp01(tt * 2)) : mix(mid, light, clamp01((tt - 0.5) * 2));
+        const i = (y * W + x) * 4;
+        d[i] = col[0]; d[i + 1] = col[1]; d[i + 2] = col[2]; d[i + 3] = 255;
+      }
+    }
+    x2.putImageData(img, 0, 0);
+    // 구름이라 경계를 흐리게: 가로로 세 장 이어 붙인 뒤 흐리고 가운데만 잘라 써야 이음매가 안 생김
+    const wide = canvas(W * 3, H), wx = wide.getContext('2d');
+    for (let k = 0; k < 3; k++) wx.drawImage(c, k * W, 0);
+    const soft = canvas(W * 3, H), sx = soft.getContext('2d');
+    sx.filter = 'blur(' + Math.max(1, Math.round(W / 300)) + 'px)';
+    sx.drawImage(wide, 0, 0);
+    if (!sx.filter || sx.filter === 'none') return c;                                 // 흐림을 지원하지 않는 브라우저
+    const out = canvas(W, H), ox = out.getContext('2d');
+    ox.drawImage(soft, W, 0, W, H, 0, 0, W, H);
+    ox.drawImage(c, 0, 0, W, 2, 0, 0, W, 2); ox.drawImage(c, 0, H - 2, W, 2, 0, H - 2, W, 2);   // 극 쪽 가장자리 보정
+    return out;
   }
 
   function sun(W, H) {
@@ -1744,11 +1897,25 @@ void main() {
   gl_Position = projectionMatrix * mv;
   #include <logdepthbuf_vertex>
 }`;
+const HAZE_FS = `
+#include <common>
+#include <logdepthbuf_pars_fragment>
+uniform vec3 uSun; uniform vec3 uCol;
+varying vec2 vUv; varying vec3 vN; varying vec3 vP; varying vec3 vLoc;
+void main() {
+  #include <logdepthbuf_fragment>
+  vec3 n = normalize(vN), v = normalize(-vP);
+  float mu = clamp(dot(n, v), 0.0, 1.0);
+  float rim = pow(1.0 - mu, 2.4) * smoothstep(0.0, 0.25, mu);        // 가장자리에서 옅게 번지는 빛
+  float lit = smoothstep(-0.3, 0.5, dot(n, uSun));
+  gl_FragColor = vec4(uCol * rim * lit, 1.0);
+}`;
 const PLANET_FS = `
 #include <common>
 #include <logdepthbuf_pars_fragment>
 uniform sampler2D map; uniform vec3 uSun; uniform float uAmb; uniform vec3 uRim; uniform float uAlpha;
 uniform float uLimb; uniform float uRing; uniform sampler2D uRingTex; uniform vec2 uRingR; uniform vec3 uSunL; uniform vec3 uOb;
+uniform float uTerm;
 varying vec3 vLoc;
 varying vec2 vUv; varying vec3 vN; varying vec3 vP;
 void main() {
@@ -1757,6 +1924,7 @@ void main() {
   vec3 v = normalize(-vP);
   float ndl = dot(n, uSun);
   float diff = clamp((ndl + 0.035) / 1.035, 0.0, 1.0);
+  if (uTerm > 0.0) diff = smoothstep(-uTerm, uTerm * 1.6, ndl) * (0.3 + 0.7 * max(ndl, 0.0));   // 두꺼운 대기: 흐릿한 경계
   float shade = 1.0;
   if (uRing > 0.5 && abs(uSunL.y) > 0.002) {              // 고리가 행성에 드리우는 그림자
     vec3 P = vLoc * uOb;
@@ -1878,10 +2046,10 @@ const SPEEDS = [
 ];
 const JD_MIN = jdFromMs(Date.UTC(1800, 0, 1)), JD_MAX = jdFromMs(Date.UTC(2200, 0, 1));
 const st = {
-  jd: jdFromMs(Date.now()), playing: true, speed: 5,
+  jd: jdFromMs(Date.now()), playing: true, speed: 4,
   kp: 1000, sunSame: false, preset: 'planets',
   gr: { on: false, amt: 0, op: 0, A: 0.3, At: 0.3 },
-  show: { seasons: true, names: true, orbits: true, axis: true, city: true, more: false, belt: true, tb: false, moons: true },
+  show: { seasons: false, names: true, orbits: true, axis: true, city: true, more: false, belt: true, tb: false, moons: true },
   countStart: 0, view: 'orbit', top: false, prevPol: 1.0,
 };
 st.countStart = st.jd;
@@ -1914,7 +2082,7 @@ function planetMat(map, amb, rim, alpha, limb) {
     uniforms: { map: { value: map }, uSun: { value: new THREE.Vector3(1, 0, 0) }, uAmb: { value: amb },
       uRim: { value: new THREE.Color(rim || 0x000000) }, uAlpha: { value: a }, uLimb: { value: limb || 0 },
       uRing: { value: 0 }, uRingTex: { value: ringTex }, uRingR: { value: new THREE.Vector2(1, 2) },
-      uSunL: { value: new THREE.Vector3(0, 1, 0) }, uOb: { value: new THREE.Vector3(1, 1, 1) } },
+      uSunL: { value: new THREE.Vector3(0, 1, 0) }, uOb: { value: new THREE.Vector3(1, 1, 1) }, uTerm: { value: 0 } },
     vertexShader: BODY_VS, fragmentShader: PLANET_FS, transparent: a < 1, depthWrite: a >= 1,
   });
 }
@@ -2074,13 +2242,21 @@ function buildScene() {
     jupiter: TEX.jupiter, saturn: TEX.saturn, uranus: TEX.uranus, neptune: TEX.neptune,
   };
   ringTex = texFrom(TEX.rings(1024));
-  const LIMB = { jupiter: 0.5, saturn: 0.5, uranus: 0.45, neptune: 0.45, venus: 0.2 };
+  const LIMB = { jupiter: 0.5, saturn: 0.5, uranus: 0.45, neptune: 0.45, venus: 0.3 };
   for (const b of BODIES) {
     b.group = new THREE.Group(); world.add(b.group);
     if (b.id === 'earth') continue;
     b.orient = new THREE.Group(); b.group.add(b.orient);
     b.orient.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), poleDir(b.pole[0], b.pole[1]));
     b.mat = planetMat(texFrom(texOf[b.id](), true), 0.035, b.id === 'venus' ? 0x3b3222 : 0x000000, 1, LIMB[b.id] || 0);
+    if (b.id === 'venus') {                                            // 금성: 두꺼운 대기
+      b.mat.uniforms.uTerm.value = 0.16;
+      const haze = new THREE.Mesh(sphereLo, new THREE.ShaderMaterial({
+        uniforms: { uSun: b.mat.uniforms.uSun, uCol: { value: new THREE.Color(0xffe2a6).multiplyScalar(0.5) } },
+        vertexShader: BODY_VS, fragmentShader: HAZE_FS, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+      haze.scale.setScalar(1.03);
+      b.group.add(haze);
+    }
     b.mesh = new THREE.Mesh(sphereLo, b.mat);
     if (b.eq) b.mesh.scale.set(b.eq / b.R, b.po / b.R, b.eq / b.R);        // 적도 쪽이 불룩한 모양(부피는 평균 반지름과 같음)
     b.orient.add(b.mesh);
@@ -2469,7 +2645,7 @@ const FACTS = {
   venus: ['크기와 질량이 지구와 비슷(반지름 0.95배)', '두꺼운 이산화 탄소 대기로 표면 약 465 °C', '다른 행성과 반대로 243일에 한 번 자전', '위성 없음, 고리 없음'],
   earth: ['지름 12,742 km, 표면의 약 71%가 바다', '질소와 산소로 이루어진 대기', '생명체가 확인된 유일한 행성', '위성 1개(달), 자전축이 23.4° 기울어 계절이 생김'],
   mars: ['지름 6,779 km, 지구의 0.53배', '붉은 토양과 거대한 화산, 물이 흐른 흔적', '극지방에 얼음과 드라이아이스로 된 극관', '위성 2개, 고리 없음'],
-  jupiter: ['가장 큰 행성, 지구의 11배(질량 318배)', '주로 수소와 헬륨, 가로줄 무늬', '지구보다 큰 소용돌이 대적점', '희미한 고리, 위성 101개(2026년)'],
+  jupiter: ['가장 큰 행성, 지구의 11배(질량 318배)', '주로 수소와 헬륨, 가로줄 무늬', '지구보다 큰 소용돌이 대적점', '희미한 고리, 위성 115개(2026년)'],
   saturn: ['두 번째로 큰 행성, 지구의 9.1배', '얼음과 암석으로 된 뚜렷한 고리', '평균 밀도가 물보다 작음', '위성 293개(2026년)'],
   uranus: ['지구의 4.0배, 메테인 때문에 청록색', '자전축이 98° 기울어 누운 채로 공전', '희미한 고리가 있음', '위성 29개(2026년)'],
   moon: ['지구의 하나뿐인 위성, 지름 3,475 km', '지구에서 평균 38만 4천 km 떨어져 있음', '지구 지름의 30배쯤 되는 거리',
@@ -2485,14 +2661,14 @@ const FACTS = {
   neptune: ['태양에서 가장 먼 행성, 공전 주기 165년', '대흑점(1989년 관측, 지금은 사라짐)', '태양계에서 가장 센 바람(초속 약 600 m)', '위성 16개(2026년)'],
 };
 const PD = {
-  mercury: { m: 0.055, r: 0.383, moons: 0, ring: false, surf: '암석', type: '지구형' },
-  venus: { m: 0.815, r: 0.949, moons: 0, ring: false, surf: '암석', type: '지구형' },
-  earth: { m: 1, r: 1, moons: 1, ring: false, surf: '암석', type: '지구형' },
-  mars: { m: 0.107, r: 0.532, moons: 2, ring: false, surf: '암석', type: '지구형' },
-  jupiter: { m: 317.8, r: 11.21, moons: 101, ring: true, surf: '기체', type: '목성형' },
-  saturn: { m: 95.16, r: 9.45, moons: 293, ring: true, surf: '기체', type: '목성형' },
-  uranus: { m: 14.54, r: 4.01, moons: 29, ring: true, surf: '기체', type: '목성형' },
-  neptune: { m: 17.15, r: 3.88, moons: 16, ring: true, surf: '기체', type: '목성형' },
+  mercury: { m: 0.055, r: 0.383, moons: 0, moons23: 0, ring: false, surf: '암석', type: '지구형' },
+  venus: { m: 0.815, r: 0.949, moons: 0, moons23: 0, ring: false, surf: '암석', type: '지구형' },
+  earth: { m: 1, r: 1, moons: 1, moons23: 1, ring: false, surf: '암석', type: '지구형' },
+  mars: { m: 0.107, r: 0.532, moons: 2, moons23: 2, ring: false, surf: '암석', type: '지구형' },
+  jupiter: { m: 317.8, r: 11.21, moons: 115, moons23: 95, ring: true, surf: '기체', type: '목성형' },
+  saturn: { m: 95.16, r: 9.45, moons: 293, moons23: 146, ring: true, surf: '기체', type: '목성형' },
+  uranus: { m: 14.54, r: 4.01, moons: 29, moons23: 27, ring: true, surf: '기체', type: '목성형' },
+  neptune: { m: 17.15, r: 3.88, moons: 16, moons23: 14, ring: true, surf: '기체', type: '목성형' },
 };
 const MOONS = [                       // 주요 위성(반지름 km, 궤도 반지름 km, 공전 주기 일, 음수는 역행)
   { id: 'moon', ko: '달', p: 'earth', R: 1737.4, a: 384400, P: 27.3217, tex: 'moon', col: '#d7d3cb' },
@@ -2520,6 +2696,12 @@ function initBubbles() {
     bubbles[id] = { el, lead, on: false, side: '', w: 0, h: 0 };
   }
 }
+function setSeasons(on) {                          // 춘분·하지·추분·동지 위치와 근일점·원일점
+  st.show.seasons = on;
+  $('#tSeasons').checked = on;
+  $('#seasonBtn').setAttribute('aria-pressed', String(on));
+  if (on && (cam.follow || st.view === 'system')) toast('계절 위치는 ‘지구 궤도’ 보기에서 잘 보여요');
+}
 function setMore(on) {
   st.show.more = on;
   $('#moreBtn').setAttribute('aria-pressed', String(on));
@@ -2529,7 +2711,7 @@ function hideBubble(q) { if (q.on) { q.el.classList.remove('on'); q.lead.classLi
 let uiRects = [], uiRectT = 0;
 function refreshUiRects() {                       // 말풍선이 글자·버튼을 가리지 않도록
   const sr = $('#stage').getBoundingClientRect();
-  uiRects = ['#almanac', '#grToggle', '#dock', '#tourPrev', '#tourNext'].map(q => $(q)).filter(e => e && e.offsetParent)
+  uiRects = ['#almanac', '#quest', '#orderBox', '#dock', '#tourPrev', '#tourNext', '#nasaBtn'].map(q => $(q)).filter(e => e && e.offsetParent)
     .map(e => { const r = e.getBoundingClientRect(); return { x: r.left - sr.left - 6, y: r.top - sr.top - 6, w: r.width + 12, h: r.height + 12 }; });
 }
 function placeBubbles() {
@@ -2730,6 +2912,10 @@ function updateLabels() {
     const s = project(tip);
     if (s) showLabel(axisLabel, s.x, s.y, false, 6); else hideLabel(axisLabel);
   } else hideLabel(axisLabel);
+  if (wi.on && wi.mesh) {                            // 만약에 실험실의 가상 지구
+    const s = project(wi.mesh.position);
+    if (s) { const rp = screenR(B.earth.Rd, s.depth); showLabel(wi.lbl, s.x, s.y, rp < 3.5, Math.max(rp + 7, 12)); } else hideLabel(wi.lbl);
+  }
 }
 function pick(x, y) {
   const r = canvas.getBoundingClientRect();
@@ -2740,7 +2926,10 @@ function pick(x, y) {
     const d = Math.hypot(s.x - x, s.y - y), lim = Math.max(26, (s.rp || 0) + 8);
     if (d < lim && d - (s.rp || 0) < bd) { bd = d - (s.rp || 0); best = it.b; }
   }
-  if (best) focusBody(best.id);
+  if (best) {
+    if (!questUnlocked(best.id)) { toast('아직 잠겨 있어요. 지금 단계의 문제를 먼저 풀어요.'); return; }
+    focusBody(best.id);
+  }
 }
 
 /* ---------- 시공간 격자 갱신 ---------- */
@@ -2943,17 +3132,544 @@ function updateGridLegend() {
 }
 
 /* ---------- 휘어짐 스위치 ---------- */
-function setGr(on) {
-  st.gr.on = on;
-  const t = $('#grToggle');
-  t.setAttribute('aria-checked', String(on));
-  $('#grState').textContent = on ? `켜짐 · 실제보다 약 ${fmtBig(st.gr.At / REAL_PHI_1AU)}배 과장` : '꺼짐 · 평평하게 그린 공간';
-  if (on) toast('질량이 클수록 둘레의 시공간이 깊게 휘어요');
+function setGr(on) { st.gr.on = false; }          // 시공간 휘어짐 기능은 뺐음(늘 꺼짐)
+function syncGrSlider() {}
+
+/* ---------- 탐험: 전체 보기 → 순서 맞히기 → 태양부터 차례로 관찰하고 문제 풀기 ---------- */
+const PLANET_ORDER = ['mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune'];
+const Q = (text, options, why, hint) => ({ text, options, why, hint });   // options[0]이 정답(보여 줄 때 섞음)
+const QSTEPS = [
+  { id: 'intro' },
+  { id: 'order' },
+  { id: 'sun', ref: '교과서 232~237쪽 참고', look: ['태양에 가까이 다가가 표면을 살펴보세요. 손가락 두 개로 벌리면 확대돼요.', '어두운 점과 쌀알 같은 무늬가 보이나요?', '태양 가장자리의 붉은 테두리와 고리 모양의 불꽃도 찾아보세요.'],
+    qs: [Q('태양 표면에 보이는 어두운 점을 무엇이라고 할까요?', ['흑점', '쌀알 무늬', '홍염', '코로나'], '흑점은 주변보다 온도가 약 2,000 °C 낮아서 어둡게 보여요.', '광구에 나타나는 어두운 무늬예요.'),
+      Q('시간이 흐를수록 흑점의 위치가 바뀝니다. 이것으로 알 수 있는 사실은?', ['태양이 자전한다', '태양이 점점 작아진다', '지구가 태양에 가까워진다', '흑점이 태양 밖으로 날아간다'], '흑점이 옮겨 가는 것은 태양이 약 25일에 한 바퀴씩 자전하기 때문이에요.', '흑점은 태양 표면에 붙어 있어요. 표면이 어떻게 움직일까요?'),
+      Q('광구에 보이는 쌀알을 뿌려 놓은 것 같은 무늬는 무엇 때문에 생길까요?', ['광구 아래에서 일어나는 대류', '흑점 부근의 폭발', '코로나가 내는 빛', '태양의 자전'], '광구 아래에서 대류가 일어나, 뜨거운 물질이 올라오는 곳은 밝고 식어서 내려가는 곳은 어둡게 보여요. 이것이 쌀알 무늬예요.', '물을 끓일 때 뜨거운 물이 올라오고 식은 물이 내려가는 움직임을 떠올려 보세요.'),
+      Q('광구 바로 위에 있는 붉은색의 얇은 대기층은 무엇일까요?', ['채층', '코로나', '홍염', '쌀알 무늬'], '채층은 광구 바로 위의 붉은 대기층이에요. 광구가 너무 밝아서 평소에는 볼 수 없고 개기 일식 때 볼 수 있어요.', '‘색을 띤 층’이라는 뜻의 이름이에요.'),
+      Q('개기 일식 때 태양 둘레로 진주색으로 넓게 퍼져 보이며, 온도가 100만 °C가 넘는 대기층은?', ['코로나', '채층', '광구', '흑점'], '코로나는 채층 위로 넓게 뻗어 있는 희박한 가스층이에요. 태양 활동이 활발할수록 크기가 커져요.', '‘왕관’이라는 뜻의 이름이에요.'),
+      Q('고온의 물질이 채층을 뚫고 코로나까지 거대하게 솟아오르는 불꽃 기둥 모양의 가스는?', ['홍염', '플레어', '흑점', '쌀알 무늬'], '홍염은 수만 km 높이까지 솟아오르는 불꽃 기둥이에요. 고리 모양의 홍염은 수일에서 수개월까지 이어지기도 해요.', '‘붉은 불꽃’이라는 뜻의 이름이에요.'),
+      Q('흑점 부근에서 폭발이 일어나 채층의 일부가 짧은 시간 동안 갑자기 밝아지는 현상은?', ['플레어', '홍염', '코로나', '채층'], '플레어는 흑점 부근에서 일어나는 폭발로, 수 분에서 수 시간 사이에 갑자기 밝아지며 많은 에너지를 내보내요.', '‘확 타오르다’라는 뜻의 영어 이름이에요.')] },
+  { id: 'mercury', look: ['수성의 표면을 확대해 보세요.', '달처럼 둥근 구덩이가 많이 보이나요?'],
+    qs: [Q('수성은 낮과 밤의 표면 온도 차이가 약 600 °C나 돼요. 그 까닭은?', ['대기가 거의 없어서', '태양에서 가장 멀어서', '표면이 기체로 되어 있어서', '자전을 하지 않아서'], '대기가 거의 없어 낮에는 쉽게 뜨거워지고 밤에는 열이 쉽게 빠져나가요. 그래서 운석도 타지 않고 떨어져 구덩이가 많아요.', '열을 붙잡아 두는 것이 없다면 어떻게 될까요?')] },
+  { id: 'venus', look: ['금성을 살펴보세요. 땅이 보이나요, 구름이 보이나요?'],
+    qs: [Q('금성의 표면 온도는 태양에 더 가까운 수성보다도 높아요. 그 까닭은?', ['두꺼운 이산화 탄소 대기가 열을 가두어서', '표면에 물이 많아서', '태양에서 가장 가까워서', '크기가 가장 커서'], '두꺼운 이산화 탄소 대기가 온실 효과를 일으켜 표면이 약 465 °C나 돼요.', '수성과 달리 금성은 두꺼운 대기로 덮여 있어요.')] },
+  { id: 'earth', look: ['지구를 살펴보세요. 바다, 대륙, 구름이 보이나요?', '▶를 눌러 지구가 자전하는 모습도 보세요.'],
+    qs: [Q('다른 행성과 달리 지구에만 있는 특징은?', ['액체 상태의 물이 있고 다양한 생명체가 산다', '고리가 있다', '표면이 기체로 되어 있다', '위성이 없다'], '지구에는 질소와 산소로 된 대기와 액체 상태의 물이 있어 생명체가 살 수 있어요.', '화면의 파란 부분은 무엇일까요?')] },
+  { id: 'mars', look: ['화성의 색과 무늬를 살펴보세요.', '북극과 남극 쪽의 흰 부분을 찾아보세요.'],
+    qs: [Q('화성이 붉게 보이는 까닭은?', ['표면이 붉은색 토양으로 덮여 있어서', '표면 온도가 매우 높아서', '두꺼운 구름이 덮고 있어서', '스스로 빛을 내서'], '화성 표면은 산화 철(녹)이 섞인 붉은 토양으로 덮여 있어요. 극지방의 흰 부분은 얼음과 드라이아이스로 된 극관이에요.', '철이 녹슬면 무슨 색이 되나요?'),
+      Q('지금까지 관찰한 수성·금성·지구·화성의 공통점은?', ['크기가 작고 표면이 단단한 암석이다', '고리가 있다', '위성이 많다', '표면이 기체로 되어 있다'], '이 네 행성을 지구형 행성이라고 해요.', '네 행성의 표면이 어떤 모습이었는지 떠올려 보세요.')] },
+  { id: 'jupiter', look: ['목성을 살펴보세요. 가로줄 무늬가 보이나요?', '▶를 눌러 목성을 돌리며 붉은 소용돌이를 찾아보세요.'],
+    qs: [Q('목성 표면의 거대한 붉은 소용돌이를 무엇이라고 할까요?', ['대적점', '흑점', '대흑점', '극관'], '대적점은 지구보다 큰 거대한 폭풍이에요. 목성은 태양계에서 가장 큰 행성이에요.', '‘붉은 점’이라는 뜻의 이름이에요.')] },
+  { id: 'saturn', look: ['토성의 고리를 살펴보세요.', '고리에 드리운 토성의 그림자도 찾아보세요.'],
+    qs: [Q('토성의 뚜렷한 고리는 무엇으로 이루어져 있을까요?', ['얼음과 암석 조각', '액체 상태의 물', '뜨거운 가스', '토성의 위성들이 이어 붙은 것'], '토성의 고리는 수많은 얼음과 암석 조각으로 이루어져 있어요.', '고리를 가까이 보면 작은 알갱이들이 모여 있어요.')] },
+  { id: 'uranus', look: ['천왕성은 무슨 색으로 보이나요?', '다른 행성과 비교해 무늬가 많은지 적은지도 보세요.'],
+    qs: [Q('천왕성에 대한 설명으로 옳은 것은?', ['청록색으로 보이며 자전축이 공전 궤도면과 거의 나란하다', '태양계에서 가장 큰 행성이다', '표면이 단단한 암석이다', '위성이 없다'], '천왕성은 대기의 메테인 때문에 청록색으로 보이고, 자전축이 약 98° 기울어 누운 채로 공전해요.', '천왕성의 색을 다시 보세요.')] },
+  { id: 'neptune', look: ['해왕성을 살펴보세요. 어두운 소용돌이가 보이나요?', '▶를 눌러 해왕성을 돌려 보세요.'],
+    qs: [Q('해왕성 표면의 어두운 소용돌이를 무엇이라고 할까요?', ['대흑점', '대적점', '흑점', '운석 구덩이'], '대흑점은 대기의 거대한 소용돌이예요. 해왕성은 태양계에서 가장 바깥쪽에 있는 행성이에요.', '목성의 붉은 소용돌이와 비슷한 이름이에요.'),
+      Q('목성·토성·천왕성·해왕성의 공통점은?', ['크기가 크고 고리와 많은 위성이 있다', '표면이 단단한 암석이다', '위성이 없다', '태양에 가까이 있다'], '이 네 행성을 목성형 행성이라고 해요.', '고리와 위성을 떠올려 보세요.')] },
+  { id: 'done' },
+];
+/* 읽고 빈칸 채우기 글과 추가 문제(교과서 230~231쪽 내용) */
+const READS = {
+  mercury: { text: '수성은 태양에서 [가장 가까운] 행성이에요. [대기]가 거의 없어서 낮과 밤의 표면 온도 차이가 약 600 °C나 되고, 표면에는 [운석 충돌구]가 많아요. 크기는 태양계 행성 중에서 가장 [작아요].', extra: ['가장 먼', '고리', '커요'] },
+  venus: { text: '금성은 크기와 질량이 [지구]와 비슷해요. [이산화 탄소]로 이루어진 두꺼운 대기가 있어서 표면 온도가 약 465 °C로 매우 높아요. 두꺼운 대기가 열을 가두어 온도가 높아지는 현상을 [온실 효과]라고 해요.', extra: ['목성', '산소', '대류'] },
+  earth: { text: '지구에는 [질소]와 산소 등으로 이루어진 대기와 [액체] 상태의 물이 있어요. 식물이 자랄 수 있는 토양이 있고 다양한 [생명체]가 살아요. 지구 둘레를 도는 위성은 [달]이에요.', extra: ['이산화 탄소', '고체', '포보스'] },
+  mars: { text: '화성은 표면에 암석과 [붉은색] 토양이 있어요. 거대한 [화산]이 있고, [물]이 흘렀던 흔적이 있어요. 극지방에는 드라이아이스와 얼음으로 된 흰색의 [극관]이 있어요.', extra: ['푸른색', '고리', '흑점'] },
+  jupiter: { text: '목성은 태양계 행성 중에서 가장 [커요]. 주로 수소와 [헬륨]으로 이루어져 있어요. 표면에 [가로줄] 무늬가 나타나며, 거대한 대기의 소용돌이인 [대적점]이 있어요. 희미한 고리와 수많은 위성이 있어요.', extra: ['작아요', '산소', '세로줄', '대흑점'] },
+  saturn: { text: '토성은 태양계에서 [두 번째]로 큰 행성이에요. 대기에 줄무늬가 있고, [얼음]과 암석으로 이루어진 뚜렷한 [고리]가 있어요. 토성의 평균 밀도는 [물]보다 작아요.', extra: ['첫 번째', '철', '극관'] },
+  uranus: { text: '천왕성은 [청록색]으로 보여요. 다른 행성과 달리 [자전축]이 공전 궤도면과 거의 나란해서, 누운 채로 태양 둘레를 돌아요. 대기는 주로 수소, 헬륨, [메테인]으로 되어 있어요.', extra: ['붉은색', '고리', '산소'] },
+  neptune: { text: '해왕성은 태양계에서 가장 [바깥쪽]에 있는 행성이에요. 표면에는 대기의 소용돌이인 [대흑점]이 나타나요. 해왕성이 태양을 한 바퀴 도는 데는 약 [165년]이 걸려요.', extra: ['안쪽', '대적점', '1년'] },
+};
+const EXTRA_QS = {
+  mercury: [Q('수성은 태양을 한 바퀴 도는 데 약 88일이 걸려서, 행성 가운데 공전 주기가 가장 짧아요. 그 까닭은?', ['태양에서 가장 가까워서', '크기가 가장 작아서', '대기가 없어서', '위성이 없어서'], '태양에 가까울수록 공전 궤도가 짧고, 더 빠르게 움직여요.', '공전 궤도의 크기를 떠올려 보세요.')],
+  venus: [Q('금성은 새벽이나 저녁에 가장 밝게 보이는 행성이에요. 금성이 밝게 보이는 까닭으로 알맞은 것은?', ['두꺼운 구름이 햇빛을 잘 반사해서', '스스로 빛을 내서', '표면이 뜨거워서 빛이 나서', '크기가 가장 커서'], '금성은 스스로 빛을 내지 않아요. 두꺼운 구름이 햇빛을 많이 반사하고 지구와 가까워서 밝게 보여요.', '행성은 스스로 빛을 낼 수 있을까요?')],
+  earth: [Q('지구에 계절이 생기는 까닭은?', ['자전축이 기울어진 채 공전해서', '태양과의 거리가 크게 달라져서', '자전 속도가 바뀌어서', '달이 햇빛을 가려서'], '자전축이 약 23.5° 기울어져 있어서 계절에 따라 태양의 남중 고도와 낮의 길이가 달라져요.', '지구는 1월 초에 태양과 가장 가까운데, 그때 북반구는 겨울이에요.')],
+  mars: [Q('화성 둘레를 도는 위성은 몇 개일까요? 화면에서 화성 가까이의 작은 점을 찾아보세요.', ['2개', '없음', '1개', '16개'], '포보스와 데이모스, 2개예요. 지름이 수십 km 이하로 작고 모양이 울퉁불퉁해요.', '화성 가까이에 붙은 이름표를 찾아보세요.')],
+  jupiter: [Q('목성이 한 바퀴 자전하는 데 걸리는 시간은 약 몇 시간일까요? ▶를 눌러 목성이 도는 빠르기를 보세요.', ['약 10시간', '약 24시간', '약 100시간', '약 1년'], '목성은 약 9시간 56분에 한 바퀴 자전해서, 태양계 행성 가운데 가장 빨리 자전해요.', '1초에 6시간이 흐를 때 목성이 얼마나 빨리 도는지 보세요.')],
+  saturn: [Q('토성의 평균 밀도가 물보다 작다는 것은 무슨 뜻일까요?', ['같은 부피의 물보다 가볍다', '물로만 이루어져 있다', '표면이 바다로 덮여 있다', '크기가 물방울만 하다'], '토성은 주로 수소와 헬륨으로 이루어져 있어서, 크기는 크지만 평균 밀도는 물(1 g/cm³)보다 작은 약 0.69 g/cm³예요.', '밀도는 같은 부피일 때의 질량이에요.')],
+  uranus: [Q('천왕성이 청록색으로 보이는 까닭은?', ['대기의 메테인이 붉은빛을 흡수해서', '표면이 바다로 덮여 있어서', '얼음 고리가 빛을 반사해서', '태양에서 멀어 차가워서'], '대기의 메테인이 붉은빛을 흡수하고 푸른빛을 반사해서 청록색으로 보여요.', '읽은 글에서 대기를 이루는 물질을 떠올려 보세요.')],
+  neptune: [Q('해왕성이 태양을 한 바퀴 도는 데 약 165년이나 걸리는 까닭은?', ['태양에서 가장 멀어서 궤도가 길고 느리게 움직여서', '크기가 가장 커서', '자전축이 누워 있어서', '위성이 많아서'], '태양에서 멀수록 공전 궤도가 길고 공전 속력도 느려서, 해왕성의 1년은 지구의 약 165배예요.', '수성은 88일에 한 바퀴를 돌았어요. 무엇이 다를까요?')],
+};
+QSTEPS.forEach(x => {
+  if (READS[x.id]) x.read = READS[x.id];
+  if (EXTRA_QS[x.id]) { const last = x.qs.length > 1 && /공통점/.test(x.qs[x.qs.length - 1].text); x.qs.splice(last ? x.qs.length - 1 : x.qs.length, 0, ...EXTRA_QS[x.id]); }
+});
+const quest = { on: true, i: 0, qi: 0, tries: 0, stage: 'qs', rd: null };
+const BODY_STEPS = QSTEPS.filter(x => x.look);
+function questUnlocked(id) {
+  if (!quest.on) return true;
+  const k = QSTEPS.findIndex(x => x.id === id);
+  if (k < 0) { const m = M[id]; return m ? questUnlocked(m.p) : false; }
+  return k <= quest.i;
 }
-function syncGrSlider() {
-  $('#grAmp').value = Math.round(Math.log(st.gr.At / 0.03) / Math.log(1000) * 1000);
-  $('#grAmpOut').textContent = `약 ${fmtBig(st.gr.At / REAL_PHI_1AU)}배`;
-  if (st.gr.on) $('#grState').textContent = `켜짐 · 실제보다 약 ${fmtBig(st.gr.At / REAL_PHI_1AU)}배 과장`;
+function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function qProgress() {
+  const n = QSTEPS.length - 2;
+  let h = '<div class="qprog">';
+  for (let k = 1; k <= n; k++) h += `<i class="${k < quest.i ? 'done' : k === quest.i ? 'now' : ''}"></i>`;
+  return h + '</div>';
+}
+const SAVE_KEY = 'solarQuestStep';                     // 다음 시간에 이어서 하기
+function saveStep(i) { try { localStorage.setItem(SAVE_KEY, String(i)); } catch (e) { /* 저장할 수 없는 환경 */ } }
+function savedStep() { try { return +localStorage.getItem(SAVE_KEY) || 0; } catch (e) { return 0; } }
+function questGo(i) {
+  quest.i = Math.max(0, Math.min(QSTEPS.length - 1, i)); quest.qi = 0; quest.tries = 0;
+  const stp = QSTEPS[quest.i];
+  quest.stage = stp.read ? 'read' : 'qs'; quest.rd = null;
+  if (quest.i > 0) saveStep(quest.i);
+  document.body.classList.toggle('quest-on', quest.on);
+  $('#orderBox').hidden = stp.id !== 'order';
+  $('#quest').hidden = stp.id === 'order';
+  st.show.names = stp.id !== 'order';
+  if (stp.id === 'intro' || stp.id === 'order' || stp.id === 'done') goView('system', 1.6);
+  else focusBody(stp.id, 1.6);
+  if (stp.id === 'order') buildOrder();
+  renderQuest();
+}
+function parseRead(r) { const parts = r.text.split(/\[([^\]]+)\]/), text = [], ans = []; parts.forEach((x, k) => (k % 2 ? ans : text).push(x)); return { text, ans }; }
+function readHtml(stp, done) {
+  const P = parseRead(stp.read), R = quest.rd;
+  let body = '';
+  P.text.forEach((t, k) => {
+    body += t;
+    if (k < P.ans.length) {
+      if (done) body += `<span class="blank ok">${P.ans[k]}</span>`;
+      else body += `<button class="blank${R.sel === k ? ' sel' : ''}${R.bad.indexOf(k) >= 0 ? ' bad' : ''}${R.ok ? ' ok' : ''}" data-b="${k}">${R.fill[k] || ''}</button>`;
+    }
+  });
+  return body;
+}
+function renderRead(stp) {
+  const P = parseRead(stp.read);
+  if (!quest.rd) quest.rd = { fill: P.ans.map(() => null), bad: [], sel: 0, bank: shuffle(P.ans.concat(stp.read.extra)), ok: false, fb: '', fbc: '' };
+  const R = quest.rd, avail = R.bank.slice();
+  R.fill.forEach(w => { if (w) { const j = avail.indexOf(w); if (j >= 0) avail.splice(j, 1); } });
+  let h = `<h3>읽고 빈칸 채우기</h3><p class="qread">${readHtml(stp, false)}</p>`;
+  if (!R.ok) h += `<div class="qbank">${avail.map(w => `<button class="word">${w}</button>`).join('')}</div>`
+    + `<p class="qhint">낱말을 누르면 노란 빈칸에 들어가요. 채운 빈칸을 누르면 낱말이 빠져요.</p>`
+    + `<button class="qbtn" id="rCheck"${R.fill.every(Boolean) ? '' : ' disabled'}>확인</button>`;
+  return h + `<p class="qfb ${R.fbc}" id="rFb">${R.fb}</p>`;
+}
+function renderQuest() {
+  if (!quest.on) return;
+  const stp = QSTEPS[quest.i], el = $('#quest');
+  const head = (t, sub) => `<div class="qhead" id="qhead"><b>${t}</b><span>${sub || ''}</span></div>${qProgress()}`;
+  if (stp.id === 'intro') {
+    const sv = savedStep(), last = QSTEPS.length - 1;
+    const resume = sv >= 2 && sv < last ? `<button class="qbtn ghost full" id="qResume">지난번에 이어서: ${bodyOf(QSTEPS[sv].id).ko} 관찰부터</button>`
+      : sv === last ? `<button class="qbtn ghost full" id="qLabGo">탐험을 마쳤어요: 우주 실험실로 바로 가기</button>` : '';
+    el.innerHTML = head('태양계 탐험', '') + `<ul>
+      <li>태양계에는 스스로 빛을 내는 <b>태양</b>과, 그 둘레를 도는 <b>행성 8개</b>가 있어요.</li>
+      <li>화면을 끌면 돌려 볼 수 있고, 두 손가락으로 벌리거나 오므리면 확대·축소돼요.</li>
+      <li>먼저 행성의 순서를 맞힌 뒤, 태양부터 차례로 관찰하고, 글을 읽어 빈칸을 채우고, 문제를 풀어요. 다 맞혀야 다음 천체가 열려요.</li>
+      <li>모든 천체를 마치면 <b>우주 실험실</b>이 열려요.</li></ul>
+      <button class="qbtn" id="qGo">처음부터 시작하기</button>${resume}`;
+  } else if (stp.id === 'done') {
+    el.innerHTML = head('탐험 완료', '모든 천체를 관찰했어요') + `<ul>
+      <li><b>지구형 행성</b>: 수성·금성·지구·화성 — 작고 표면이 단단한 암석</li>
+      <li><b>목성형 행성</b>: 목성·토성·천왕성·해왕성 — 크고, 고리와 많은 위성이 있음</li>
+      <li>태양은 태양계 질량의 99.86%를 차지하는, 스스로 빛을 내는 유일한 별이에요.</li></ul>
+      <p class="labp">탐험을 마친 사람만 들어갈 수 있는 <b>우주 실험실</b>이 열렸어요.</p>
+      <button class="qbtn" id="qLabGo">우주 실험실 열기</button>
+      <button class="qbtn ghost full" id="qRestart">처음부터 다시</button>`;
+  } else if (stp.look) {
+    const b = bodyOf(stp.id), n = stp.qs.length, solved = quest.qi >= n;
+    let h = head(`${b.ko} 관찰`, `${quest.i}단계`) + `<h3>관찰해 보세요</h3><ul>${stp.look.map(t => `<li>${t}</li>`).join('')}</ul>`;
+    if (quest.stage === 'read') h += renderRead(stp);
+    else if (!solved) {
+      const q = stp.qs[quest.qi];
+      if (!q.shown) q.shown = shuffle(q.options);
+      if (stp.read) h += `<details class="qdet"><summary>읽은 글 다시 보기</summary><p class="qread">${readHtml(stp, true)}</p></details>`;
+      h += `<h3>문제 ${n > 1 ? `${quest.qi + 1} / ${n}` : ''}</h3>${stp.ref ? `<p class="qref">${stp.ref}</p>` : ''}<p class="qtext">${q.text}</p><div class="qopts">`
+        + q.shown.map((o, k) => `<button class="qopt" data-k="${k}">${o}</button>`).join('') + `</div><p class="qfb" id="qFb"></p>`;
+    } else {
+      h += `<p class="qfb ok">잘했어요! ${b.ko} 관찰을 마쳤어요.</p>`;
+      h += `<div class="qfacts"><b>${b.ko}의 특징</b><ul>${(FACTS[stp.id] || []).map(t => `<li>${t}</li>`).join('')}</ul></div>`;
+      const nx = QSTEPS[quest.i + 1];
+      h += `<button class="qbtn" id="qNext">${nx.id === 'done' ? '탐험 마치기' : `다음: ${bodyOf(nx.id).ko} 관찰하러 가기`}</button>`;
+    }
+    el.innerHTML = h;
+    $$('.qopt', el).forEach(bt => bt.addEventListener('click', () => answer(bt)));
+    $$('button.blank', el).forEach(bt => bt.addEventListener('click', () => {
+      const R = quest.rd, k = +bt.dataset.b; if (R.ok) return;
+      if (R.fill[k]) { R.fill[k] = null; R.bad = R.bad.filter(x => x !== k); }
+      R.sel = k; R.fb = ''; R.fbc = ''; renderQuest();
+    }));
+    $$('.word', el).forEach(bt => bt.addEventListener('click', () => {
+      const R = quest.rd; let k = R.sel;
+      if (k === null || k === undefined || R.fill[k]) k = R.fill.findIndex(x => !x);
+      if (k < 0) return;
+      R.fill[k] = bt.textContent; R.bad = R.bad.filter(x => x !== k);
+      const nx2 = R.fill.findIndex(x => !x); R.sel = nx2 >= 0 ? nx2 : null; R.fb = ''; R.fbc = '';
+      renderQuest();
+    }));
+    const rc = $('#rCheck'); if (rc) rc.addEventListener('click', () => {
+      const R = quest.rd, P = parseRead(stp.read);
+      R.bad = P.ans.map((x, k) => (R.fill[k] === x ? -1 : k)).filter(k => k >= 0);
+      if (!R.bad.length) {
+        R.ok = true; R.fb = '잘 읽었어요! 이제 문제를 풀어 봐요.'; R.fbc = 'ok'; renderQuest();
+        setTimeout(() => { if (quest.rd === R) { quest.stage = 'qs'; renderQuest(); } }, 1500);
+      } else { R.fb = `빨간 빈칸 ${R.bad.length}개를 다시 생각해 보세요. 빈칸을 누르면 낱말이 빠져요.`; R.fbc = 'bad'; renderQuest(); }
+    });
+  }
+  const go = $('#qGo'); if (go) go.addEventListener('click', () => questGo(quest.i + 1));
+  const rsm = $('#qResume'); if (rsm) rsm.addEventListener('click', () => questGo(savedStep()));
+  const nx = $('#qNext'); if (nx) nx.addEventListener('click', () => questGo(quest.i + 1));
+  const lg = $('#qLabGo'); if (lg) lg.addEventListener('click', () => { saveStep(QSTEPS.length - 1); endQuest(true); });
+  const rs = $('#qRestart'); if (rs) rs.addEventListener('click', () => { QSTEPS.forEach(x => (x.qs || []).forEach(q => { q.shown = null; })); saveStep(0); questGo(0); });
+  const hd = $('#qhead');                               // 선생님 시연용: 제목을 길게 누르면 다음 단계
+  if (hd) { let t = null; hd.addEventListener('pointerdown', () => { t = setTimeout(() => skipStep(), 1100); });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => hd.addEventListener(ev, () => clearTimeout(t))); }
+}
+function answer(bt) {
+  const stp = QSTEPS[quest.i], q = stp.qs[quest.qi], fb = $('#qFb');
+  const pickTxt = q.shown[+bt.dataset.k];
+  if (pickTxt === q.options[0]) {
+    bt.classList.add('ok');
+    $$('.qopt', $('#quest')).forEach(o => { o.disabled = true; });
+    fb.className = 'qfb ok'; fb.textContent = `정답이에요! ${q.why}`;
+    const i0 = quest.i, q0 = quest.qi;
+    setTimeout(() => { if (quest.i === i0 && quest.qi === q0) { quest.qi++; quest.tries = 0; renderQuest(); } }, 1800);
+  } else {
+    bt.classList.add('bad'); bt.disabled = true; quest.tries++;
+    fb.className = 'qfb bad'; fb.textContent = `다시 생각해 보세요. 힌트: ${q.hint}`;
+  }
+}
+function skipStep() {
+  const stp = QSTEPS[quest.i];
+  if (!quest.on) return;
+  if (stp.look && quest.stage === 'read') { quest.stage = 'qs'; renderQuest(); }
+  else if (stp.look && quest.qi < stp.qs.length) { quest.qi = stp.qs.length; renderQuest(); }
+  else questGo(quest.i + 1);
+  toast('선생님 건너뛰기');
+}
+function endQuest(toLab) {
+  quest.on = false;
+  document.body.classList.remove('quest-on');
+  $('#quest').hidden = true; $('#orderBox').hidden = true;
+  st.show.names = true;
+  goView('orbit', 1.6);
+  if (toLab) openLab('menu');
+  else { if (window.innerWidth >= 1100) setPanel(true); toast('이제 모든 기능을 자유롭게 쓸 수 있어요'); }
+}
+
+/* ---------- 우주 실험실(탐험을 마치면 열림) ---------- */
+const lab = { open: false, tool: 'menu', birth: null, birthStr: '', wiA: 1.524, trueStep: 0 };
+const wi = { on: false, mesh: null, mat: null, line: null, lbl: null, th0: 0, jd0: 0, a: 1 };
+const periodDays = id => Math.pow(ELEMENTS[id][0][0], 1.5) * 365.256;
+function openLab(tool) {
+  lab.open = true; document.body.classList.add('lab-on'); $('#quest').hidden = false;
+  switchTool(tool || 'menu');
+}
+function closeLab() {
+  if (lab.tool === 'true' && lab.trueStep) { setPreset('planets'); lab.trueStep = 0; }
+  setWhatIf(false);
+  lab.open = false; document.body.classList.remove('lab-on'); $('#quest').hidden = true;
+  $('#labBtn').setAttribute('aria-pressed', 'false');
+}
+function switchTool(t) {
+  if (lab.tool === 'whatif' && t !== 'whatif') setWhatIf(false);
+  if (lab.tool === 'true' && t !== 'true' && lab.trueStep) { setPreset('planets'); lab.trueStep = 0; goView('orbit', 1.2); }
+  lab.tool = t;
+  if (t === 'whatif') setWhatIf(true);
+  $('#labBtn').setAttribute('aria-pressed', 'true');
+  renderLab();
+}
+function renderLab() {
+  const el = $('#quest');
+  const tabs = [['birthday', '내 생일의 태양계'], ['whatif', '만약에 실험실'], ['true', '진짜 크기 체험']];
+  let h = `<div class="qhead"><b>우주 실험실</b><button class="qx" id="labX" aria-label="실험실 닫기">×</button></div>
+    <div class="labtabs">${tabs.map(([k, t]) => `<button class="labtab${lab.tool === k ? ' on' : ''}" data-t="${k}">${t}</button>`).join('')}</div>`;
+  if (lab.tool === 'menu') h += `<p class="labp">탐험을 마친 사람만 들어올 수 있는 실험실이에요. 위에서 실험을 골라 보세요.</p><ul>
+      <li><b>내 생일의 태양계</b>: 내가 태어난 날 지구는 어디에 있었을까? 행성마다 내 나이는 몇 살일까?</li>
+      <li><b>만약에 실험실</b>: 지구가 화성 자리에 있다면 1년은 며칠일까? 햇빛은 얼마나 약해질까?</li>
+      <li><b>진짜 크기 체험</b>: 행성을 실제 크기로 줄이면 태양계는 어떻게 보일까?</li></ul>
+      <p class="note">실험실을 닫으면(×) 화면을 마음대로 둘러볼 수 있고, 아래의 ‘실험실’ 버튼으로 다시 열 수 있어요.</p>`;
+  else if (lab.tool === 'birthday') h += labBirthday();
+  else if (lab.tool === 'whatif') h += labWhatIf();
+  else h += labTrue();
+  el.innerHTML = h;
+  $('#labX').addEventListener('click', closeLab);
+  $$('.labtab', el).forEach(bt => bt.addEventListener('click', () => switchTool(bt.dataset.t)));
+  const bGo = $('#bGo'); if (bGo) bGo.addEventListener('click', birthdayGo);
+  const bRe = $('#bReplay'); if (bRe) bRe.addEventListener('click', () => {
+    goView('orbit', 1.0);
+    const now = jdFromMs(Date.now()), yrs = (now - st.jd) / 365.256;
+    jumpTo(now); if (jump) jump.dur = RM ? 0.001 : clamp(yrs * 0.6, 3, 12);
+    toast(`지구가 태양을 ${yrs.toFixed(1)}바퀴 돌아 오늘로 와요`);
+  });
+  $$('.wibtn', el).forEach(bt => bt.addEventListener('click', () => { setWiA(+bt.dataset.a, true); renderLab(); }));
+  const wr = $('#wiR'); if (wr) {
+    wr.addEventListener('input', () => { setWiA(0.3 * Math.pow(100, +wr.value / 1000), false); $('#wiOut').innerHTML = wiReadouts(); $('#wiA').textContent = `${lab.wiA.toFixed(2)} AU`; $$('.wibtn', el).forEach(b2 => b2.classList.toggle('on', Math.abs(+b2.dataset.a - lab.wiA) < 0.005)); });
+    wr.addEventListener('change', () => setWiA(lab.wiA, true));
+  }
+  const tGo = $('#tGo'); if (tGo) tGo.addEventListener('click', () => { setPreset('true'); goView('orbit', 1.4); lab.trueStep = 1; renderLab(); });
+  const tE = $('#tEarth'); if (tE) tE.addEventListener('click', () => { setSpeed(4); focusBody('earth', 2.2); lab.trueStep = 2; renderLab(); });
+  const tB = $('#tBack'); if (tB) tB.addEventListener('click', () => { setPreset('planets'); goView('orbit', 1.4); lab.trueStep = 0; renderLab(); });
+}
+function labBirthday() {
+  const t = kst(jdFromMs(Date.now())), max = `${t.y}-${String(t.mo).padStart(2, '0')}-${String(t.d).padStart(2, '0')}`;
+  let h = `<p class="labp">생일을 넣으면 그날 지구가 궤도의 어디에 있었는지 보여 주고, 행성마다 내 나이를 계산해 줘요.</p>
+    <label class="labin">생일 <input type="date" id="bDate" min="1950-01-01" max="${max}" value="${lab.birthStr}"></label>
+    <button class="qbtn" id="bGo">그날의 태양계 보기</button>`;
+  if (lab.birth) {
+    const days = jdFromMs(Date.now()) - lab.birth, turns = days / 365.256;
+    h += `<dl class="readouts labres">
+      ${row('지구가 태양을 돈 횟수', `${turns.toFixed(2)}바퀴`)}
+      ${row('그동안 이동한 거리', `약 ${fmtKm(turns * 2 * Math.PI * AU_KM)}`)}
+      ${row('지구가 자전한 횟수', `${ko(days * SIDEREAL_PER_SOLAR)}번`)}
+      ${row('살아온 날', `${ko(days)}일`)}
+    </dl>
+    <h3>행성마다 내 나이</h3><table class="ages">${BODIES.map(b => `<tr><td>${b.ko} 나이</td><td>${(days / periodDays(b.id)).toFixed(b.id === 'neptune' || b.id === 'uranus' ? 2 : 1)}살</td></tr>`).join('')}</table>
+    <p class="note">행성 나이 = 내가 태어난 뒤 그 행성이 태양을 돈 횟수예요. 수성 나이가 가장 많고 해왕성 나이가 가장 적은 까닭은 무엇일까요?</p>
+    <p class="note">화면에서 계절 표시를 켜 두었어요. 내 생일에 지구는 춘분·하지·추분·동지 중 어디에 가까웠나요?</p>
+    <button class="qbtn ghost full" id="bReplay">생일부터 오늘까지 지구가 도는 모습 보기</button>`;
+  }
+  return h;
+}
+function birthdayGo() {
+  const v = $('#bDate').value;
+  if (!v) { toast('먼저 생일을 골라 주세요'); return; }
+  const [y, m, d] = v.split('-').map(Number), jd = jdFromMs(Date.UTC(y, m - 1, d) - 9 * 3600e3);
+  if (jd > jdFromMs(Date.now())) { toast('오늘보다 앞선 날짜를 골라 주세요'); return; }
+  lab.birth = jd; lab.birthStr = v;
+  jump = null; setPlaying(false); st.jd = jd; st.countStart = jd;
+  setSeasons(true); goView('orbit', 1.4);
+  toast(`${y}년 ${m}월 ${d}일의 태양계예요`);
+  renderLab();
+}
+const WI_SPOTS = [['mercury', '수성 자리'], ['venus', '금성 자리'], [null, '지금 자리'], ['mars', '화성 자리'], ['jupiter', '목성 자리'], ['saturn', '토성 자리']];
+function wiReadouts() {
+  const a = lab.wiA, yrD = Math.pow(a, 1.5) * 365.256, light = 100 / (a * a);
+  return `${row('1년의 길이', yrD < 730 ? `${ko(yrD)}일` : `${(yrD / 365.256).toFixed(1)}년`)}
+    ${row('햇빛의 세기', `지금의 ${light >= 10 ? ko(light) : light.toFixed(1)}%`)}
+    ${row('햇빛이 오는 시간', fmtDur(a * LIGHT_SEC_PER_AU))}
+    ${row('공전 속력', `초속 ${(29.78 / Math.sqrt(a)).toFixed(1)} km`)}
+    ${row('하늘에서 본 태양', `지금의 ${(1 / a).toFixed(2)}배 크기`)}
+    ${row('평균 기온(어림)', `약 ${Math.round(288 / Math.sqrt(a) - 273)} °C`)}`;
+}
+function labWhatIf() {
+  const a = lab.wiA;
+  return `<p class="labp">지구를 다른 자리로 옮기면 어떻게 될까요? 파란 <b>가상 지구</b>가 그 자리에서 진짜 지구와 함께 돌아요. 누가 먼저 한 바퀴를 돌까요?</p>
+    <div class="wibtns">${WI_SPOTS.map(([id, t]) => { const aa = id ? ELEMENTS[id][0][0] : 1; return `<button class="wibtn${Math.abs(aa - a) < 0.005 ? ' on' : ''}" data-a="${aa}">${t}</button>`; }).join('')}</div>
+    <label class="labin">거리 <input type="range" id="wiR" min="0" max="1000" value="${Math.round(Math.log(a / 0.3) / Math.log(100) * 1000)}"><output id="wiA">${a.toFixed(2)} AU</output></label>
+    <dl class="readouts labres" id="wiOut">${wiReadouts()}</dl>
+    <p class="note">기온은 대기가 지금과 같다고 치고 햇빛의 세기만으로 어림한 값이에요.</p>
+    <p class="note"><b>규칙을 찾아보세요.</b> 거리가 약 4배(화성 자리 → 목성 자리 쯤)가 되면 1년은 몇 배가 될까요? 햇빛은 몇 분의 1이 될까요?</p>`;
+}
+function setWhatIf(on) {
+  wi.on = on;
+  if (on && !wi.mesh) {
+    wi.mat = planetMat(earthTex, 0.05, 0x3d7dff, 0.8);
+    wi.mesh = new THREE.Mesh(new THREE.SphereGeometry(1, 48, 24), wi.mat); world.add(wi.mesh);
+    const pts = [];
+    for (let i = 0; i <= 256; i++) { const t = i / 256 * Math.PI * 2; pts.push(new THREE.Vector3(Math.cos(t), 0, Math.sin(t))); }
+    wi.line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: 0x7fb8ff, transparent: true, opacity: 0.65, depthWrite: false }));
+    wi.line.frustumCulled = false; world.add(wi.line);
+    wi.lbl = makeLabel('가상 지구', '', '#9fd0ff');
+  }
+  if (wi.mesh) { wi.mesh.visible = on; wi.line.visible = on; if (!on) hideLabel(wi.lbl); }
+  if (on) { setWiA(lab.wiA, true); setSpeed(7); setPlaying(true); }
+  else if (st.speed === 7) setSpeed(4);                  // 실험을 마치면 원래 빠르기(1초에 6시간)로
+}
+function setWiA(a, reframe) {
+  lab.wiA = a; wi.a = a;
+  const e = B.earth.flat; wi.th0 = Math.atan2(e.z, e.x); wi.jd0 = st.jd;     // 진짜 지구와 같은 방향에서 출발
+  if (wi.line) wi.line.scale.setScalar(a);
+  if (reframe) {
+    st.view = 'custom'; st.top = false; cam.sunLock = false; setFollow(null, 1.2);
+    const R = Math.max(1.3, a * 1.15);
+    animOrbit({ dist: fitDist(R, 0.62 * R + 0.1, 3.2, 400), az: cam.az, pol: 0.85 }, 1.4);
+    refreshViewButtons();
+  }
+}
+function updateWhatIf() {
+  if (!wi.on || !wi.mesh) return;
+  const th = wi.th0 - 2 * Math.PI * (st.jd - wi.jd0) / (Math.pow(wi.a, 1.5) * 365.256);
+  wi.mesh.position.set(wi.a * Math.cos(th), 0, wi.a * Math.sin(th));
+  wi.mesh.scale.setScalar(B.earth.Rd);
+  wi.mat.uniforms.uSun.value.copy(wi.mesh.position).negate().normalize().transformDirection(camera.matrixWorldInverse);
+}
+function labTrue() {
+  if (lab.trueStep === 0) return `<p class="labp">지금 화면은 행성을 <b>1,000배</b>, 태양을 <b>40배</b>로 키워서 보여 주고 있어요. 실제 크기로 바꾸면 어떻게 보일까요?</p>
+    <p class="labp"><b>먼저 예상해 보세요.</b> 행성은 얼마나 작아질까요? 태양은요?</p>
+    <button class="qbtn" id="tGo">실제 크기로 바꾸기</button>`;
+  if (lab.trueStep === 1) return `<p class="labp">행성이 보이나요? 이름표의 동그라미만 남고, 행성은 점보다도 작아졌어요. 태양도 작은 빛점이 되었어요. 태양계는 대부분 텅 빈 공간이에요.</p><ul>
+      <li>태양까지의 거리에 지구를 약 <b>11,700개</b> 늘어놓을 수 있어요.</li>
+      <li>태양의 지름은 지구의 109배지만, 태양까지의 거리는 태양 지름의 약 107배예요.</li>
+      <li>그래서 교과서 그림은 크기와 거리를 같은 비율로 그리지 못해요.</li></ul>
+    <button class="qbtn" id="tEarth">실제 크기의 지구에 다가가기</button>`;
+  return `<p class="labp">이것이 실제 크기로 그린 지구예요. 화면을 돌려 <b>달</b>도 찾아보세요. 달은 지구 지름의 약 30배 떨어져 있어서, 생각보다 훨씬 멀리 있어요.</p>
+    <button class="qbtn" id="tBack">원래대로(행성 1,000배) 돌아가기</button>`;
+}
+/* 행성 순서 맞히기(끌어다 놓기 + 눌러서 놓기) */
+const ob = { sel: null, drag: null };
+/* 카드용 행성 그림: 3D 장면과 같은 무늬를 음영 있는 구로 그림 */
+const iconCache = {};
+function smallTex(img, w, h) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const x = c.getContext('2d'); x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high';
+  x.drawImage(img, 0, 0, w, h);
+  return x.getImageData(0, 0, w, h);
+}
+function texAt(td, u, v) {                         // 가로로 이어지는 양선형 보간
+  const W = td.width, H = td.height, d = td.data;
+  const x = ((u % 1) + 1) % 1 * W - 0.5, y = Math.max(0, Math.min(H - 1.001, v * H - 0.5));
+  const x0 = Math.floor(x), y0 = Math.floor(y), fx = x - x0, fy = y - y0;
+  const i = (xx, yy) => (yy * W + ((xx % W) + W) % W) * 4;
+  const out = [0, 0, 0, 0];
+  for (let c = 0; c < 4; c++) {
+    const a = d[i(x0, y0) + c], b = d[i(x0 + 1, y0) + c], e = d[i(x0, y0 + 1) + c], f = d[i(x0 + 1, y0 + 1) + c];
+    out[c] = (a + (b - a) * fx) * (1 - fy) + (e + (f - e) * fx) * fy;
+  }
+  return out;
+}
+const ICON_VIEW = {                                // 보이는 경도·기울기(대표 무늬가 앞에 오게)
+  mercury: { lon: 30, tilt: 12, rot: 0 }, venus: { lon: 0, tilt: 12, rot: 0 }, earth: { lon: 125, tilt: 18, rot: -23 },
+  mars: { lon: 70, tilt: 16, rot: -8 }, jupiter: { lon: 62, tilt: 10, rot: -3 }, saturn: { lon: 0, tilt: 22, rot: -14 },
+  uranus: { lon: 0, tilt: 10, rot: -82 }, neptune: { lon: -35, tilt: 14, rot: -10 }, sun: { lon: 0, tilt: 0, rot: 0 },
+};
+function planetIcon(id, S) {
+  S = S || 128;
+  const key = id + S; if (iconCache[key]) return iconCache[key];
+  const isSun = id === 'sun', ring = id === 'saturn';
+  const Wc = ring ? Math.round(S * 1.55) : S;       // 토성은 고리까지 들어가게 가로로 넓게
+  const c = document.createElement('canvas'); c.width = Wc; c.height = S;
+  const ctx = c.getContext('2d'), img = ctx.createImageData(Wc, S), d = img.data;
+  const src = isSun ? sunMesh.material.uniforms.map.value.image : id === 'earth' ? earthTex.image : B[id].mat.uniforms.map.value.image;
+  const tex = smallTex(src, 512, 256);
+  const cl = id === 'earth' ? smallTex(E.cloudMat.uniforms.map.value.image, 512, 256) : null;
+  const rg = ring ? smallTex(ringTex.image, 256, 4) : null;
+  const vw = ICON_VIEW[id], R = S * (ring ? 0.3 : 0.46), cx = Wc / 2, cy = S / 2;
+  const gas = { jupiter: 1, saturn: 1, uranus: 1, neptune: 1 }[id];
+  const Lx = -0.52, Ly = 0.46, Lz = 0.72;          // 왼쪽 위 앞에서 오는 빛
+  const cr = Math.cos(vw.rot * DEG), sr = Math.sin(vw.rot * DEG), ct = Math.cos(vw.tilt * DEG), stt = Math.sin(vw.tilt * DEG);
+  const T = 24 * DEG, kq = 1.035;
+  for (let y = 0; y < S; y++) for (let x = 0; x < Wc; x++) {
+    const dx = (x + 0.5 - cx) / R, dy = (y + 0.5 - cy) / R, d2 = dx * dx + dy * dy, dist = Math.sqrt(d2);
+    let pr = 0, pg = 0, pb = 0, pa = 0;
+    if (dist < 1 + 1 / R) {                         // 행성 원판
+      const nz = Math.sqrt(Math.max(0, 1 - d2)), nx = dx, ny = -dy;
+      let ax = nx * cr + ny * sr, ay = -nx * sr + ny * cr, az = nz;                 // 화면 회전 되돌리기
+      const by = ay * ct - az * stt, bz = ay * stt + az * ct;                      // 위에서 조금 내려다보기
+      const lat = Math.asin(Math.max(-1, Math.min(1, by))), lon = Math.atan2(ax, bz) / DEG + vw.lon;
+      const u = (lon + 180) / 360, v = 0.5 - lat / Math.PI;
+      const t = texAt(tex, u, v);
+      let r = t[0], g = t[1], b = t[2];
+      if (cl) { const a = texAt(cl, u, v)[3] / 255 * 0.9; r += (255 - r) * a; g += (255 - g) * a; b += (255 - b) * a; }
+      let k;
+      if (isSun) k = 0.45 + 0.6 * Math.pow(nz, 0.5);                                // 주변부가 어두워짐
+      else {
+        const ndl = nx * Lx + ny * Ly + nz * Lz;
+        k = 0.05 + 0.95 * Math.max(0, Math.min(1, (ndl + 0.04) / 1.04));
+        k *= Math.pow(Math.max(nz, 0.001), gas ? 0.35 : 0.12);
+      }
+      r *= k; g *= k; b *= k;
+      if (id === 'earth' || id === 'venus') {                                        // 대기 테두리
+        const rim = Math.pow(1 - nz, 3) * Math.max(0, nx * Lx + ny * Ly + 0.5);
+        const rc = id === 'earth' ? [90, 150, 255] : [240, 220, 170];
+        r += rc[0] * rim * 0.8; g += rc[1] * rim * 0.8; b += rc[2] * rim * 0.8;
+      }
+      pr = r; pg = g; pb = b; pa = Math.max(0, Math.min(1, (1 - dist) * R + 0.5));
+    }
+    if (ring) {                                      // 토성 고리: 앞쪽 절반은 행성 위, 뒤쪽 절반은 아래
+      const rx = dx * Math.cos(-vw.rot * DEG) - dy * Math.sin(-vw.rot * DEG);
+      const ry = dx * Math.sin(-vw.rot * DEG) + dy * Math.cos(-vw.rot * DEG);
+      const rr = Math.hypot(rx, ry / Math.sin(T)) / kq;
+      if (rr > 1.24 && rr < 2.27) {
+        const t = texAt(rg, (rr - 1.24) / 1.03, 0.5), a = t[3] / 255;
+        const shade = ry < 0 && Math.hypot(rx, ry) < 1.05 ? 0 : 1;             // 행성 뒤로 가려지는 부분
+        const lit = 0.85;
+        const front = ry > 0;
+        if (front || pa < 0.99) {
+          const ra = a * (front ? 1 : 1 - pa) * shade;
+          pr = pr * (1 - ra) + t[0] * lit * ra; pg = pg * (1 - ra) + t[1] * lit * ra; pb = pb * (1 - ra) + t[2] * lit * ra;
+          pa = pa + ra * (1 - pa);
+          if (pa > 0) { /* 색은 위에서 섞음 */ }
+        }
+      }
+    }
+    const i = (y * Wc + x) * 4;
+    d[i] = Math.min(255, pr); d[i + 1] = Math.min(255, pg); d[i + 2] = Math.min(255, pb); d[i + 3] = pa * 255;
+  }
+  ctx.putImageData(img, 0, 0);
+  return (iconCache[key] = c.toDataURL('image/png'));
+}
+function chipHtml(id) {
+  const b = B[id];
+  return `<button type="button" class="chip" data-id="${id}"><img class="ball" src="${planetIcon(id)}" alt="" draggable="false"><span>${b.ko}</span></button>`;
+}
+function buildOrder() {
+  const slots = $('#obSlots'), pool = $('#obPool');
+  slots.innerHTML = PLANET_ORDER.map((_, k) => `<div class="ob-slot" data-n="${k + 1}"></div>`).join('');
+  let ids = shuffle(PLANET_ORDER);
+  while (ids.join() === PLANET_ORDER.join()) ids = shuffle(PLANET_ORDER);
+  pool.innerHTML = ids.map(chipHtml).join('');
+  $('.ob-sun').style.backgroundImage = `url(${planetIcon('sun', 360)})`;
+  $('#obFb').textContent = ''; $('#obFb').className = 'ob-fb';
+  $('#obCheck').textContent = '확인'; $('#obCheck').dataset.done = '';
+  ob.sel = null; quest.tries = 0;
+  $$('.chip', $('#orderBox')).forEach(wireChip);
+  $$('.ob-slot').forEach(sl => sl.addEventListener('click', () => { if (ob.sel) { obPlace(ob.sel, sl); obSelect(null); } }));
+}
+function obSelect(chip) { if (ob.sel) ob.sel.classList.remove('sel'); ob.sel = chip; if (chip) chip.classList.add('sel'); }
+function obClearMarks() { $$('.ob-slot').forEach(s => s.classList.remove('ok', 'bad')); const f = $('#obFb'); if (!$('#obCheck').dataset.done) { f.textContent = ''; f.className = 'ob-fb'; } }
+function obPlace(chip, target) {
+  const from = chip.parentElement;
+  if (target.classList.contains('ob-slot')) {
+    const other = target.querySelector('.chip');
+    if (other && other !== chip) (from.classList.contains('ob-slot') ? from : $('#obPool')).appendChild(other);
+  }
+  target.appendChild(chip);
+  obClearMarks();
+}
+function obTargetAt(x, y) {
+  for (const s of $$('.ob-slot')) { const r = s.getBoundingClientRect(); if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return s; }
+  const r = $('#obPool').getBoundingClientRect();
+  return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom ? $('#obPool') : null;
+}
+function wireChip(chip) {
+  chip.addEventListener('pointerdown', e => {
+    if ($('#obCheck').dataset.done) return;
+    e.preventDefault(); chip.setPointerCapture(e.pointerId);
+    ob.drag = { chip, x0: e.clientX, y0: e.clientY, moved: false };
+  });
+  chip.addEventListener('pointermove', e => {
+    const d = ob.drag; if (!d || d.chip !== chip) return;
+    const mx = e.clientX - d.x0, my = e.clientY - d.y0;
+    if (!d.moved && Math.hypot(mx, my) < 6) return;
+    d.moved = true; chip.classList.add('dragging'); chip.style.transform = `translate(${mx}px, ${my}px)`;
+    const t = obTargetAt(e.clientX, e.clientY);
+    $$('.ob-slot').forEach(s => s.classList.toggle('hover', s === t));
+  });
+  const end = e => {
+    const d = ob.drag; if (!d || d.chip !== chip) return;
+    ob.drag = null; chip.classList.remove('dragging'); chip.style.transform = '';
+    $$('.ob-slot').forEach(s => s.classList.remove('hover'));
+    if (!d.moved) { obSelect(ob.sel === chip ? null : chip); return; }
+    const t = obTargetAt(e.clientX, e.clientY);
+    if (t) obPlace(chip, t);
+    obSelect(null);
+  };
+  chip.addEventListener('pointerup', end);
+  chip.addEventListener('pointercancel', end);
+}
+function obCheck() {
+  const btn = $('#obCheck'), fb = $('#obFb');
+  if (btn.dataset.done) { questGo(quest.i + 1); return; }
+  const slots = $$('.ob-slot');
+  if (slots.some(s => !s.querySelector('.chip'))) { fb.className = 'ob-fb bad'; fb.textContent = '빈칸을 모두 채워 주세요.'; return; }
+  let right = 0;
+  slots.forEach((s, k) => { const ok = s.querySelector('.chip').dataset.id === PLANET_ORDER[k]; s.classList.add(ok ? 'ok' : 'bad'); if (ok) right++; });
+  if (right === 8) {
+    fb.className = 'ob-fb ok'; fb.textContent = '정답이에요! 수성·금성·지구·화성·목성·토성·천왕성·해왕성 순서예요.';
+    btn.textContent = '태양 관찰하러 가기'; btn.dataset.done = '1';
+    st.show.names = true;
+  } else {
+    quest.tries++;
+    fb.className = 'ob-fb bad';
+    fb.textContent = `${right}개 맞았어요. 빨간 칸을 다시 생각해 보세요.` + (quest.tries >= 2 ? ' 힌트: 수·금·지·화·목·토·천·해' : ' 화면의 태양계를 돌려 보며 찾아도 좋아요.');
+  }
 }
 
 /* ---------- 알림 ---------- */
@@ -2998,6 +3714,7 @@ function refreshNasaBtn() {
 function refreshViewButtons() {
   refreshTour();
   refreshNasaBtn();
+  updateFocusCard();
   $$('[data-view]').forEach(b => b.classList.toggle('on', b.dataset.view === st.view && !st.top));
   $('#topBtn').setAttribute('aria-pressed', String(st.top));
 }
@@ -3086,7 +3803,7 @@ function buildScaleTab() {
   }));
   $('#pdTable tbody').innerHTML = BODIES.map(b => {
     const d = PD[b.id];
-    return `<tr class="${d.type === '지구형' ? 'terr' : 'jov'}"><td>${b.ko}</td><td>${d.m < 1 ? d.m.toFixed(3) : d.m}</td><td>${d.r}</td><td>${d.moons}</td><td>${d.ring ? '있음' : '없음'}</td><td>${d.surf}</td></tr>`;
+    return `<tr class="${d.type === '지구형' ? 'terr' : 'jov'}"><td>${b.ko}</td><td>${d.m < 1 ? d.m.toFixed(3) : d.m}</td><td>${d.r}</td><td>${d.moons23}</td><td>${d.moons}</td><td>${d.ring ? '있음' : '없음'}</td><td>${d.surf}</td></tr>`;
   }).join('');
   drawPd('r');
   $$('#pdSeg [data-k]').forEach(bt => bt.addEventListener('click', () => {
@@ -3118,15 +3835,104 @@ function drawCmp() {
   t.innerHTML = `<b>${big2.ko}</b>의 지름은 <b>${small.ko}</b>의 <b>${fm(d)}배</b>, 부피는 <b>${fm(vol)}배</b>, 질량은 <b>${fm(mass)}배</b>예요.`
     + ` ${big2.ko} 안에 ${josa(small.ko, '이', '가')} ${fm(vol)}개쯤 들어가요.`;
 }
+/* ---------- 자세히: 지금 보고 있는 천체 ---------- */
+const TEMP = { mercury: '평균 약 167 °C (낮 430, 밤 −180)', venus: '평균 약 464 °C', earth: '평균 약 15 °C',
+  mars: '평균 약 −65 °C', jupiter: '구름 위 약 −110 °C', saturn: '약 −140 °C', uranus: '약 −195 °C', neptune: '약 −200 °C' };
+const row = (k, v) => `<div><dt>${k}</dt><dd>${v}</dd></div>`;
+function fmtPeriod(days) {
+  if (Math.abs(days) < 1) return `${(Math.abs(days) * 24).toFixed(1)}시간`;
+  if (Math.abs(days) < 400) return `${Math.abs(days).toFixed(days < 10 ? 2 : 1)}일`;
+  return `${(Math.abs(days) / 365.256).toFixed(1)}년`;
+}
+function updateFocusCard() {
+  const el = $('#focusCard'), id = cam.follow;
+  const nasa = t => nasaTarget(t) ? `<button class="btn wide" type="button" onclick="__solar.openNasa('${t}')">NASA ‘Eyes’에서 ${bodyOf(nasaTarget(t)).ko} 비교하기 ↗</button>` : '';
+  if (!id) {                                              // 전체 보기: 태양계의 특징
+    el.innerHTML = `<h2>태양계</h2>
+      <dl class="readouts">
+        ${row('구성', '태양 1개, 행성 8개<small>왜소행성·소행성·위성·혜성</small>')}
+        ${row('질량', '태양이 99.86%<small>나머지의 대부분은 목성</small>')}
+        ${row('크기', '해왕성 궤도까지 30 AU<small>약 45억 km, 햇빛으로 4시간 10분</small>')}
+        ${row('나이', '약 46억 년')}
+        ${row('행성 분류', '지구형 4개, 목성형 4개<small>수성·금성·지구·화성 / 목성·토성·천왕성·해왕성</small>')}
+        ${row('가장 가까운 별', '프록시마 센타우리<small>4.2광년 ≈ 27만 AU</small>')}
+      </dl>
+      <ul class="bullets">
+        <li>행성은 모두 <b>같은 방향</b>으로, 거의 <b>같은 평면</b> 위에서 태양 둘레를 돌아요.</li>
+        <li>태양에 가까운 행성일수록 <b>빠르게</b> 돌아요. 수성은 초속 47 km, 해왕성은 5 km예요.</li>
+        <li>화성과 목성 사이에는 소행성대가 있어요.</li>
+      </ul>
+      <p class="note">천체를 누르거나 화면 양옆 화살표로 고르면, 여기에 그 천체의 정보가 나와요.</p>`;
+    return;
+  }
+  const b = bodyOf(id), f = (FACTS[id] || []).map(t => `<li>${t}</li>`).join('');
+  if (id === 'sun') {
+    el.innerHTML = `<h2>태양</h2><p class="tagline">태양계에서 스스로 빛을 내는 유일한 별</p>
+      <dl class="readouts">
+        ${row('지름', '약 139만 km<small>지구의 109배</small>')}
+        ${row('질량', '지구의 33만 배<small>태양계 질량의 99.86%</small>')}
+        ${row('표면(광구) 온도', '약 6,000 °C<small>흑점은 약 2,000 °C 낮음</small>')}
+        ${row('중심 온도', '약 1,500만 °C<small>수소 핵융합</small>')}
+        ${row('자전 주기', '약 25일<small>흑점의 이동으로 알 수 있음</small>')}
+        ${row('나이', '약 46억 년')}
+      </dl>
+      <ul class="bullets"><li>표면에서 쌀알 무늬와 흑점을, 대기에서 채층·코로나·홍염·플레어를 볼 수 있어요.</li>
+      <li>태양 활동이 활발하면 지구에 자기 폭풍과 오로라, 통신 장애가 생겨요.</li></ul>
+      ${nasa(id)}`;
+    return;
+  }
+  const m = M[id];
+  if (m) {                                                // 위성
+    const p2 = B[m.p];
+    el.innerHTML = `<h2>${m.ko}</h2><p class="tagline">${p2.ko}의 위성</p>
+      <dl class="readouts">
+        ${row('지름', `${ko(m.R * 2)} km<small>지구의 ${(m.R / 6371).toFixed(2)}배</small>`)}
+        ${row(`${p2.ko}까지 거리`, `${ko(m.a)} km`)}
+        ${row('공전 주기', fmtPeriod(m.P) + (m.P < 0 ? '<small>행성 자전과 반대(역행)</small>' : ''))}
+        ${row('자전', '공전과 같음<small>늘 같은 면이 행성을 향함</small>')}
+      </dl>
+      <ul class="bullets">${f}</ul>${nasa(id)}`;
+    return;
+  }
+  const d = PD[id], a = ELEMENTS[id][0][0], yr = Math.pow(a, 1.5) * 365.256;
+  el.innerHTML = `<h2>${b.ko}</h2><p class="tagline">${d.type} 행성 · 태양에서 ${['수성', '금성', '지구', '화성', '목성', '토성', '천왕성', '해왕성'].indexOf(b.ko) + 1}번째</p>
+    <dl class="readouts">
+      ${row('지름', `${ko((b.eq || b.R) * 2)} km<small>지구의 ${d.r}배 ${b.eq ? '(적도 기준)' : ''}</small>`)}
+      ${row('질량', `지구의 ${d.m < 1 ? d.m.toFixed(3) : d.m}배`)}
+      ${row('태양까지 평균 거리', `${a.toFixed(2)} AU<small>${fmtKm(a * AU_KM)}</small>`)}
+      ${row('공전 주기', fmtPeriod(yr))}
+      ${row('자전 주기', fmtPeriod(b.rot) + (b.rot < 0 ? '<small>다른 행성과 반대 방향</small>' : ''))}
+      ${row('표면 온도', TEMP[id] || '—')}
+      ${row('위성 수', `${d.moons}개<small>2026년 기준${d.moons23 !== d.moons ? ` · 교과서(2023) ${d.moons23}개` : ''}</small>`)}
+      ${row('고리 · 표면', `${d.ring ? '고리 있음' : '고리 없음'} · ${d.surf}`)}
+    </dl>
+    <ul class="bullets">${f}</ul>${nasa(id)}`;
+}
 function refreshCmpNasa() {
   const t = nasaTarget($('#cmpA').value), b = $('#cmpNasa');
   b.hidden = !t;
   if (t) $('#cmpNasaName').textContent = bodyOf(t).ko;
 }
 function drawPd(kind) {
-  const max = Math.max(...BODIES.map(b => PD[b.id][kind]));
   const base = 104, bw = 30;
   let h = `<line x1="8" y1="${base}" x2="352" y2="${base}" class="ax"/>`;
+  if (kind === 'moons') {                        // 교과서(2023)와 지금(2026) 비교
+    const max = Math.max(...BODIES.map(b => PD[b.id].moons));
+    BODIES.forEach((b, i) => {
+      const d = PD[b.id], x = 16 + i * 42, h1 = Math.max(d.moons23 ? 1.5 : 0, d.moons23 / max * 82), h2 = Math.max(d.moons ? 1.5 : 0, d.moons / max * 82);
+      const col = i < 4 ? '#4f86e8' : '#e0863c';
+      h += `<rect x="${x}" y="${(base - h1).toFixed(1)}" width="14" height="${h1.toFixed(1)}" rx="2" fill="${col}" opacity="0.4"/>`;
+      h += `<rect x="${x + 15}" y="${(base - h2).toFixed(1)}" width="14" height="${h2.toFixed(1)}" rx="2" fill="${col}"/>`;
+      if (d.moons) h += `<text x="${x + 22}" y="${(base - h2 - 4).toFixed(1)}" text-anchor="middle" class="v">${d.moons}</text>`;
+      if (d.moons23 && d.moons23 !== d.moons) h += `<text x="${x + 7}" y="${(base - h1 - 4).toFixed(1)}" text-anchor="middle" class="v">${d.moons23}</text>`;
+      h += `<text x="${x + 15}" y="${base + 13}" text-anchor="middle">${b.ko}</text>`;
+    });
+    h += `<rect x="16" y="14" width="10" height="8" rx="1.5" fill="#999" opacity="0.4"/><text x="30" y="21" class="v">2023(교과서)</text>`;
+    h += `<rect x="16" y="28" width="10" height="8" rx="1.5" fill="#999"/><text x="30" y="35" class="v">2026</text>`;
+    $('#pdChart').innerHTML = h;
+    return;
+  }
+  const max = Math.max(...BODIES.map(b => PD[b.id][kind]));
   BODIES.forEach((b, i) => {
     const v = PD[b.id][kind], x = 16 + i * 42, hh = Math.max(1.5, v / max * 82);
     h += `<rect x="${x}" y="${(base - hh).toFixed(1)}" width="${bw}" height="${hh.toFixed(1)}" rx="3" fill="${i < 4 ? '#4f86e8' : '#e0863c'}"/>`;
@@ -3154,7 +3960,6 @@ function updateModel() {
 
 /* ---------- 연결 ---------- */
 function wireUi() {
-  $('#grToggle').addEventListener('click', () => setGr(!st.gr.on));
   $('#playBtn').addEventListener('click', () => { jump = null; setPlaying(!st.playing); });
   $('#speed').addEventListener('input', e => setSpeed(+e.target.value));
   $('#nowBtn').addEventListener('click', goNow);
@@ -3183,9 +3988,10 @@ function wireUi() {
     const lon = +b.dataset.lon; jumpTo(findSolarLongitude(st.jd, lon, 1), SEASONS.find(s => s.lon === lon).ko);
   }));
   $('#countReset').addEventListener('click', () => { st.countStart = st.jd; updateHud(); });
-  $('#grAmp').addEventListener('input', e => { st.gr.At = 0.03 * Math.pow(1000, +e.target.value / 1000); syncGrSlider(); });
   const tog = (id, key, fn) => $(id).addEventListener('change', e => { st.show[key] = e.target.checked; if (fn) fn(); });
-  tog('#tSeasons', 'seasons'); tog('#tNames', 'names');
+  $('#tSeasons').addEventListener('change', e => setSeasons(e.target.checked));
+  $('#seasonBtn').addEventListener('click', () => setSeasons(!st.show.seasons));
+  tog('#tNames', 'names');
   tog('#tOrbits', 'orbits', () => BODIES.forEach(b => b.orbit.line.visible = st.show.orbits));
   tog('#tAxis', 'axis', () => { E.axisGrp.visible = st.show.axis; });
   tog('#tCity', 'city');
@@ -3212,6 +4018,11 @@ function wireUi() {
     const onControl = tag === 'input' || tag === 'button';
     const k = e.key, c = e.code || '';
     let done = true;
+    if (quest.on) {
+      if (e.shiftKey && k === 'ArrowRight') { skipStep(); e.preventDefault(); return; }
+      if (['Digit1', 'Digit2', 'Digit3', 'Numpad1', 'Numpad2', 'Numpad3', 'BracketLeft', 'BracketRight', 'KeyM', 'KeyI', 'KeyV', 'KeyP', 'KeyC', 'KeyS', 'KeyL'].includes(c)
+        || k === 'PageUp' || k === 'PageDown') return;
+    }
     if ((k === ' ' || c === 'Space') && !onControl) { jump = null; setPlaying(!st.playing); }
     else if (k === 'ArrowRight' && tag !== 'input') setSpeed(st.speed + 1);
     else if (k === 'ArrowLeft' && tag !== 'input') setSpeed(st.speed - 1);
@@ -3221,7 +4032,6 @@ function wireUi() {
     else if (c === 'Digit2' || c === 'Numpad2') goView('orbit');
     else if (c === 'Digit3' || c === 'Numpad3') goView('system');
     else if (c === 'KeyT') toggleTop();
-    else if (c === 'KeyG' || c === 'KeyB' || c === 'Period') setGr(!st.gr.on);
     else if (c === 'KeyS') setPreset(st.preset === 'planets' ? 'true' : st.preset === 'true' ? 'all' : 'planets');
     else if (k === 'PageDown') jumpSeason(1);
     else if (k === 'PageUp') jumpSeason(-1);
@@ -3235,6 +4045,7 @@ function wireUi() {
     else if (c === 'BracketLeft') tourStep(-1);
     else if (c === 'KeyM') setMore(!st.show.more);
     else if (c === 'KeyP') setTb(!st.show.tb);
+    else if (c === 'KeyV') setSeasons(!st.show.seasons);
     else if (c === 'KeyC') openNasa(cam.follow || 'earth');
     else if (k === 'Escape') setPanel(false);
     else done = false;
@@ -3283,6 +4094,7 @@ function frame(now) {
   updateGr(dt);
   updateBodies();
   updateMoons();
+  updateWhatIf();
   updateBeltAndTb();
   updatePatches();
   updateOrbitDisplay();
@@ -3329,9 +4141,13 @@ function init() {
   buildScaleTab();
   updateBodies();
   cam.az = earthAz() + 1.9; cam.pol = 0.75; cam.dist = 18; cam.lastAzE = earthAz();
-  goView('orbit', RM ? 0 : 3.2);
+  $('#obCheck').addEventListener('click', obCheck);
+  $('#obShuffle').addEventListener('click', buildOrder);
+  $('#labBtn').addEventListener('click', () => { if (lab.open) closeLab(); else openLab('menu'); });
+  setPanel(false);
+  questGo(0);
   updateHud();
-  window.__solar = { st, cam, B, SUN, settled: () => !cam.orb && !cam.tr && !jump && (st.gr.on ? st.gr.amt >= 1 && Math.abs(st.gr.A / st.gr.At - 1) < 0.01 : st.gr.op === 0), goView, setGr, setPreset, jumpSeason, focusBody, toggleTop, setPlaying, setSpeed, jumpTo, tourStep, setMore, toggleFullscreen, setTb, tbHighlight, TB };
+  window.__solar = { st, cam, B, SUN, settled: () => !cam.orb && !cam.tr && !jump && (st.gr.on ? st.gr.amt >= 1 && Math.abs(st.gr.A / st.gr.At - 1) < 0.01 : st.gr.op === 0), goView, setGr, setPreset, jumpSeason, focusBody, toggleTop, setPlaying, setSpeed, jumpTo, tourStep, setMore, toggleFullscreen, setTb, tbHighlight, TB, openNasa, updateFocusCard, quest, questGo, endQuest, PLANET_ORDER, openLab, lab, wi, QSTEPS };
   requestAnimationFrame(t => { last = t; frame(t); });
   const boot = $('#boot'); boot.classList.add('gone'); setTimeout(() => boot.remove(), 700);
 }
