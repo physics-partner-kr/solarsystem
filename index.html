@@ -762,6 +762,69 @@ body.tel-on #grToggle { display: none !important; }
 .tl-feat button::before { content: '☐ '; }
 .tl-feat button.on { background: #7fc4ff; border-color: #7fc4ff; color: #06142e; }
 .tl-feat button.on::before { content: '☑ '; }
+/* 관측 도감 */
+.tl-book { position: absolute; inset: 0; z-index: 3; display: flex; padding: .5rem; }
+.tl-book[hidden] { display: none; }
+.bk-head { display: flex; align-items: center; gap: .9rem; }
+.bk-head > b { font-size: 1.55rem; }
+.bk-cnt { font-size: 1.05rem; font-weight: 750; color: #47506a; } .bk-cnt em { font-style: normal; font-size: 1.35rem; color: #b8321f; }
+.bk-bar { flex: 0 1 12rem; height: .7rem; border-radius: .35rem; background: #ddd5c2; overflow: hidden; }
+.bk-bar i { display: block; height: 100%; background: linear-gradient(90deg, #e0a52c, #cf4526); border-radius: .35rem; }
+.bk-kind { font-size: 1rem; font-weight: 700; color: #5d667c; }
+.bk-x { margin-left: auto; min-height: 2.5rem; padding: 0 .9rem; border-radius: .6rem; border: 1.5px solid #b9b2a0; background: #fffdf6; color: #1b2333;
+  font: inherit; font-size: 1rem; font-weight: 750; cursor: pointer; }
+.bk-x:hover, .bk-slot:hover { border-color: #2c4f8a; }
+.bk-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: .7rem .9rem; }
+.bk-grp { display: flex; flex-direction: column; min-height: 0; gap: .3rem; }
+.bk-gt { margin: 0; font-size: .98rem; font-weight: 800; color: var(--ink); border-bottom: 2px solid var(--ink); padding-bottom: .15rem; }
+.bk-gt span { float: right; font-weight: 750; color: #5d667c; } .bk-gt.done span { color: var(--ink); }
+.bk-row { flex: 1; min-height: 0; display: grid; gap: .5rem; }
+.bk-slot { display: flex; flex-direction: column; align-items: center; min-height: 0; padding: .3rem .2rem .35rem; border-radius: .8rem; border: 1.5px solid transparent;
+  background: rgba(255, 253, 246, .55); color: #1b2333; font: inherit; cursor: pointer; }
+.bk-slot.got { background: #fffdf6; }
+.bk-cw { flex: 1; min-height: 0; width: 100%; position: relative; }
+.bk-cw canvas, .bk-dl canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.bk-slot b { font-size: 1.05rem; margin-top: .15rem; } .bk-slot:not(.got) b { color: #7c8496; }
+.bk-slot small { font-size: .82rem; font-weight: 650; color: #5d667c; white-space: nowrap; }
+.bk-foot { margin: 0; display: flex; align-items: center; gap: 1rem; font-size: .9rem; font-weight: 600; color: #5d667c; line-height: 1.4; }
+.bk-foot .qlink { margin: 0 0 0 auto; color: #5d667c; white-space: nowrap; }
+.bk-nav { display: flex; align-items: center; gap: .4rem; } .bk-nav em { font-style: normal; font-weight: 750; color: #47506a; }
+.bk-nav button { min-width: 2.5rem; min-height: 2.5rem; border-radius: .6rem; border: 1.5px solid #b9b2a0; background: #fffdf6; font-size: 1rem; cursor: pointer; color: #1b2333; }
+.bk-nav button:disabled { opacity: .35; cursor: default; }
+.bk-det { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); gap: .9rem; }
+.bk-dl { display: flex; flex-direction: column; min-height: 0; gap: .3rem; }
+.bk-dl .tl-skw { flex: 1; min-height: 0; position: relative; }
+.bk-dr { display: flex; flex-direction: column; gap: .6rem; min-height: 0; }
+.bk-info { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: .45rem; }
+.bk-info div { padding: .35rem .6rem; border-radius: .5rem; background: #fffdf6; border: 1.5px solid #d6cfbd; min-width: 0; }
+.bk-info dt { font-size: .82rem; font-weight: 750; color: #47506a; }
+.bk-info dd { margin: 0; font-size: 1.02rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bk-box { padding: .55rem .8rem; border-radius: .6rem; background: #e6eefc; border: 1.5px solid #b8c8e8; }
+.bk-box b { display: block; font-size: .95rem; color: #2c4f8a; margin-bottom: .2rem; }
+.bk-box ul { margin: 0; padding-left: 1.1rem; } .bk-box li { font-size: 1rem; font-weight: 600; line-height: 1.45; }
+.bk-note { flex: 1; min-height: 0; display: flex; flex-direction: column; background: #fffdf6; border-color: #d6cfbd; }
+.bk-note b { color: #47506a; }
+.bk-note p { flex: 1; min-height: 0; overflow: auto; margin: 0; font-size: 1.02rem; font-weight: 600; line-height: 1.6; white-space: pre-wrap; }
+#bkFly { position: absolute; left: 50%; top: 50%; width: min(60%, 26rem); aspect-ratio: 1; margin: 0; transform: translate(-50%, -50%); pointer-events: none; z-index: 4; opacity: 0; }
+#bkFly[hidden] { display: none; }
+#bkFly.go { animation: bkFly 2.6s cubic-bezier(.2, .7, .3, 1) forwards; }
+@keyframes bkFly {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(2.3) rotate(-18deg); }
+  16% { opacity: 1; transform: translate(-50%, -50%) scale(.94) rotate(0deg); }
+  22% { transform: translate(-50%, -50%) scale(1.03); }
+  28%, 72% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(120%, -50%) scale(.25); }
+}
+.tl-log.thud .tl-paper { animation: bkThud .28s ease-out; }
+@keyframes bkThud { 0% { transform: translateY(0); } 30% { transform: translateY(.25rem); } 100% { transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { #bkFly.go { animation-duration: .01s; } .tl-log.thud .tl-paper { animation: none; } }
+.bk-got { margin: .4rem 0 0; padding: .45rem .8rem; border-radius: .7rem; border: 1px solid rgba(255, 214, 107, .6); background: rgba(255, 214, 107, .1); color: #ffe7a6; font-size: 1.05rem; font-weight: 700; line-height: 1.45; }
+.bk-ob { display: block; width: 100%; min-height: 2.7rem; margin: .6rem 0 0; border-radius: .8rem; border: 1.5px solid #ffd66b; background: transparent; color: #ffe08a;
+  font: inherit; font-size: 1.02rem; font-weight: 750; cursor: pointer; }
+.bk-ob:hover { background: rgba(255, 214, 107, .12); }
+.bk-got em { font-style: normal; white-space: nowrap; color: #fff; }
+.bk-got span { display: block; font-size: .95rem; font-weight: 650; color: #f3dfa8; }
+.bk-two { display: flex; gap: .5rem; margin-top: .45rem; } .bk-two > * { flex: 1; width: auto; margin: 0; min-height: 2.9rem; white-space: nowrap; }
 .tl-good { margin: .5rem 0 .3rem; }
 .tl-good > b { display: block; font-size: .98rem; color: #ffe08a; margin-bottom: .3rem; }
 .tl-good > div { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .3rem; }
@@ -1069,7 +1132,9 @@ body.hide-panel .ghost-b { right: var(--gap); }
             </div>
           </div>
         </div>
-      </div></div><p class="sb-cap" id="tlCap" aria-live="polite"></p><div class="sb-ctrl" id="tlCtrl"></div></div>
+        <canvas id="bkFly" hidden aria-hidden="true"></canvas>
+      </div>
+      <div class="tl-book" id="tlBook" hidden aria-live="polite"></div></div><p class="sb-cap" id="tlCap" aria-live="polite"></p><div class="sb-ctrl" id="tlCtrl"></div></div>
     <div class="sb-side" id="tlSide" aria-live="polite"></div>
   </section>
   <section id="graphBox" hidden></section>
@@ -6642,14 +6707,26 @@ function t3Hit(r, key) { const m = new THREE.Mesh(new THREE.SphereGeometry(r, 12
 function t3Mats() {
   return { white: t3Mat(0xeef1f6, 0.25, 0.32), black: t3Mat(0x1a1d26, 0.3, 0.55), navy: t3Mat(0x252c40, 0.4, 0.45), metal: t3Mat(0xb9c0cc, 0.85, 0.3),
     glass: t3Mat(0x3d6fa8, 0.9, 0.06, { emissive: 0x0b1a33 }), film: t3Mat(0xe3e6ee, 1, 0.12), cap: t3Mat(0x0c0e14, 0.15, 0.75),
-    inner: t3Mat(0x050608, 0, 1), beam: new THREE.MeshBasicMaterial({ color: 0xffd66b, transparent: true, opacity: 0.55, depthWrite: false }) };
+    inner: t3Mat(0x050608, 0, 1), beam: new THREE.MeshBasicMaterial({ color: 0xffd66b, transparent: true, opacity: 0.55, depthWrite: false }),
+    gloss: new THREE.MeshPhysicalMaterial({ color: 0xf2f4f8, metalness: 0.1, roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.15 }),
+    hoodIn: t3Mat(0x040506, 0, 1, { side: THREE.BackSide }), gold: t3Mat(0xc9a24a, 0.8, 0.35), dark: t3Mat(0x2a3146, 0.6, 0.4),
+    mirror: t3Mat(0xdfe8f4, 1, 0.07), rubber: t3Mat(0x111318, 0, 0.9) };
+}
+function t3Hood(r, len, mat, z, inner) {            // 앞이 뚫린 통(안쪽은 검게): 뚜껑을 열면 안의 렌즈·거울이 보임
+  const g = new THREE.Group(), cyl = rr => { const q = new THREE.CylinderGeometry(rr, rr, len, 48, 1, true); q.rotateX(-Math.PI / 2); return q; };
+  g.add(new THREE.Mesh(cyl(r), mat)); g.add(new THREE.Mesh(cyl(r * 0.93), inner));
+  const rim = new THREE.Mesh(new THREE.RingGeometry(r * 0.93, r, 48), mat); rim.rotation.y = Math.PI; rim.position.z = -len / 2; g.add(rim);
+  g.position.z = z; return g;
 }
 function t3Refractor() {                            // 학교 굴절 망원경(구경 80 mm, 경통 길이 약 0.8 m) + 경위대 + 삼각대
   const M = t3Mats(), root = new THREE.Group(), az = new THREE.Group(), alt = new THREE.Group(), H = 1.05, fG = new THREE.Group();
   root.add(az); az.position.y = H; az.add(alt); alt.position.x = 0.13;          // 경통은 가대 옆에 달려 있어 높이 들어도 삼각대에 닿지 않음
-  alt.add(t3Cyl(0.05, 0.05, 0.8, M.white, 0));                                  // 경통
-  alt.add(t3Cyl(0.06, 0.06, 0.17, M.navy, -0.48));                              // 이슬 방지 후드
-  const glass = t3Disc(0.05, M.glass, -0.44); alt.add(glass);                   // 대물렌즈
+  alt.add(t3Cyl(0.05, 0.05, 0.8, M.gloss, 0));                                  // 경통
+  alt.add(t3Hood(0.061, 0.17, M.navy, -0.48, M.hoodIn));                        // 이슬 방지 후드(앞이 뚫려 있어 뚜껑을 열면 렌즈가 보임)
+  alt.add(t3Cyl(0.057, 0.057, 0.03, M.navy, -0.38));                            // 렌즈 셀
+  const glass = t3Disc(0.047, M.glass, -0.416); alt.add(glass);                 // 대물렌즈
+  const lr = new THREE.Mesh(new THREE.RingGeometry(0.046, 0.0575, 40), M.black); lr.rotation.y = Math.PI; lr.position.z = -0.4165; alt.add(lr);
+  [-0.3, 0.33].forEach(z => alt.add(t3Cyl(0.0506, 0.0506, 0.01, M.gold, z)));   // 장식 띠
   const cap = t3Cyl(0.064, 0.064, 0.03, M.cap, -0.58); alt.add(cap);
   const filter = new THREE.Group(); filter.add(t3Cyl(0.067, 0.067, 0.026, M.metal, -0.58)); filter.add(t3Disc(0.058, M.film, -0.594)); alt.add(filter);
   alt.add(t3Cyl(0.047, 0.04, 0.06, M.black, 0.43));                             // 경통 뒤쪽
@@ -6668,12 +6745,23 @@ function t3Refractor() {                            // 학교 굴절 망원경(�
   az.add(t3Box(0.03, 0.2, 0.09, M.navy, 0.045, -0.06, 0));                      // 경위대 팔
   const ax = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.05, 20), M.metal); ax.rotation.z = Math.PI / 2; ax.position.set(0.07, 0, 0); az.add(ax);
   az.add(t3Box(0.13, 0.05, 0.13, M.navy, -0.04, -0.17, 0));
+  const kb = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.016, 24), M.black); kb.rotation.z = Math.PI / 2; kb.position.set(0.1, 0, 0); az.add(kb);   // 고도 고정 손잡이
+  az.add(t3Rod(new THREE.Vector3(0.05, -0.12, 0.05), new THREE.Vector3(0.03, -0.36, 0.13), 0.005, M.black));   // 미동 손잡이
   root.add(t3At(new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.08, 0.06, 24), M.black), 0, H - 0.22, 0));
-  for (let i = 0; i < 3; i++) {                                                  // 삼각대
-    const a = i * Math.PI * 2 / 3 + Math.PI / 6;
-    root.add(t3Rod(new THREE.Vector3(Math.cos(a) * 0.05, H - 0.24, Math.sin(a) * 0.05), new THREE.Vector3(Math.cos(a) * 0.5, 0, Math.sin(a) * 0.5), 0.016, M.metal));
+  for (let i = 0; i < 3; i++) {                                                  // 삼각대: 위 마디(굵게)·아래 마디(가늘게)·잠금쇠·고무발·받침대 팔
+    const a = i * Math.PI * 2 / 3 + Math.PI / 6, top = new THREE.Vector3(Math.cos(a) * 0.05, H - 0.24, Math.sin(a) * 0.05), foot = new THREE.Vector3(Math.cos(a) * 0.5, 0, Math.sin(a) * 0.5);
+    const mid = top.clone().lerp(foot, 0.55), dir = foot.clone().sub(top).normalize();
+    root.add(t3Rod(top, mid, 0.019, M.dark)); root.add(t3Rod(mid, foot, 0.013, M.metal));
+    root.add(t3Rod(mid.clone().addScaledVector(dir, -0.03), mid.clone().addScaledVector(dir, 0.02), 0.025, M.black));
+    root.add(t3Rod(foot.clone().addScaledVector(dir, -0.04), foot, 0.017, M.rubber));
+    root.add(t3Rod(new THREE.Vector3(0, 0.42, 0), top.clone().lerp(foot, 1 - 0.42 / (H - 0.24)), 0.006, M.black));
   }
   root.add(t3At(new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.012, 3), M.black), 0, 0.42, 0));
+  [[0, 0.016], [2.1, 0.013], [4.2, 0.011]].forEach(([a, r]) => {                // 받침대 위의 접안렌즈 세 개(25·10·6 mm)
+    const e = new THREE.Group(); e.position.set(Math.cos(a) * 0.062, 0.426, Math.sin(a) * 0.062); root.add(e);
+    e.add(t3At(new THREE.Mesh(new THREE.CylinderGeometry(0.0125, 0.0125, 0.03, 20), M.metal), 0, 0.015, 0));
+    e.add(t3At(new THREE.Mesh(new THREE.CylinderGeometry(r + 0.006, r + 0.006, 0.035, 20), M.black), 0, 0.047, 0));
+  });
   const hitMain = t3Hit(0.1, 'main'); hitMain.position.z = -0.58; alt.add(hitMain);
   const hitFinder = t3Hit(0.05, 'finder'); hitFinder.position.z = -0.11; fG.add(hitFinder);
   const V = (x, y, z) => new THREE.Vector3(x, y, z);
@@ -6684,9 +6772,9 @@ function t3Refractor() {                            // 학교 굴절 망원경(�
 function t3Reflector() {                            // 천문대 반사 망원경(구경 400 mm) + 포크 가대 + 받침 기둥
   const M = t3Mats(), root = new THREE.Group(), az = new THREE.Group(), alt = new THREE.Group(), H = 1.75, fG = new THREE.Group();
   root.add(az); az.position.y = H; az.add(alt);
-  alt.add(t3Cyl(0.2, 0.2, 1.5, M.white, 0));
-  alt.add(t3Cyl(0.207, 0.207, 0.07, M.black, -0.72));
-  const glass = t3Disc(0.19, M.inner, -0.7); alt.add(glass);                    // 열린 경통 입구(안쪽은 검게)
+  alt.add(t3Hood(0.2, 1.5, M.gloss, 0, M.hoodIn));                               // 앞이 뚫린 경통(안쪽은 검게)
+  alt.add(t3Hood(0.207, 0.07, M.black, -0.72, M.hoodIn));
+  const glass = t3Disc(0.186, M.mirror, 0.72); alt.add(glass);                  // 경통 안쪽 끝의 대물 거울(주경)
   [0, Math.PI / 2].forEach(r => { const v = t3Box(0.38, 0.006, 0.01, M.black, 0, 0, -0.69); v.rotation.z = r; alt.add(v); });   // 부경 받침
   alt.add(t3Cyl(0.05, 0.05, 0.06, M.black, -0.69));
   const cap = t3Cyl(0.215, 0.215, 0.04, M.cap, -0.78); alt.add(cap);
@@ -6712,6 +6800,147 @@ function t3Reflector() {                            // 천문대 반사 망원�
     labels: [[alt, V(0, 0, -0.8), 'main'], [alt, V(0, 0, 0.82), 'mirror'], [alt, V(0, -0.2, 0.3), 'tube'], [fG, V(0, 0.03, 0), 'finder'], [alt, V(0.36, 0, -0.52), 'eye'],
       [alt, V(0.24, 0.03, -0.46), 'focus'], [az, V(0.3, -0.6, 0), 'mount'], [root, V(0.16, 0.4, 0), 'pier']] };
 }
+// 3D 하늘: 그 시각 강릉의 하늘(별·태양·달·행성)을 망원경 둘레에 펼침. 화면을 돌리면 하늘도 함께 돌아가 보임
+const T3_SKY = 30, T3_STAR = 29.2, T3_BODY = 27.5, T3_FAR = 28.5;   // 하늘 > 별 > 천체 > 건물 순으로 멀리
+const t3Dir = (v, r) => new THREE.Vector3(v[0] * r, v[2] * r, -v[1] * r);   // 동·북·천정 → 3D(동 = +x, 천정 = +y, 북 = −z)
+function t3Glow(c0, c1, S) {                        // 가운데가 밝은 둥근 빛
+  const c = document.createElement('canvas'); c.width = c.height = S || 128;
+  const x = c.getContext('2d'), h = c.width / 2, g = x.createRadialGradient(h, h, 0, h, h, h);
+  g.addColorStop(0, c0); g.addColorStop(0.25, c0); g.addColorStop(0.45, c1); g.addColorStop(1, 'rgba(0,0,0,0)');
+  x.fillStyle = g; x.fillRect(0, 0, c.width, c.width); return c;
+}
+function t3SkyInit() {
+  const sky = t3.sky = { root: new THREE.Group(), bodies: {}, sig: '' };
+  const dg = new THREE.SphereGeometry(T3_SKY, 48, 24), n = dg.attributes.position.count;
+  dg.setAttribute('color', new THREE.BufferAttribute(new Float32Array(n * 3), 3));
+  sky.dome = new THREE.Mesh(dg, new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.BackSide, depthWrite: false, fog: false }));
+  sky.dome.renderOrder = -2; sky.root.add(sky.dome);
+  sky.stars = new THREE.Group(); sky.stars.matrixAutoUpdate = false; sky.root.add(sky.stars);   // 별은 천구에 붙어 있고, 하늘 전체가 시각에 따라 돎
+  sky.starMats = [];
+  [[-9, 2.2, 3.6, 1], [2.2, 3.4, 2.5, 0.9], [3.4, 9, 1.6, 0.75]].forEach(([m0, m1, size, op]) => {
+    const pts = tlChartStars().filter(s => s.m >= m0 && s.m < m1), a = new Float32Array(pts.length * 3);
+    pts.forEach((s, i) => { a[i * 3] = s.q[0] * T3_STAR; a[i * 3 + 1] = s.q[1] * T3_STAR; a[i * 3 + 2] = s.q[2] * T3_STAR; });
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(a, 3));
+    const mt = new THREE.PointsMaterial({ color: 0xffffff, size, sizeAttenuation: false, transparent: true, opacity: op, depthWrite: false });
+    mt.userData.op = op; sky.starMats.push(mt);
+    const p = new THREE.Points(g, mt); p.renderOrder = -1; sky.stars.add(p);
+  });
+  const gnd = sky.gnd = new THREE.Mesh(new THREE.CircleGeometry(T3_SKY - 1, 64), new THREE.MeshLambertMaterial({ color: 0x0a0f1c }));
+  gnd.rotation.x = -Math.PI / 2; gnd.position.y = -0.004; gnd.receiveShadow = true; sky.root.add(gnd);
+  const wc = document.createElement('canvas'); wc.width = 512; wc.height = 128;
+  sky.winTex = new THREE.CanvasTexture(wc);
+  sky.sil = [];
+  for (const [a1, a2, ht, school] of [[332, 28, 8, 1], [96, 120, 3.2], [204, 226, 2.4], [250, 263, 4.4]]) {   // 관측 프로그램 화면과 같은 건물·나무
+    const span = wrap360(a2 - a1), mid = a1 + span / 2, half = span / 2 * DEG, R = T3_FAR, d = R * Math.cos(half), wd = 2 * R * Math.sin(half), hh = d * Math.tan(ht * DEG);
+    const mt = new THREE.MeshBasicMaterial({ color: school ? 0xffffff : 0x05080f, map: school ? sky.winTex : null, fog: false });
+    const b = new THREE.Mesh(new THREE.BoxGeometry(wd, hh, 0.6), mt);
+    b.position.set(Math.sin(mid * DEG) * (d + 0.3), hh / 2, -Math.cos(mid * DEG) * (d + 0.3)); b.rotation.y = -mid * DEG;
+    sky.root.add(b); sky.sil.push({ mt, school });
+  }
+  const ringC = document.createElement('canvas'); ringC.width = ringC.height = 128;
+  const rx = ringC.getContext('2d'); rx.strokeStyle = '#ffd66b'; rx.lineWidth = 7; rx.beginPath(); rx.arc(64, 64, 56, 0, 7); rx.stroke();
+  sky.ring = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(ringC), transparent: true, depthWrite: false, fog: false }));
+  sky.root.add(sky.ring);
+  TL_IDS.forEach(id => {
+    let tex = null, ang = 2.2, c = null;
+    if (id === 'sun') { c = t3Glow('rgba(255,252,230,1)', 'rgba(255,214,120,.55)'); ang = 6; }
+    else if (id === 'moon') { c = document.createElement('canvas'); c.width = c.height = 128; ang = 2.8; }
+    else if (id === 'pluto') { c = t3Glow('rgba(220,200,170,1)', 'rgba(220,200,170,.2)', 32); ang = 0.8; }
+    else { tex = new THREE.Texture(iconImg(id)); ang = id === 'saturn' ? 3.3 : 2.2; }
+    if (c) tex = new THREE.CanvasTexture(c);
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, fog: false }));
+    sp.scale.setScalar(T3_BODY * ang * DEG * 1.0); sky.root.add(sp);
+    sky.bodies[id] = { sp, tex, c, ang, ok: !!c };
+  });
+  t3.scene.add(sky.root);
+}
+function t3SkyUpdate() {                            // 날짜·시각이 바뀐 만큼 하늘을 다시 맞춤
+  const sky = t3.sky, F = tl.F; if (!sky || !F) return;
+  const M = F.M, sun = tl.bodies.sun, sAlt = sun ? sun.alt : -30;
+  sky.stars.matrix.set(M[0][0], M[0][1], M[0][2], 0, M[2][0], M[2][1], M[2][2], 0, -M[1][0], -M[1][1], -M[1][2], 0, 0, 0, 0, 1);
+  sky.stars.matrixWorldNeedsUpdate = true;
+  const nf = 1 - smooth(-14, -4, sAlt);
+  sky.starMats.forEach(m => { m.opacity = m.userData.op * nf; }); sky.stars.visible = nf > 0.01;
+  const sig = Math.round(sAlt * 2);
+  if (sig !== sky.sig) {                            // 하늘 색: 지평선은 밝고 천정은 어둡게(관측 프로그램과 같은 색)
+    sky.sig = sig;
+    const top = tlSkyCol(sAlt - 10), hor = tlSkyCol(sAlt + 4), pos = sky.dome.geometry.attributes.position, col = sky.dome.geometry.attributes.color;
+    for (let i = 0; i < pos.count; i++) {
+      const t = Math.pow(clamp(pos.getY(i) / T3_SKY, 0, 1), 0.55), c = mix3(hor, top, t);
+      col.setXYZ(i, c[0] / 255, c[1] / 255, c[2] / 255);
+    }
+    col.needsUpdate = true;
+    const day = smooth(-8, 4, sAlt), gc = mix3([10, 15, 26], [52, 70, 48], day), sc = mix3([5, 8, 15], [36, 48, 40], day);
+    sky.gnd.material.color.setRGB(gc[0] / 255, gc[1] / 255, gc[2] / 255);
+    sky.sil.forEach(s => { if (!s.school) s.mt.color.setRGB(sc[0] / 255, sc[1] / 255, sc[2] / 255); });
+    const wx = sky.winTex.image.getContext('2d');                                // 학교 건물 앞면(밤에는 교실 불빛)
+    wx.fillStyle = rgb(sc); wx.fillRect(0, 0, 512, 128);
+    if (day < 0.5) { wx.fillStyle = 'rgba(255,214,120,.38)'; for (let r = 0; r < 3; r++) for (let i = 0; i < 26; i++) if ((i * 7 + r * 3) % 5) wx.fillRect(12 + i * 19.3, 26 + r * 34, 7, 11); }
+    sky.winTex.needsUpdate = true;
+    t3.mat.material.color.setRGB(...mix3([30, 38, 56], [70, 84, 70], day).map(v => v / 255));
+  }
+  for (const id of TL_IDS) {
+    const o = tl.bodies[id], b = sky.bodies[id]; if (!o) continue;
+    b.sp.position.copy(t3Dir(o.v, T3_BODY)); b.sp.visible = o.alt > -3;
+    if (!b.ok && b.tex.image && b.tex.image.complete && b.tex.image.naturalWidth) { b.tex.needsUpdate = true; b.ok = true; }
+    if (id === 'moon') {                            // 달의 위상
+      const key = Math.round(tl.jd * 24);
+      if (b.key !== key) {
+        b.key = key;
+        const d = tlDisc('moon', 112, tlGeom(o, tlBasis(o.az, o.alt))), x = b.c.getContext('2d'), k = 112 / d.D;
+        x.clearRect(0, 0, 128, 128); x.drawImage(d.c, 64 - d.o * k, 64 - d.o * k, d.c.width * k, d.c.height * k); b.tex.needsUpdate = true;
+      }
+    }
+  }
+  const tg = tl.target && tl.bodies[tl.target];
+  sky.ring.visible = !!tg && tg.alt > -3;
+  if (tg) { const b = sky.bodies[tl.target]; sky.ring.position.copy(b.sp.position); sky.ring.scale.setScalar(Math.max(b.sp.scale.x * (tl.target === 'sun' ? 0.75 : 1.5), T3_BODY * 2.6 * DEG)); }
+  const sunUp = sun && sun.alt > 0;                  // 낮에는 실제 태양 쪽에서 빛이 와서 그림자도 태양 반대쪽으로 생김
+  if (sunUp) { t3.key.position.copy(t3Dir(sun.v, 8)); t3.key.color.setHex(0xfff3dc); t3.key.intensity = 1.05; }
+  else { t3.key.position.set(-3, 5, 4); t3.key.color.setHex(0xffffff); t3.key.intensity = 0.9; }
+}
+function t3SkyLabels(x, mode, placed) {             // 하늘의 천체 이름(망원경 부분 이름과 겹치지 않게)
+  const sky = t3.sky, r = t3.rect, fs = tl.fs; if (!sky || !r) return;
+  const mini = mode === 'mini';
+  x.font = sbFont(fs * (mini ? 0.82 : 0.92), 750); x.textBaseline = 'alphabetic';
+  const items = [];
+  for (const id of TL_IDS) {
+    const o = tl.bodies[id], b = sky.bodies[id];
+    if (!o || o.alt < 1 || (mini && id !== tl.target)) continue;
+    const p = b.sp.position.clone().project(t3.cam); if (p.z > 1 || Math.abs(p.x) > 1 || Math.abs(p.y) > 1) continue;
+    const sx = r.x + (p.x + 1) / 2 * r.w, sy = r.y + (1 - p.y) / 2 * r.h;
+    const pr = Math.max(6, b.sp.scale.x / 2 * r.h / (2 * Math.tan(t3.cam.fov / 2 * DEG) * t3.cam.position.distanceTo(b.sp.position)));
+    items.push({ id, sx, sy, pr, tg: id === tl.target });
+  }
+  items.sort((a, b) => b.tg - a.tg);                // 관측 대상 이름을 먼저 자리 잡게
+  for (const it of items) {
+    const t = it.tg && !mini ? `${tlKo(it.id)} (관측 대상)` : tlKo(it.id), tw = x.measureText(t).width + 12, th = fs * 1.3, g = it.pr + 4;
+    const spots = [[it.sx - tw / 2, it.sy + g], [it.sx + g, it.sy - th / 2], [it.sx - g - tw, it.sy - th / 2], [it.sx - tw / 2, it.sy - g - th]];
+    let box = null;
+    for (const [lx, ly] of spots) {
+      const bb = [lx, ly, lx + tw, ly + th];
+      if (bb[0] < r.x || bb[2] > r.x + r.w || bb[1] < r.y || bb[3] > r.y + r.h) continue;
+      if (!placed.some(q => bb[0] < q[2] + 4 && bb[2] > q[0] - 4 && bb[1] < q[3] + 3 && bb[3] > q[1] - 3)) { box = bb; break; }
+    }
+    if (!box) continue;
+    placed.push(box);
+    x.fillStyle = 'rgba(5,10,28,.72)'; x.beginPath(); x.roundRect ? x.roundRect(box[0], box[1], tw, th, 6) : x.rect(box[0], box[1], tw, th); x.fill();
+    x.fillStyle = it.tg ? '#ffe08a' : '#e8eeff'; x.textAlign = 'center'; x.fillText(t, box[0] + tw / 2, box[1] + th * 0.74); x.textAlign = 'left';
+  }
+}
+function t3Horizon(x, placed) {                     // 지평선의 방위(북은 빨강)
+  const r = t3.rect, fs = tl.fs;
+  x.font = sbFont(fs * 1.05, 850); x.textAlign = 'center'; x.textBaseline = 'middle';
+  [['북', 0, '#ff8a80'], ['동', 90, '#e8eeff'], ['남', 180, '#e8eeff'], ['서', 270, '#e8eeff']].forEach(([t, a, col]) => {
+    const p = new THREE.Vector3(Math.sin(a * DEG) * 22, 0.9, -Math.cos(a * DEG) * 22).project(t3.cam);
+    if (p.z > 1 || Math.abs(p.x) > 0.97 || Math.abs(p.y) > 0.97) return;
+    const sx = r.x + (p.x + 1) / 2 * r.w, sy = r.y + (1 - p.y) / 2 * r.h, bb = [sx - fs, sy - fs * 0.8, sx + fs, sy + fs * 0.8];
+    if (placed.some(q => bb[0] < q[2] && bb[2] > q[0] && bb[1] < q[3] && bb[3] > q[1])) return;
+    placed.push(bb);
+    x.lineWidth = 4; x.strokeStyle = 'rgba(0,0,0,.7)'; x.strokeText(t, sx, sy); x.fillStyle = col; x.fillText(t, sx, sy);
+  });
+  x.textAlign = 'left'; x.textBaseline = 'alphabetic';
+}
 function t3Init() {
   if (t3.tried) return t3.ok; t3.tried = true;
   try {
@@ -6720,10 +6949,13 @@ function t3Init() {
     t3.scene = new THREE.Scene();
     t3.cam = new THREE.PerspectiveCamera(32, 1, 0.05, 60);
     t3.scene.add(new THREE.HemisphereLight(0xcfdcff, 0x3a3226, 0.8));
-    const key = new THREE.DirectionalLight(0xffffff, 0.95); key.position.set(-3, 5, 4); t3.scene.add(key);
+    const key = t3.key = new THREE.DirectionalLight(0xffffff, 0.95); key.position.set(-3, 5, 4); t3.scene.add(key); t3.scene.add(key.target);
+    t3.r.shadowMap.enabled = true; t3.r.shadowMap.type = THREE.PCFSoftShadowMap;
+    key.castShadow = true; key.shadow.mapSize.set(1024, 1024); key.shadow.bias = -0.0005;
+    Object.assign(key.shadow.camera, { left: -2.6, right: 2.6, top: 2.6, bottom: -2.6, near: 0.5, far: 20 });
     const rim = new THREE.DirectionalLight(0x9fbcff, 0.45); rim.position.set(4, 2, -5); t3.scene.add(rim);
     t3.ground = new THREE.Group();                                               // 땅과 방위 원(북은 빨강)
-    const gnd = new THREE.Mesh(new THREE.CircleGeometry(1.2, 64), t3Mat(0x1d2638, 0, 1)); gnd.rotation.x = -Math.PI / 2; t3.ground.add(gnd);
+    const gnd = t3.mat = new THREE.Mesh(new THREE.CircleGeometry(1.2, 64), t3Mat(0x1d2638, 0, 1)); gnd.rotation.x = -Math.PI / 2; gnd.receiveShadow = true; t3.ground.add(gnd);
     const ring = new THREE.Mesh(new THREE.RingGeometry(1.0, 1.03, 96), new THREE.MeshBasicMaterial({ color: 0x8fa3c8 })); ring.rotation.x = -Math.PI / 2; ring.position.y = 0.002; t3.ground.add(ring);
     [[0, 0xff5a50], [90, 0x8fa3c8], [180, 0x8fa3c8], [270, 0x8fa3c8]].forEach(([a, c]) => {
       const tk = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.004, 0.16), new THREE.MeshBasicMaterial({ color: c }));
@@ -6731,7 +6963,11 @@ function t3Init() {
     });
     t3.scene.add(t3.ground);
     t3.models = { school: t3Refractor(), obs: t3Reflector() };
-    Object.values(t3.models).forEach(m => t3.scene.add(m.root));
+    Object.values(t3.models).forEach(m => {
+      t3.scene.add(m.root);
+      m.root.traverse(o => { if (o.isMesh && o.visible && !o.material.transparent) o.castShadow = true; });
+    });
+    t3SkyInit();
     t3.ray = new THREE.Raycaster();
     t3.ok = true;
   } catch (e) { console.warn('3D 망원경을 그릴 수 없어 그림으로 보여요', e); t3.err = String(e && e.stack || e); t3.ok = false; $('#tlGL').hidden = true; }
@@ -6748,12 +6984,14 @@ function t3Draw(rect, mode) {                       // rect(CSS 픽셀) 안에 3
   md.az.rotation.y = -tl.az * DEG; md.alt.rotation.x = tl.alt * DEG;
   md.cap.visible = tl.capMain; md.filter.visible = !tl.capMain && tl.filter; md.glass.visible = !tl.capMain && !tl.filter;
   md.fcap.visible = tl.capFinder; md.fglass.visible = !tl.capFinder; md.beam.visible = mode === 'mini' && !tl.capMain;
-  t3.ground.scale.setScalar(md.size);
-  const setup = mode === 'setup', yaw = setup ? t3.yaw : t3.myaw, pitch = setup ? t3.pitch : 0.72, dist = md.size * (setup ? 2.6 * t3.zoom : 3.2);
+  t3.ground.scale.setScalar(md.size); t3SkyUpdate(); t3.sky.root.visible = mode === 'setup';
+  const setup = mode === 'setup', yaw = setup ? t3.yaw : t3.myaw, dist = md.size * (setup ? 2.6 * t3.zoom : 3.2);
+  const pitch = setup ? Math.max(t3.pitch, -0.15) : 0.72, up = setup ? Math.max(0, -0.15 - t3.pitch) : 0;   // 더 위로 끌면 땅 아래로 가지 않고 고개를 들어 하늘을 올려다봄
   const c = setup ? md.center : (md.cMini || (md.cMini = new THREE.Vector3(md.center.x, md.H * 0.55, 0))), cam = t3.cam;   // 작은 화면: 위에서 내려다봐 방위 원이 다 보이게
   cam.aspect = rect.w / rect.h;
   cam.position.set(c.x + Math.sin(yaw) * Math.cos(pitch) * dist, c.y + Math.sin(pitch) * dist, c.z + Math.cos(yaw) * Math.cos(pitch) * dist);
-  cam.lookAt(c); cam.updateProjectionMatrix(); cam.updateMatrixWorld();
+  cam.lookAt(c); if (up) cam.rotateX(up * 0.5);                                  // 망원경은 화면 아래쪽에 남고 하늘이 넓게 보이게
+  cam.fov = 32 + up * 40; t3.up = up; cam.updateProjectionMatrix(); cam.updateMatrixWorld();
   t3.scene.updateMatrixWorld();
   const y = H - rect.y - rect.h;
   t3.r.setViewport(rect.x, y, rect.w, rect.h); t3.r.setScissor(rect.x, y, rect.w, rect.h); t3.r.setScissorTest(true);
@@ -6780,9 +7018,10 @@ function t3LabelText(key) {
 }
 function t3Labels(x) {                              // 부분 이름: 망원경 가운데에서 바깥쪽으로, 서로 겹치지 않게
   const md = t3.md, fs = tl.fs, r = t3.rect, cs = t3Screen(md.root, md.center), placed = [];
+  if (t3.up > 0.2) { t3Horizon(x, placed); t3SkyLabels(x, 'setup', placed); return; }   // 하늘을 올려다볼 때는 망원경이 작아져서 부분 이름을 감춤
   x.font = sbFont(fs * 1.02, 800);
   for (const [obj, v, key] of md.labels) {
-    const s = t3Screen(obj, v); if (s[2] > 1) continue;
+    const s = t3Screen(obj, v); if (s[2] > 1 || s[0] < r.x + 4 || s[0] > r.x + r.w - 4 || s[1] < r.y + 4 || s[1] > r.y + r.h - 4) continue;
     const [t, col] = t3LabelText(key), tw = x.measureText(t).width + 16, th = fs * 1.5;
     let dx = s[0] - cs[0], dy = s[1] - cs[1]; const dl = Math.hypot(dx, dy) || 1; dx /= dl; dy /= dl;
     let best = null;
@@ -6800,6 +7039,7 @@ function t3Labels(x) {                              // 부분 이름: 망원경 
     x.fillStyle = 'rgba(5,10,28,.88)'; x.beginPath(); x.roundRect ? x.roundRect(best.box[0], best.box[1], tw, best.box[3] - best.box[1], 7) : x.rect(best.box[0], best.box[1], tw, best.box[3] - best.box[1]); x.fill();
     x.fillStyle = col; x.textAlign = 'center'; x.fillText(t, best.lx, best.ly); x.textAlign = 'left';
   }
+  t3Horizon(x, placed); t3SkyLabels(x, 'setup', placed);
 }
 function t3Compass(x) {                             // 작은 3D 화면의 방위 글자
   const md = t3.md, fs = tl.fs;
@@ -6868,10 +7108,10 @@ function tlSketchDraw() {                           // 스케치 칸: 사진 또
 }
 function wireLog() {
   const binds = [['lgDate', 'date'], ['lgPlace', 'place'], ['lgTarget', 'target'], ['lgMag', 'mag'], ['lgName', 'name'], ['lgText', 'text']];
-  binds.forEach(([id, f]) => $('#' + id).addEventListener('input', e => { if (!tl.lg) return; tl.lg[f] = e.target.value; if (f === 'name') tl.lgName = e.target.value; }));
+  binds.forEach(([id, f]) => $('#' + id).addEventListener('input', e => { if (!tl.lg) return; tl.lg[f] = e.target.value; if (f === 'name') tl.lgName = e.target.value; bkSyncLive(); }));
   $$('#tlLog [data-sk]').forEach(b => b.addEventListener('click', () => {
     if (!tl.lg) return;
-    if (b.dataset.sk === 'clear') { tl.lg.strokes = []; tlSketchMode('draw'); } else tlSketchMode(b.dataset.sk);
+    if (b.dataset.sk === 'clear') { tl.lg.strokes = []; tlSketchMode('draw'); bkSyncLive(); } else tlSketchMode(b.dataset.sk);
   }));
   const c = $('#lgSketch'); let cur = null;
   const pt = e => { const r = c.getBoundingClientRect(), s = tl.sk; return s ? [(e.clientX - r.left - s.cx) / s.R, (e.clientY - r.top - s.cy) / s.R] : [0, 0]; };
@@ -6881,7 +7121,184 @@ function wireLog() {
     cur = [pt(e)]; tl.lg.strokes.push(cur); c.setPointerCapture && c.setPointerCapture(e.pointerId); e.preventDefault();
   });
   c.addEventListener('pointermove', e => { if (cur) { cur.push(pt(e)); } });
-  ['pointerup', 'pointercancel'].forEach(ev => c.addEventListener(ev, () => { cur = null; }));
+  ['pointerup', 'pointercancel'].forEach(ev => c.addEventListener(ev, () => { if (cur) bkSyncLive(); cur = null; }));
+}
+/* ---------- 관측 도감: 일지를 완성하면 학생이 망원경으로 찍은 사진이 그 천체의 도장이 됨 ----------
+   이 기기(브라우저)에만 저장한다. 천체마다 최근 관측 4번까지 남긴다. */
+const BK_KEY = 'solarObsBook', BK_MAX = 4;
+const BK_GROUPS = [['별과 위성', ['sun', 'moon'], '#cf4526'], ['지구형 행성', ['mercury', 'venus', 'mars'], '#bf2d55'],
+  ['목성형 행성', ['jupiter', 'saturn', 'uranus', 'neptune'], '#2d5bb0'], ['왜소행성', ['pluto'], '#2a8455']];
+const bkInk = id => BK_GROUPS.find(g => g[1].includes(id))[2];
+const bk = { open: false, items: {}, view: null, idx: 0, mode: 'photo', img: {}, saveT: 0 };
+const bkList = id => bk.items[id] || [];
+const bkHave = () => TL_IDS.filter(id => bkList(id).length).length;
+const bkEsc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const bkDay = jd => { const k = kst(jd); return `${k.y}.${k.mo}.${k.d}`; };
+function bkLoad() { try { bk.items = JSON.parse(localStorage.getItem(BK_KEY)) || {}; } catch (e) { bk.items = {}; } }
+function bkSave() { try { localStorage.setItem(BK_KEY, JSON.stringify(bk.items)); } catch (e) { /* 저장할 수 없으면 이번 시간에만 남음 */ } }
+function bkSync(e, g) {                            // 일지에 쓴 내용을 도감 기록에 옮김
+  Object.assign(e, { date: g.date, place: g.place, target: g.target, mag: g.mag, name: g.name, text: g.text,
+    strokes: g.strokes.map(s => s.map(p => [+p[0].toFixed(3), +p[1].toFixed(3)])) });
+}
+function bkSyncLive() {                            // 도장을 받은 뒤에 고쳐 쓴 느낀 점·스케치도 도감에 남김
+  if (!tl.bkE || !tl.lg) return;
+  bkSync(tl.bkE, tl.lg); clearTimeout(bk.saveT); bk.saveT = setTimeout(bkSave, 500);
+}
+function bkAdd(feats) {
+  const g = tl.lg, c = document.createElement('canvas'); c.width = c.height = 320;
+  const x = c.getContext('2d');
+  if (tl.photo) x.drawImage(tl.photo, 0, 0, 320, 320);
+  else { x.fillStyle = '#fffdf6'; x.fillRect(0, 0, 320, 320); bkStrokes(x, 160, 160, 160, g.strokes); }
+  const e = { id: tl.target, jd: tl.obsJd || tl.jd, photo: c.toDataURL('image/jpeg', 0.82), feats,
+    rot: Math.round((Math.random() * 2 - 1) * 12), seed: Math.floor(Math.random() * 1e9) };
+  bkSync(e, g);
+  const L = bk.items[e.id] || (bk.items[e.id] = []);
+  L.push(e); if (L.length > BK_MAX) L.shift();
+  tl.bkE = e; bkSave();
+  return L.length;
+}
+function bkStrokes(x, cx, cy, R, strokes) {
+  x.strokeStyle = '#2b2b2b'; x.lineWidth = Math.max(1.5, R / 70); x.lineCap = 'round'; x.lineJoin = 'round';
+  for (const s of strokes || []) { x.beginPath(); s.forEach(([a, b], i) => { const px = cx + a * R, py = cy + b * R; if (i) x.lineTo(px, py); else x.moveTo(px, py + 0.01); }); x.stroke(); }
+}
+function bkImg(e) {                                // 저장한 사진을 그림으로(다 불러오면 도감을 다시 그림)
+  let im = bk.img[e.photo];
+  if (!im) { im = bk.img[e.photo] = new Image(); im.onload = () => { if (bk.open) bkDraw(); }; im.src = e.photo; }
+  return im.complete && im.naturalWidth ? im : null;
+}
+function bkRand(seed) { let a = seed >>> 0; return () => { a = (a + 0x6d2b79f5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+function bkArc(x, s, r, top) {                     // 원을 따라 글자 쓰기(위는 시계 방향, 아래는 바로 읽히게)
+  const ch = [...s], w = ch.map(c => x.measureText(c).width), sp = x.measureText('가').width * 0.14, dir = top ? 1 : -1;
+  const tot = w.reduce((a, b) => a + b, 0) + sp * (ch.length - 1);
+  let a = (top ? -Math.PI / 2 : Math.PI / 2) - dir * tot / r / 2;
+  ch.forEach((c, i) => {
+    a += dir * w[i] / 2 / r;
+    x.save(); x.rotate(a); x.translate(r, 0); x.rotate(dir * Math.PI / 2); x.fillText(c, 0, 0); x.restore();
+    a += dir * (w[i] / 2 + sp) / r;
+  });
+}
+function bkStamp(x, cx, cy, R, e) {                // 도장: 가운데에 내가 찍은 사진, 둘레에 천체 이름과 관측한 날
+  const ink = bkInk(e.id), dpr = tl.dpr || 1, S = Math.ceil(R * 2 * dpr), rnd = bkRand(e.seed), img = bkImg(e);
+  x.save(); x.translate(cx, cy); x.rotate(e.rot * DEG);
+  x.save(); x.beginPath(); x.arc(0, 0, R * 0.7, 0, 7); x.clip(); x.fillStyle = '#050a1c'; x.fillRect(-R, -R, R * 2, R * 2);
+  if (img) x.drawImage(img, -R * 0.7, -R * 0.7, R * 1.4, R * 1.4);
+  x.restore();
+  const c = bk.inkC || (bk.inkC = document.createElement('canvas')); c.width = c.height = S;
+  const y = c.getContext('2d'); y.setTransform(dpr, 0, 0, dpr, R * dpr, R * dpr);
+  y.strokeStyle = y.fillStyle = ink;
+  y.lineWidth = R * 0.07; y.beginPath(); y.arc(0, 0, R * 0.95, 0, 7); y.stroke();
+  y.lineWidth = R * 0.035; y.beginPath(); y.arc(0, 0, R * 0.74, 0, 7); y.stroke();
+  y.textBaseline = 'middle'; y.textAlign = 'center';
+  y.font = sbFont(R * 0.17, 900); bkArc(y, tlKo(e.id), R * 0.845, true);
+  y.font = sbFont(R * 0.11, 800); bkArc(y, bkDay(e.jd), R * 0.845, false);
+  y.font = sbFont(R * 0.12, 900); [-1, 1].forEach(s => y.fillText('★', s * R * 0.845, 0));
+  y.globalCompositeOperation = 'destination-out';            // 잉크가 덜 묻은 자국
+  for (let i = 0; i < 70; i++) {
+    const a = rnd() * 7, r = R * (0.7 + rnd() * 0.3), s = R * (0.006 + rnd() * rnd() * 0.035);
+    y.beginPath(); y.arc(Math.cos(a) * r, Math.sin(a) * r, s, 0, 7); y.fill();
+  }
+  x.globalAlpha = 0.9; x.drawImage(c, -R, -R, R * 2, R * 2); x.globalAlpha = 1;
+  x.restore();
+}
+function bkEmpty(x, cx, cy, R) {
+  x.save(); x.setLineDash([R * 0.12, R * 0.09]); x.lineWidth = Math.max(2, R * 0.035); x.strokeStyle = '#bdb5a1';
+  x.beginPath(); x.arc(cx, cy, R * 0.9, 0, 7); x.stroke(); x.restore();
+  x.font = sbFont(R * 0.6, 800); x.fillStyle = '#cbc3ae'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('?', cx, cy + R * 0.03);
+  x.textAlign = 'left'; x.textBaseline = 'alphabetic';
+}
+function bkCanvas(c) {                             // 칸 크기에 맞춘 캔버스와 가운데·반지름
+  const w = c.clientWidth, h = c.clientHeight, dpr = tl.dpr || 1;
+  if (!w || !h) return null;
+  if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); }
+  const x = c.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0); x.clearRect(0, 0, w, h);
+  return { x, cx: w / 2, cy: h / 2, R: Math.min(w, h) / 2 - 3 };
+}
+function bkDraw() {
+  $$('#tlBook canvas[data-bkc]').forEach(c => {
+    const d = bkCanvas(c); if (!d) return;
+    const id = c.dataset.bkc, L = bkList(id);
+    if (L.length) bkStamp(d.x, d.cx, d.cy, d.R * 0.94, L[L.length - 1]); else bkEmpty(d.x, d.cx, d.cy, d.R * 0.94);
+  });
+  const c = $('#bkBig'), e = bk.view && bkList(bk.view)[bk.idx];
+  if (c && e) {
+    const d = bkCanvas(c); if (!d) return;
+    if (bk.mode === 'draw') {
+      d.x.save(); d.x.beginPath(); d.x.arc(d.cx, d.cy, d.R * 0.9, 0, 7); d.x.clip(); d.x.fillStyle = '#fffdf6'; d.x.fillRect(0, 0, d.cx * 2, d.cy * 2);
+      bkStrokes(d.x, d.cx, d.cy, d.R * 0.9, e.strokes); d.x.restore();
+      d.x.strokeStyle = '#47506a'; d.x.lineWidth = 2; d.x.beginPath(); d.x.arc(d.cx, d.cy, d.R * 0.9, 0, 7); d.x.stroke();
+    } else bkStamp(d.x, d.cx, d.cy, d.R * 0.96, e);
+  }
+}
+function bkRender() {
+  const el = $('#tlBook'), have = bkHave();
+  if (bk.view) {
+    const L = bkList(bk.view), e = L[bk.idx], fc = TL_FACTS[e.id], hasSk = e.strokes && e.strokes.length;
+    if (!hasSk) bk.mode = 'photo';
+    const row = (t, v) => `<div><dt>${t}</dt><dd>${bkEsc(v) || '—'}</dd></div>`;
+    el.innerHTML = `<div class="tl-paper bk-paper">
+      <div class="bk-head"><b>${tlKo(e.id)}</b><span class="bk-kind">${fc ? fc[0] : ''}</span>
+        ${L.length > 1 ? `<span class="bk-nav"><button type="button" id="bkPrev"${bk.idx ? '' : ' disabled'} aria-label="이전 관측">◀</button><em>${bk.idx + 1}번째 관측 (모두 ${L.length}번)</em><button type="button" id="bkNext"${bk.idx < L.length - 1 ? '' : ' disabled'} aria-label="다음 관측">▶</button></span>` : ''}
+        <button type="button" class="bk-x" id="bkBack">← 도감으로</button></div>
+      <div class="bk-det">
+        <div class="bk-dl">${hasSk ? `<div class="tl-skh"><span><button type="button" data-bkm="photo" class="${bk.mode === 'photo' ? 'on' : ''}">📷 도장</button><button type="button" data-bkm="draw" class="${bk.mode === 'draw' ? 'on' : ''}">✏️ 내 스케치</button></span></div>` : ''}
+          <div class="tl-skw"><canvas id="bkBig" aria-label="${tlKo(e.id)} 관측 도장"></canvas></div></div>
+        <div class="bk-dr">
+          <dl class="bk-info">${row('관측 일시', e.date)}${row('관측 장소', e.place)}${row('망원경·배율', e.mag)}${row('관측자', e.name)}</dl>
+          <div class="bk-box"><b>보인 특징</b><ul>${(e.feats || []).map(t => `<li>${bkEsc(t)}</li>`).join('')}</ul></div>
+          <div class="bk-box bk-note"><b>관찰한 특징과 느낀 점</b><p>${bkEsc(e.text) || '적은 내용이 없어요.'}</p></div>
+        </div>
+      </div></div>`;
+  } else {
+    const grp = BK_GROUPS.map(([t, ids, ink]) => {
+      const got = ids.filter(id => bkList(id).length).length, all = got === ids.length;
+      return `<div class="bk-grp" style="grid-column: span ${ids.length}; --ink: ${ink}">
+        <p class="bk-gt${all ? ' done' : ''}">${t} <span>${all ? '모두 모았어요 ✓' : `${got} / ${ids.length}`}</span></p>
+        <div class="bk-row" style="grid-template-columns: repeat(${ids.length}, minmax(0, 1fr))">${ids.map(id => {
+          const L = bkList(id), last = L[L.length - 1];
+          return `<button type="button" class="bk-slot${L.length ? ' got' : ''}" data-bk="${id}" aria-label="${tlKo(id)} ${L.length ? '도장 보기' : '찾으러 가기'}">
+            <span class="bk-cw"><canvas data-bkc="${id}"></canvas></span><b>${tlKo(id)}</b>
+            <small>${L.length ? `${bkDay(last.jd)}${L.length > 1 ? ` · ${L.length}번 관측` : ''}` : '눌러서 찾으러 가기'}</small></button>`;
+        }).join('')}</div></div>`;
+    }).join('');
+    el.innerHTML = `<div class="tl-paper bk-paper">
+      <div class="bk-head"><b>내 관측 도감</b><span class="bk-cnt">도장 <em>${have}</em> / ${TL_IDS.length}</span>
+        <span class="bk-bar"><i style="width: ${have / TL_IDS.length * 100}%"></i></span><button type="button" class="bk-x" id="bkClose">← 돌아가기</button></div>
+      <div class="bk-grid">${grp}</div>
+      <p class="bk-foot">관측 일지를 완성하면 망원경으로 찍은 사진이 도장이 돼요. 같은 천체도 날짜를 바꿔 다시 관측하면 다르게 보일 수 있어요. 도장끼리 비교해 보세요.
+        <button type="button" class="qlink" id="bkWipe">선생님: 도감 비우기</button></p></div>`;
+  }
+  const on = (q, f) => { const n = el.querySelector(q); if (n) n.addEventListener('click', f); };
+  on('#bkClose', bkClose); on('#bkBack', () => { bk.view = null; bkRender(); });
+  on('#bkPrev', () => bkStep(-1)); on('#bkNext', () => bkStep(1));
+  on('#bkWipe', () => askPin(() => { bk.items = {}; tl.bkE = null; bkSave(); bkRender(); renderTlSide(); toast('도감을 비웠어요'); }));
+  el.querySelectorAll('[data-bkm]').forEach(b => b.addEventListener('click', () => { bk.mode = b.dataset.bkm; bkRender(); }));
+  el.querySelectorAll('[data-bk]').forEach(b => b.addEventListener('click', () => {
+    const id = b.dataset.bk, L = bkList(id);
+    if (L.length) { bk.view = id; bk.idx = L.length - 1; bk.mode = 'photo'; bkRender(); return; }
+    bkClose(); tl.sel = null; tl.target = null; tl.done = TL_STEPS.map(() => false); tlGo(0); tlJumpGood(id);   // 빈칸: 그 천체를 보기 좋은 날로
+  }));
+  requestAnimationFrame(bkDraw);
+}
+function bkStep(d) { const L = bkList(bk.view); bk.idx = clamp(bk.idx + d, 0, L.length - 1); bkRender(); }
+function bkOpen() { bk.open = true; bk.view = null; $('#tlBook').hidden = false; $('#tlLog').hidden = true; bkRender(); }
+function bkClose() { if (!bk.open) return; bk.open = false; $('#tlBook').hidden = true; $('#tlLog').hidden = tl.k !== 5; }
+function bkThud() {                                // 도장 찍는 소리(소리를 낼 수 없으면 조용히 넘어감)
+  try {
+    const A = bk.ac || (bk.ac = new (window.AudioContext || window.webkitAudioContext)()), t = A.currentTime;
+    const o = A.createOscillator(), g = A.createGain();
+    o.type = 'sine'; o.frequency.setValueAtTime(170, t); o.frequency.exponentialRampToValueAtTime(45, t + 0.2);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.7, t + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.28);
+    o.connect(g); g.connect(A.destination); o.start(t); o.stop(t + 0.3);
+  } catch (e) { /* 소리 없이 */ }
+}
+function bkFly(e) {                                // 일지 위에 도장이 쾅 찍혔다가 도감으로 들어감
+  const c = $('#bkFly'), box = $('#tlLog');
+  c.hidden = false; c.classList.remove('go'); void c.offsetWidth;
+  const d = bkCanvas(c); if (!d) { c.hidden = true; return; }
+  bkImg(e); bkStamp(d.x, d.cx, d.cy, d.R, e);
+  if (!bkImg(e)) setTimeout(() => { const d2 = bkCanvas(c); if (d2) bkStamp(d2.x, d2.cx, d2.cy, d2.R, e); }, 60);
+  c.classList.add('go'); setTimeout(() => { bkThud(); box.classList.remove('thud'); void box.offsetWidth; box.classList.add('thud'); }, 420);
+  clearTimeout(bk.flyT); bk.flyT = setTimeout(() => { c.hidden = true; c.classList.remove('go'); }, 2600);
 }
 // 관측할 수 있는지(대기 굴절·흐림은 넣지 않고, 하늘 밝기와 태양과의 거리만 따짐)
 function tlVerdict(id) {
@@ -6933,6 +7350,7 @@ function tlGo(k) {
   if (k < 4) tl.zoom = 1;
   if (k === 5 && !tl.feat) { tl.feat = tlFeatures(tl.target); tl.pick = {}; }
   if (k === 5) tlLogOpen();
+  bk.open = false; $('#tlBook').hidden = true;
   $('#tlLog').hidden = k !== 5;
   renderTlSide(); renderTlCtrl();
   if (nav.mode === 'tel') { renderNav(); panelLayout(); }
@@ -6941,7 +7359,7 @@ function tlChoose(id) {                            // 관측 대상을 정하고
   const base = 30 + Math.random() * 40, b0 = Math.abs(base - 50) < 12 ? base + (base < 50 ? -14 : 14) : base;
   const off = () => (Math.random() < 0.5 ? -1 : 1) * (4 + Math.random() * 5);
   Object.assign(tl, { target: id, ep: 0, zoom: 1, barlow: false, lg: null, focus: 50, best: [b0, b0 + off(), b0 + off()], capMain: true, capFinder: true, filter: false,
-    conf: {}, photo: null, feat: null, pick: {}, obsJd: 0, alt: 30, az: wrap360(tl.bodies[id].az + (Math.random() < 0.5 ? -1 : 1) * (35 + Math.random() * 25)) });
+    conf: {}, photo: null, feat: null, pick: {}, obsJd: 0, bkE: null, alt: 30, az: wrap360(tl.bodies[id].az + (Math.random() < 0.5 ? -1 : 1) * (35 + Math.random() * 25)) });
   tl.done = TL_STEPS.map((_, i) => i === 0);
   tlGo(1);
 }
@@ -6991,11 +7409,12 @@ function tlSubmitLog() {
   if (wrong) { tl.fbc = 'bad'; tl.fb = '보이지 않는 특징을 골랐어요. 사진(스케치)을 다시 보세요.'; }
   else if (miss) { tl.fbc = 'bad'; tl.fb = '본 특징이 더 있어요. 사진(스케치)을 다시 살펴보세요.'; }
   else {
-    tl.done[5] = true; tl.fbc = 'ok'; tl.fb = '관측 일지를 다 썼어요! 왼쪽 일지에 느낀 점도 적어 보세요.';
+    tl.done[5] = true; tl.fbc = 'ok'; tl.fb = '관측 일지를 다 썼어요! 왼쪽 일지에 느낀 점도 적어 보세요. 도감에도 함께 남아요.';
     const feats = f.filter(x => x.ok).map(x => x.t);
     if (tl.lg && !tl.lg.text.trim()) { tl.lg.text = feats.map(t => '• ' + t).join('\n'); const ta = $('#lgText'); if (ta) ta.value = tl.lg.text; }   // 비어 있으면 고른 특징을 먼저 적어 줌
     tl.logs.push({ id: tl.target, jd: tl.obsJd || tl.jd, feats, lg: tl.lg });
     tlFacts();
+    tl.bkN = bkAdd(feats); bkFly(tl.bkE);
   }
   renderTlSide();
 }
@@ -7014,6 +7433,7 @@ function renderTlSide() {
       b += `<div class="tl-card${v.ok ? '' : ' bad'}"><b>${tlKo(tl.sel)}</b><span>방위각 ${Math.round(o.az)}° (${azName(o.az)}) · 고도 ${Math.round(o.alt)}°</span><small>${v.msg}</small></div>
         <button class="qbtn" id="tlChoose"${v.ok ? '' : ' disabled'}>${josa(tlKo(tl.sel), '을', '를')} 망원경으로 관측하기 →</button>`;
     } else b += '<p class="sb-hint">하늘에 떠 있는 천체를 눌러 보세요. 지평선 아래에 있는 천체는 볼 수 없어요.</p>';
+    b += `<button class="bk-ob" id="bkOpen">📖 내 관측 도감 · 도장 ${bkHave()} / ${TL_IDS.length}</button>`;
   } else if (k === 1) {
     const sc = tlSc();
     b = `<h2>망원경 준비하기</h2><p class="sb-p">망원경을 끌어서 돌려 보며 각 부분의 이름을 확인하고, 뚜껑을 눌러 열거나 닫아요.</p>
@@ -7034,8 +7454,10 @@ function renderTlSide() {
   } else {
     b = `<h2>관측 일지 쓰기</h2><p class="sb-p">${josa(ko, '을', '를')} 망원경으로 보았을 때 <b>보인 특징</b>을 모두 골라요.</p>
       <div class="tl-feat">${(tl.feat || []).map((f, i) => `<button class="${tl.pick[i] ? 'on' : ''}" data-feat="${i}"${tl.done[5] ? ' disabled' : ''}>${f.t}</button>`).join('')}</div>
-      <p class="qfb ${tl.fbc}">${tl.fb}</p>
-      ${tl.done[5] ? '<button class="qbtn" id="tlAgain">다른 천체 관측하기 →</button>' : '<button class="qbtn" id="tlSubmit">일지에 적기</button>'}`;
+      ${tl.done[5] && tl.bkE ? '' : `<p class="qfb ${tl.fbc}">${tl.fb}</p>`}
+      ${!tl.done[5] ? '<button class="qbtn" id="tlSubmit">일지에 적기</button>'
+        : `${tl.bkE ? `<p class="bk-got">🏅 ${ko} 도장을 받았어요! <em>도감 ${bkHave()}/${TL_IDS.length}${tl.bkN > 1 ? ` · ${tl.bkN}번째` : ''}</em><span>왼쪽 일지에 느낀 점도 적어 보세요. 도감에도 함께 남아요.</span></p>` : ''}
+        <div class="bk-two">${tl.bkE ? '<button class="bk-ob" id="bkOpen">📖 도감 보기</button>' : ''}<button class="qbtn" id="tlAgain">다른 천체 관측 →</button></div>`}`;
   }
   const nextBtn = k >= 1 && k <= 4 && tl.done[k] ? `<button class="qbtn sb-go" id="tlNext">다음: ${TL_STEPS[k + 1].t} →</button>` : '';
   el.innerHTML = `<div class="qhead"><b>천체 관측</b><button class="qx" id="tlX" aria-label="천체 관측 닫기 (Esc)">×</button></div>
@@ -7046,7 +7468,7 @@ function renderTlSide() {
   const on = (q, f) => { const n = el.querySelector(q); if (n) n.addEventListener('click', f); };
   on('#tlX', closeTel); on('#tlSkip', tlSkip); on('#tlNext', () => tlGo(tl.k + 1));
   on('#tlChoose', () => { if (tl.sel && tlVerdict(tl.sel).ok) tlChoose(tl.sel); });
-  on('#tlSubmit', tlSubmitLog);
+  on('#tlSubmit', tlSubmitLog); on('#bkOpen', bkOpen);
   on('#tlAgain', () => { tl.sel = null; tl.target = null; tl.done = TL_STEPS.map(() => false); tlGo(0); });
   el.querySelectorAll('[data-good]').forEach(bt => bt.addEventListener('click', () => tlJumpGood(bt.dataset.good)));
   el.querySelectorAll('[data-feat]').forEach(bt => bt.addEventListener('click', () => { const i = +bt.dataset.feat; tl.pick[i] = !tl.pick[i]; tl.fb = ''; renderTlSide(); }));
@@ -7224,7 +7646,8 @@ function tlLoop(t) {
     }
     let cap = '';
     if (k === 0) cap = '화면을 옆으로 끌면 다른 방향의 하늘을 볼 수 있어요. 천체를 누르면 위치가 나와요.';
-    else if (k === 1) cap = '망원경을 끌어서 돌려 보고, 휠로 크게 볼 수 있어요. ' + (tl.target === 'sun' ? `태양 필터를 ${tlSc().cap} 앞에 끼우고, 파인더는 뚜껑을 닫아 둬요.` : '뚜껑을 누르면 열리고 닫혀요.');
+    else if (k === 1 && t3.ok && t3.up > 0.2) cap = '하늘을 올려다보고 있어요. 별과 행성은 이 날짜·시각의 실제 자리에 있어요. 아래로 끌면 망원경 부분 이름이 다시 보여요.';
+    else if (k === 1) cap = '망원경을 끌어서 돌려 보고(위로 끌면 하늘을 올려다봐요), 휠로 크게 볼 수 있어요. ' + (tl.target === 'sun' ? `태양 필터를 ${tlSc().cap} 앞에 끼우고, 파인더는 뚜껑을 닫아 둬요.` : '뚜껑을 누르면 열리고 닫혀요.');
     else if (scope) {
       if (tl.t - tl.driftT < 6) cap = '지구가 자전해서 천체가 시야 밖으로 움직였어요. 다시 맞춰 보세요. (자동 추적을 켜면 따라가요)';
       else if (tl.filter && tl.target !== 'sun') cap = '태양 필터를 끼우면 태양 말고는 아무것도 보이지 않아요.';
@@ -7235,6 +7658,7 @@ function tlLoop(t) {
       else if (k === 4 && (tl.target === 'uranus' || tl.target === 'neptune') && tl.scope === 'school') cap = `더 크고 또렷하게 보려면 관측 계획에서 천문대 망원경(구경 400 mm)을 골라 보세요. 빛을 25배 더 모아요.`;
       else cap = '망원경이 향한 방향은 왼쪽 아래 3D 망원경에서 볼 수 있어요. 끌어서 돌려 볼 수도 있어요.';
     } else cap = tl.done[5] ? '관측 일지를 완성했어요. 칸을 눌러 직접 고쳐 쓰고, 스케치도 그려 보세요.' : '오른쪽에서 본 특징을 고르고, 일지의 칸은 직접 고쳐 쓸 수 있어요.';
+    if (bk.open) cap = bk.view ? '◀ ▶ 로 같은 천체의 다른 날 관측을 넘겨 볼 수 있어요.' : '도장을 누르면 그날의 관측 일지를 다시 볼 수 있어요. 빈칸을 누르면 그 천체를 보기 좋은 날로 가요.';
     if (cap !== tl.capShown) { $('#tlCap').textContent = cap; tl.capShown = cap; }
   }
   requestAnimationFrame(tlLoop);
@@ -7253,7 +7677,7 @@ function tlPointer(e) {
   if (e.type === 'pointermove') {
     const dx = px - p.x, dy = py - p.y; p.moved += Math.abs(dx) + Math.abs(dy); p.x = px; p.y = py;
     if (tl.k === 0 && p.moved > 5) { const s = (tl.h * 0.82 - tl.fs * 2.6) / 75; tl.look = wrap360(tl.look - dx / s); }
-    else if (p.zone === 's') { t3.yaw -= dx * 0.008; t3.pitch = clamp(t3.pitch + dy * 0.006, -0.15, 1.35); }   // 3D 망원경 돌려 보기
+    else if (p.zone === 's') { t3.yaw -= dx * 0.008; t3.pitch = clamp(t3.pitch + dy * 0.006, -0.9, 1.35); }   // 3D 망원경 돌려 보기
     else if (p.zone === 'm') t3.myaw -= dx * 0.01;
     else if (p.zone) {                                                          // 하늘을 끄는 쪽과 반대로 망원경이 돌아감
       const L = tl.lay, f = p.zone === 'f', dp = (f ? TL_FF / (2 * L.fr) : tlViewFov() / (2 * L.er)), sg = !f && tl.invert ? -1 : 1;
@@ -7290,7 +7714,8 @@ function tlKey(e) {
   if (typing) return;
   const k = e.key, scope = tl.k >= 2 && tl.k <= 4;
   if (e.type === 'keyup') { if (k.startsWith('Arrow')) tl.keys[k] = false; return; }
-  if (k === 'Escape') closeTel();
+  if (bk.open && (k === 'Escape' || (bk.view && (k === 'ArrowLeft' || k === 'ArrowRight')))) { if (k === 'Escape') bkClose(); else bkStep(k === 'ArrowLeft' ? -1 : 1); }
+  else if (k === 'Escape') closeTel();
   else if (k === 'PageDown' || k === 'PageUp') tlGo(tl.k + (k === 'PageDown' ? 1 : -1));
   else if (k.startsWith('Arrow') && scope) {
     if (!e.repeat) tlNudge(k === 'ArrowRight' ? 1 : k === 'ArrowLeft' ? -1 : 0, k === 'ArrowUp' ? 1 : k === 'ArrowDown' ? -1 : 0);
@@ -7312,7 +7737,7 @@ function openTel(k) {
   tl.last = 0; requestAnimationFrame(tlLoop);
 }
 function closeTel(silent) {
-  tl.open = false; tl.keys = {}; tl.hold = null; $('#telBox').hidden = true; document.body.classList.remove('tel-on');
+  bkClose(); tl.open = false; tl.keys = {}; tl.hold = null; $('#telBox').hidden = true; document.body.classList.remove('tel-on');
   if (silent !== true) navGo('free');
 }
 function wireTel() {
@@ -7321,7 +7746,8 @@ function wireTel() {
   c.addEventListener('wheel', tlWheel, { passive: false });
   window.addEventListener('keydown', tlKey, true); window.addEventListener('keyup', tlKey, true);
   window.addEventListener('pointerup', () => { tl.hold = null; }); window.addEventListener('pointercancel', () => { tl.hold = null; });
-  wireLog();
+  wireLog(); bkLoad();
+  new ResizeObserver(() => { if (bk.open) bkDraw(); }).observe($('#tlBook'));
 }
 
 /* ---------- 학습 메뉴: 확인하고 싶은 것을 왼쪽에서 바로 골라 들어가기 ---------- */
