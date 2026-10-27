@@ -827,6 +827,7 @@ body.tel-on #grToggle { display: none !important; }
 .bk-two { display: flex; gap: .5rem; margin-top: .45rem; } .bk-two > * { flex: 1; width: auto; margin: 0; min-height: 2.9rem; white-space: nowrap; }
 .tl-good { margin: .5rem 0 .3rem; }
 .tl-good > b { display: block; font-size: .98rem; color: #ffe08a; margin-bottom: .3rem; }
+.tl-good > b small { font-size: .82rem; font-weight: 650; color: #cfd9f2; margin-left: .35rem; }
 .tl-good > div { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .3rem; }
 .tl-good .sb-b { min-height: 2.3rem; padding: 0 .3rem; font-size: .95rem; }
 .tl-date { font-size: 1.1rem; font-weight: 750; color: #ffe08a; min-width: 11rem; text-align: center; }
@@ -7427,7 +7428,7 @@ function renderTlSide() {
   let b = '';
   if (k === 0) {
     b = `<h2>관측 프로그램으로 천체 찾기</h2><ul class="sb-todo"><li>날짜·시각을 정하고 하늘을 둘러보며 떠 있는 천체를 찾아요.</li><li>천체를 누르면 방위각과 고도가 나와요.</li></ul>
-      <div class="tl-good"><b>관측하기 좋은 날로 가기</b><div>${TL_IDS.filter(id => id !== 'sun').map(id => `<button class="sb-b${tl.sel === id ? ' on' : ''}" data-good="${id}">${tlKo(id)}</button>`).join('')}</div></div>`;
+      <div class="tl-good"><b>관측하기 좋은 날로 가기 <small>누를 때마다 다른 날</small></b><div>${TL_IDS.filter(id => id !== 'sun').map(id => `<button class="sb-b${tl.sel === id ? ' on' : ''}" data-good="${id}">${tlKo(id)}</button>`).join('')}</div></div>`;
     if (tl.sel) {
       const o = tl.bodies[tl.sel], v = tlVerdict(tl.sel);
       b += `<div class="tl-card${v.ok ? '' : ' bad'}"><b>${tlKo(tl.sel)}</b><span>방위각 ${Math.round(o.az)}° (${azName(o.az)}) · 고도 ${Math.round(o.alt)}°</span><small>${v.msg}</small></div>
@@ -7542,9 +7543,18 @@ function tlShiftMonth(dm) {                        // 같은 날·같은 시각�
   const last = new Date(Date.UTC(y, mo, 0)).getUTCDate();
   tlSetKst(y, mo, Math.min(k.d, last), k.h * 60 + k.mi); renderTlCtrl(); renderTlSide();
 }
-function tlGoodWhen(id) {                          // 오늘부터 찾아, 그 천체가 어두운 하늘에 충분히 높이 뜨는 가장 가까운 밤(저녁을 먼저)
+const TL_GOOD_DAYS = 60;                           // 처음 보이는 날부터 두 달 안의 좋은 밤 중에서 고름
+function tlGoodWhen(id) {                          // 그 천체가 어두운 하늘에 충분히 높이 뜨는 밤 가운데 하나를 무작위로(학생마다 다른 날, 다시 누르면 지난번과 다른 날)
   const k = kst(jdFromMs(Date.now())), low = id === 'mercury' || id === 'venus';
-  if (id === 'sun') return { y: k.y, mo: k.mo, d: k.d, min: 12 * 60 };
+  const pick = L => {
+    const last = (tl.goodLast || (tl.goodLast = {}))[id], C = L.length > 1 ? L.filter(g => `${g.mo}/${g.d}` !== last) : L;
+    const g = C[Math.floor(Math.random() * C.length)]; tl.goodLast[id] = `${g.mo}/${g.d}`; return g;
+  };
+  const ck = `${id}|${k.y}-${k.mo}-${k.d}`, cache = tl.goodCache || (tl.goodCache = {});   // 같은 날에는 한 번만 계산
+  if (cache[ck]) return cache[ck].length ? pick(cache[ck]) : null;
+  if (id === 'sun') return pick(cache[ck] = Array.from({ length: TL_GOOD_DAYS }, (_, day) => {   // 태양: 날마다 흑점 자리가 달라짐
+    const kk = kst(jdFromMs(Date.UTC(k.y, k.mo - 1, k.d + day, 3))); return { y: kk.y, mo: kk.mo, d: kk.d, min: 12 * 60 };
+  }));
   const minAlt = id === 'mercury' ? 7 : id === 'venus' ? 10 : id === 'moon' ? 20 : 25, sunMax = id === 'venus' ? -4 : id === 'mercury' ? -6.5 : -12;
   const step = low ? 10 : 30;                                                    // 수성·금성은 해 진 직후·뜨기 전 짧은 때만 보여서 촘촘히
   const best = (day, from, to) => {                                             // 그날 from~to(분, 한국 시각)에서 가장 높이 뜬 때
@@ -7557,11 +7567,15 @@ function tlGoodWhen(id) {                          // 오늘부터 찾아, 그 �
     }
     return b;
   };
-  for (let day = 0; day < 500; day++) {                                          // 가장 가까운 날: 그날 저녁(4:30~11:30 pm)을 먼저, 없으면 다음 날 새벽
+  const L = [];
+  for (let day = 0, first = -1; day < 500 && (first < 0 || day < first + TL_GOOD_DAYS); day++) {   // 날마다 저녁(4:30~11:30 pm)을 먼저, 없으면 다음 날 새벽
     const b = best(day, 16 * 60 + 30, 23 * 60 + 30) || best(day, 27 * 60, 31 * 60 + 30);
-    if (b) { const kk = kst(jdFromMs(b.ms)); return { y: kk.y, mo: kk.mo, d: kk.d, min: kk.h * 60 + kk.mi }; }
+    if (!b) continue;
+    if (first < 0) first = day;
+    const kk = kst(jdFromMs(b.ms)); L.push({ y: kk.y, mo: kk.mo, d: kk.d, min: kk.h * 60 + kk.mi });
   }
-  return null;
+  cache[ck] = L;
+  return L.length ? pick(L) : null;
 }
 function tlJumpGood(id) {
   const g = tlGoodWhen(id);
@@ -7569,7 +7583,7 @@ function tlJumpGood(id) {
   tlSetKst(g.y, g.mo, g.d, g.min);
   if (id === 'pluto' && TL_VMAG.pluto > tlLim()) { tl.scope = 'obs'; toast('명왕성은 아주 어두워서 천문대 망원경으로 바꿨어요'); }
   const o = tl.bodies[id]; tl.look = Math.round(o.az / 5) * 5; tl.sel = id;
-  const kk = kst(tl.jd); toast(`${kk.mo}월 ${kk.d}일 ${fmtTime(kk)}: ${josa(tlKo(id), '이', '가')} ${azName(o.az)}쪽 하늘 고도 ${Math.round(o.alt)}°에 있어요`);
+  const kk = kst(tl.jd); toast(`${kk.mo}월 ${kk.d}일 ${fmtTime(kk)}: ${josa(tlKo(id), '이', '가')} ${azName(o.az)}쪽 하늘 고도 ${Math.round(o.alt)}°에 있어요 (다시 누르면 다른 날)`);
   renderTlCtrl(); renderTlSide();
 }
 function tlShiftJd(days) { tl.jd += days; tlRefresh(); renderTlCtrl(); renderTlSide(); }
