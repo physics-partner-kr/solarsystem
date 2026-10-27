@@ -7512,7 +7512,7 @@ function tbLabel(k) {                              // 실험 중에는 이름표
   const t = TB[k], span = t.lbl.el.lastChild;
   if (t.full == null) t.full = span.innerHTML;
   const real = t.id ? `${bodyOf(t.id).ko} ${tbActual(t).toFixed(2)} AU` : '행성 없음 · 소행성대';
-  span.innerHTML = !tbl.on ? t.full : `<b>${tbName(k)} · ${t.a.toFixed(1)} AU</b><small>${tbl.who[k] ? real : '가까운 천체는?'}</small>`;
+  span.innerHTML = !tbl.on ? t.full : `<b>${t.a.toFixed(1)} AU</b><small>${tbl.who[k] ? real : '가까운 천체는?'}</small>`;
 }
 function tbApply() {                               // 계산을 마친 자리의 점선 원만 보이게
   TB.forEach((t, k) => { t.line.visible = !tbl.on || tbl.all || tbl.calc[k]; tbLabel(k); });
