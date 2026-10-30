@@ -830,6 +830,13 @@ body.tel-on #grToggle { display: none !important; }
 .tl-good > b small { font-size: .82rem; font-weight: 650; color: #cfd9f2; margin-left: .35rem; }
 .tl-good > div { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .3rem; }
 .tl-good .sb-b { min-height: 2.3rem; padding: 0 .3rem; font-size: .95rem; }
+.tl-good .tl-eclgo { grid-column: 1 / -1; border-color: rgba(255, 214, 107, .6); color: #ffe08a; }
+.tl-good .tl-eclgo.on { background: #ffd66b; color: #1b1606; }
+.tl-ecl { margin: 0 0 .6rem; padding: .5rem .75rem; border-radius: .7rem; border: 1px solid rgba(255, 214, 107, .55); background: rgba(255, 214, 107, .1);
+  font-size: 1rem; line-height: 1.45; color: #ffeec2; }
+.tl-ecl b { color: #fff; }
+.tl-ecl.tight ~ .sb-p { display: none; }
+.tl-eclout { min-width: 15rem; font-weight: 750; color: #ffe08a; white-space: nowrap; }
 .tl-date { font-size: 1.1rem; font-weight: 750; color: #ffe08a; min-width: 11rem; text-align: center; }
 .sb-b.pad { min-width: 3.3rem; padding: 0 .6rem; font-size: 1.1rem; }
 .tl-focus { flex: 1 1 8rem; min-width: 6rem; accent-color: #ffd66b; }
@@ -6370,11 +6377,12 @@ function tlScene(cv, fov, B, opt) {
   const S = cv.width, x = cv.getContext('2d'), sun = tl.bodies.sun, dpr = tl.dpr;
   x.setTransform(1, 0, 0, 1, 0, 0);
   if (opt.cap) { x.fillStyle = '#000'; x.fillRect(0, 0, S, S); return; }
-  x.fillStyle = opt.filter ? '#000' : rgb(tlSkyCol(sun.alt)); x.fillRect(0, 0, S, S);
+  const sAlt = tl.ecl ? lerp(sun.alt, -14, tlEclDark()) : sun.alt;           // 개기 일식 때는 하늘이 밤처럼 어두워짐
+  x.fillStyle = opt.filter ? '#000' : rgb(tlSkyCol(sAlt)); x.fillRect(0, 0, S, S);
   x.translate(S / 2, S / 2); if (opt.invert) x.rotate(Math.PI);
   const sc = (S / 2) / Math.tan(fov / 2 * DEG);
   const P = v => { const z = tDot(v, B.t); return z < 0.3 ? null : [tDot(v, B.r) / z * sc, -tDot(v, B.u) / z * sc]; };
-  const nf = opt.filter ? 0 : 1 - smooth(-12, -2, sun.alt);
+  const nf = opt.filter ? 0 : 1 - smooth(-12, -2, sAlt);
   if (nf > 0.02) tlStars(B, fov * 0.72, opt.lim, (v, m, c) => {                 // 둘레의 별: 대부분은 아주 희미하고, 색도 조금씩 다름
     const p = P(v); if (!p) return;
     const k = clamp((opt.lim + 0.3 - m) / 4, 0.08, 1);
@@ -6384,10 +6392,13 @@ function tlScene(cv, fov, B, opt) {
   x.globalAlpha = 1;
   for (const id of TL_IDS) {
     if (opt.filter && id !== 'sun') continue;                                    // 태양 필터는 태양빛만 아주 약하게 통과시킴
+    if (tl.ecl && id === 'moon') continue;                                       // 일식 때의 달은 태양을 그릴 때 함께 그림
     const o = tl.bodies[id]; if (tSep(o.v, B.t) > fov * 0.75 + o.ang) continue;
     if (TL_VMAG[id] > opt.lim) continue;                                         // 망원경이 모을 수 있는 빛보다 어두우면 보이지 않음
     const p = P(o.v); if (!p) continue;
     const D = id === 'pluto' ? 0 : o.ang / fov * S;                               // 명왕성은 어떤 배율에서도 점
+    const em = id === 'sun' && tl.ecl ? tl.bodies.moon : null, pm = em && P(em.v), Dm = em ? em.ang / fov * S : 0;
+    if (em && !opt.filter && tlEclTotal()) { tlEclAtm(x, p, D); tlEclMoonDisc(x, pm, Dm, false); continue; }   // 개기 일식: 광구가 가려져 태양 대기가 보임
     if (id === 'sun' && !opt.filter) {                                           // 필터 없이 본 태양: 눈을 다치는 빛
       const g = x.createRadialGradient(p[0], p[1], 0, p[0], p[1], Math.max(D, S * 0.8));
       g.addColorStop(0, '#fff'); g.addColorStop(0.5, 'rgba(255,255,240,.95)'); g.addColorStop(1, 'rgba(255,250,220,.7)');
@@ -6403,7 +6414,7 @@ function tlScene(cv, fov, B, opt) {
       x.globalAlpha = 1;
     } else {
       const disc = tlDisc(id, D, tlGeom(o, B)), k = D / disc.D;
-      if (id === 'sun') tlSunLive(x, disc, p, D, S, o);
+      if (id === 'sun') { tlSunLive(x, disc, p, D, S, o); if (em) tlEclMoonDisc(x, pm, Dm, true); }
       else x.drawImage(disc.c, p[0] - disc.o * k, p[1] - disc.o * k, disc.c.width * k, disc.c.height * k);
     }
     if (id === 'jupiter') tlGalilean(x, o, B, p, D);
@@ -6440,6 +6451,79 @@ function tlSunLive(x, disc, p, D, S, o) {          // 태양 필터로 본 태�
     x.restore();
   }
   x.restore();
+}
+/* ---------- 개기 일식 관측(가상 상황): 달이 태양을 가리는 동안 망원경으로 보기 ----------
+   실제 날짜의 일식이 아니라 그날 오전 11시 무렵에 일식이 일어난다고 꾸민 상황이다.
+   달은 태양보다 4% 크게 보이고, 첫 접촉부터 가장 깊을 때까지 80분이 걸리게 했다(개기는 약 3분).
+   재생할 때는 부분 일식을 빠르게, 개기 일식은 느리게 보여 준다. */
+const TL_ECL = { T: 80, k: 1.04, y: 0.012 };
+function tlEclGeo() {                              // 달 중심이 태양 중심에서 떨어진 정도(태양 반지름 단위), 가린 넓이, 개기인지
+  const e = tl.ecl; if (!e) return null;
+  const sx = e.tau / TL_ECL.T * (1 + TL_ECL.k), d = Math.hypot(sx, TL_ECL.y), k = TL_ECL.k;
+  return { sx, d, total: d <= k - 1, cov: overlap(1, k, d) / Math.PI };
+}
+const tlEclTotal = () => { const g = tlEclGeo(); return !!g && g.total; };
+const tlEclDark = () => { const g = tlEclGeo(); return g ? (g.total ? 1 : Math.pow(smooth(0.7, 1, g.cov), 2) * 0.85) : 0; };   // 하늘이 어두워지는 정도
+function tlEclPhase() {
+  const g = tlEclGeo(); if (!g) return '';
+  return g.total ? 'total' : g.cov > 0 ? 'partial' : tl.ecl.tau < 0 ? 'before' : 'after';
+}
+function tlEclMoon() {                             // 달을 태양 바로 옆(서쪽에서 동쪽으로 지나가는 길)에 놓음
+  const g = tlEclGeo(), s = tl.bodies.sun, m = tl.bodies.moon; if (!g || !s || !m) return;
+  const east = tNorm(tCross([0, tl.F.cp, tl.F.sp], s.v)), north = tCross(s.v, east), r = s.ang / 2 * DEG;
+  const v = tNorm(s.v.map((a, i) => a + (east[i] * g.sx + north[i] * TL_ECL.y) * r));
+  Object.assign(m, { v, ang: s.ang * TL_ECL.k, illum: 0, elong: tSep(v, s.v), L: s.v.map(a => a) }, altAz(v));
+}
+function tlEclStart() {                            // 관측 계획: 오늘 오전 11시 무렵에 개기 일식이 일어나는 상황으로
+  const k = kst(jdFromMs(Date.now()));
+  tlSetKst(k.y, k.mo, k.d, 11 * 60);
+  tl.ecl = { tau: -TL_ECL.T - 6, play: false };
+  tlRefresh(); tl.sel = 'sun'; tl.look = Math.round(tl.bodies.sun.az / 5) * 5;
+  toast('가상 개기 일식: 오늘 오전 11시 무렵 달이 태양을 가려요. 태양 필터를 끼우고 관측을 시작해요.');
+  renderTlCtrl(); renderTlSide();
+}
+function tlEclStep(dt) {                           // 재생: 부분 일식은 빠르게(1초에 약 4분), 개기 일식 무렵은 느리게(1초에 약 0.2분)
+  const e = tl.ecl; if (!e || !e.play) return;
+  e.tau += dt * (0.2 + 3.8 * smooth(2.5, 9, Math.abs(e.tau)));
+  if (e.tau >= TL_ECL.T + 6) { e.tau = TL_ECL.T + 6; e.play = false; renderTlCtrl(); }
+  const r = $('#tlEcl'), out = $('#tlEclOut');
+  if (r) r.value = e.tau; if (out) out.textContent = tlEclText();
+}
+function tlEclText() {                             // 진행 표시: 단계 · 가린 정도 · (가상) 시각
+  const g = tlEclGeo(), ph = tlEclPhase(), kk = kst(tl.jd + tl.ecl.tau / 1440);
+  const t = ph === 'total' ? '개기 일식' : ph === 'partial' ? `부분 일식 · 가린 정도 ${Math.round(g.cov * 100)}%` : ph === 'before' ? '일식 전' : '일식 끝';
+  return `${t} · ${fmtTime(kk)}`;
+}
+function tlEclAtm(x, p, D) {                       // 개기 일식 때(필터 없이) 보이는 태양 대기: 코로나·채층·홍염, 그 위를 가린 달
+  const R = D / 2, c = coronaImg(120, false), kc = R / 120;
+  x.save(); x.globalCompositeOperation = 'lighter'; x.globalAlpha = 0.95;
+  x.drawImage(c, p[0] - c.width / 2 * kc, p[1] - c.height / 2 * kc, c.width * kc, c.height * kc);
+  x.restore();
+  x.strokeStyle = 'rgba(255,70,105,.85)'; x.lineWidth = Math.max(1, R * 0.014); x.beginPath(); x.arc(p[0], p[1], R * 1.007, 0, 7); x.stroke();   // 채층: 광구 바로 위의 얇은 붉은 층
+  let s = 29; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  x.fillStyle = 'rgba(255,64,100,.92)';
+  for (let i = 0; i < 6; i++) {                                                 // 홍염: 채층 물질이 솟아오른 불꽃·고리 모양
+    const a = rnd() * 6.283, hgt = R * (0.06 + rnd() * 0.1), wd = 0.05 + rnd() * 0.08, ca = Math.cos(a), sa = Math.sin(a);
+    const P = (ang, rr) => [p[0] + Math.cos(ang) * rr, p[1] + Math.sin(ang) * rr];
+    const b1 = P(a - wd, R * 0.995), b2 = P(a + wd, R * 0.995), t1 = P(a - wd * (0.2 + rnd()), R + hgt), t2 = P(a + wd * (0.2 + rnd() * 0.8), R + hgt * (0.6 + rnd() * 0.4));
+    x.beginPath(); x.moveTo(b1[0], b1[1]);
+    x.bezierCurveTo(P(a - wd * 1.3, R + hgt * 0.5)[0], P(a - wd * 1.3, R + hgt * 0.5)[1], t1[0], t1[1], p[0] + ca * (R + hgt * 1.05), p[1] + sa * (R + hgt * 1.05));
+    x.bezierCurveTo(t2[0], t2[1], P(a + wd * 1.2, R + hgt * 0.4)[0], P(a + wd * 1.2, R + hgt * 0.4)[1], b2[0], b2[1]);
+    x.closePath(); x.fill();
+  }
+}
+function tlEclMoonDisc(x, pm, Dm, filter) {        // 태양 앞을 지나는 달(햇빛을 받지 않는 쪽이라 검게 보임)
+  if (!pm) return;
+  x.fillStyle = filter ? '#000' : '#05070c'; x.beginPath(); x.arc(pm[0], pm[1], Dm / 2, 0, 7); x.fill();
+}
+function tlEclTip(tight) {                         // 오른쪽 칸: 지금 일식 단계에서 할 일
+  const ph = tlEclPhase(), f = tl.filter;
+  const msg = ph === 'total' ? (f ? '<b>개기 일식이에요!</b> 지금만 태양 필터를 빼고 태양 둘레를 관찰해요.'
+      : '<b>개기 일식 중</b>이에요. 25 mm(저배율)로 바꿔 태양 둘레를 넓게 보고 📷 사진을 찍어요. 햇빛이 다시 나오기 전에 필터를 끼워요!')
+    : ph === 'partial' ? '<b>부분 일식</b>: 햇빛이 아직 강해요. 태양 필터를 끼운 채로 봐요.'
+    : ph === 'before' ? '<b>일식 전</b>: 태양을 시야에 넣고 아래의 ‘▶ 일식 진행’을 눌러요.'
+    : '<b>일식이 끝났어요.</b> 다시 보려면 ‘▶ 일식 진행’을 눌러요.';
+  return `<p class="tl-ecl${tight ? ' tight' : ''}">🌑 ${msg}</p>`;
 }
 function tlGalilean(x, o, B, p, D) {               // 목성 적도면 위의 네 위성
   const toE = o.v.map(a => -a), P = o.P;
@@ -6895,7 +6979,7 @@ function t3SkyInit() {
 }
 function t3SkyUpdate() {                            // 날짜·시각이 바뀐 만큼 하늘을 다시 맞춤
   const sky = t3.sky, F = tl.F; if (!sky || !F) return;
-  const M = F.M, sun = tl.bodies.sun, sAlt = sun ? sun.alt : -30;
+  const M = F.M, sun = tl.bodies.sun, sAlt = (sun ? sun.alt : -30) * (1 - tlEclDark()) - 14 * tlEclDark();   // 개기 일식 때는 하늘이 어두워짐
   sky.stars.matrix.set(M[0][0], M[0][1], M[0][2], 0, M[2][0], M[2][1], M[2][2], 0, -M[1][0], -M[1][1], -M[1][2], 0, 0, 0, 0, 1);
   sky.stars.matrixWorldNeedsUpdate = true;
   const nf = 1 - smooth(-14, -4, sAlt);
@@ -7100,11 +7184,15 @@ const TL_FACTS = {
   saturn: ['목성형 행성', ['두 번째로 큰 행성이고, 밀도가 가장 작아요(물보다 작아요).', '얼음과 암석 조각으로 된 크고 뚜렷한 고리가 있어요.', '위성이 많고, 가장 큰 위성은 타이탄이에요.']],
   uranus: ['목성형 행성', ['대기의 메테인 때문에 청록색으로 보여요.', '자전축이 거의 누운 채(약 98°) 태양 둘레를 돌아요.', '희미한 고리가 있어요.']],
   neptune: ['목성형 행성', ['태양에서 가장 먼 행성이고, 메테인 때문에 푸른색으로 보여요.', '아주 강한 바람이 불고, 대흑점이 관측된 적이 있어요.', '희미한 고리가 있어요.']],
+  eclipse: ['개기 일식', ['달이 밝은 광구를 완전히 가리면, 평소에는 보이지 않던 태양의 대기가 드러나요.', '코로나: 태양 둘레로 넓게 퍼진 진주색 대기층으로, 온도가 100만 °C가 넘어요.',
+    '채층과 홍염: 광구 바로 위의 붉은 대기층(채층)과, 채층 물질이 솟아오른 불꽃 모양의 가스(홍염)예요.', '개기 일식 동안에만 필터를 빼요. 햇빛이 다시 나오기 전에 반드시 필터를 끼워요.']],
+  eclPart: ['부분 일식', ['달이 태양의 일부를 가려서 태양이 이지러져 보여요.', '부분 일식 때는 햇빛이 여전히 매우 강해서 반드시 태양 필터를 끼우고 봐야 해요.',
+    '달이 태양을 완전히 가리는 개기 일식 때에만 코로나와 채층을 볼 수 있어요.']],
   pluto: ['왜소행성', ['2006년부터 행성이 아닌 왜소행성으로 분류해요.', '달보다 작고, 얼음과 암석으로 되어 있어요.', '아주 멀고 어두워서 큰 망원경으로도 점으로만 보여요.']],
 };
 // 관측 일지(직접 고쳐 쓰고, 스케치를 그릴 수 있음)
 function tlFacts() {                              // 본 특징을 먼저 고른 뒤에 보여 줌(답을 미리 알려 주지 않게)
-  const fc = TL_FACTS[tl.target], el = $('#lgFacts'), ko = tlKo(tl.target);
+  const fc = TL_FACTS[tl.photoEcl === 'total' ? 'eclipse' : tl.photoEcl === 'partial' ? 'eclPart' : tl.target], el = $('#lgFacts'), ko = tlKo(tl.target);
   el.innerHTML = !fc ? '' : tl.done[5] ? `<b>${ko}의 특징<small>${fc[0]}</small></b><ul>${fc[1].map(t => `<li>${t}</li>`).join('')}</ul>`
     : `<b>${ko}의 특징</b><p class="tl-fwait">오른쪽에서 본 특징을 고르고 ‘일지에 적기’를 누르면 ${josa(ko, '이', '가')} 어떤 천체인지 여기에 나와요.</p>`;
 }
@@ -7193,7 +7281,7 @@ function bkAdd(feats) {
   } else if (tl.photo) x.drawImage(tl.photo, 0, 0, 320, 320);
   else { x.fillStyle = '#fffdf6'; x.fillRect(0, 0, 320, 320); bkStrokes(x, 160, 160, 160, g.strokes); }
   const e = { id: tl.target, jd: tl.obsJd || tl.jd, photo: c.toDataURL('image/jpeg', 0.82), feats,
-    rot: Math.round((Math.random() * 2 - 1) * 12), seed: Math.floor(Math.random() * 1e9) };
+    rot: Math.round((Math.random() * 2 - 1) * 12), seed: Math.floor(Math.random() * 1e9), ecl: tl.target === 'sun' && tl.photoEcl === 'total' };
   bkSync(e, g);
   const L = bk.items[e.id] || (bk.items[e.id] = []);
   L.push(e); if (L.length > BK_MAX) L.shift();
@@ -7232,7 +7320,7 @@ function bkStamp(x, cx, cy, R, e) {                // 도장: 가운데에 내�
   y.lineWidth = R * 0.07; y.beginPath(); y.arc(0, 0, R * 0.95, 0, 7); y.stroke();
   y.lineWidth = R * 0.035; y.beginPath(); y.arc(0, 0, R * 0.74, 0, 7); y.stroke();
   y.textBaseline = 'middle'; y.textAlign = 'center';
-  y.font = sbFont(R * 0.17, 900); bkArc(y, tlKo(e.id), R * 0.845, true);
+  y.font = sbFont(R * 0.17, 900); bkArc(y, e.ecl ? '개기 일식' : tlKo(e.id), R * 0.845, true);
   y.font = sbFont(R * 0.11, 800); bkArc(y, bkDay(e.jd), R * 0.845, false);
   y.font = sbFont(R * 0.12, 900); [-1, 1].forEach(s => y.fillText('★', s * R * 0.845, 0));
   y.globalCompositeOperation = 'destination-out';            // 잉크가 덜 묻은 자국
@@ -7275,7 +7363,7 @@ function bkDraw() {
 function bkRender() {
   const el = $('#tlBook'), have = bkHave();
   if (bk.view) {
-    const L = bkList(bk.view), e = L[bk.idx], fc = TL_FACTS[e.id], hasSk = e.strokes && e.strokes.length;
+    const L = bkList(bk.view), e = L[bk.idx], fc = TL_FACTS[e.ecl ? 'eclipse' : e.id], hasSk = e.strokes && e.strokes.length;
     if (!hasSk) bk.mode = 'photo';
     const row = (t, v) => `<div><dt>${t}</dt><dd>${bkEsc(v) || '—'}</dd></div>`;
     el.innerHTML = `<div class="tl-paper bk-paper">
@@ -7370,7 +7458,9 @@ function tlFeatures(id) {                          // 관측 일지에 고를 �
     uranus: [F2('청록색의 아주 작은 원반으로 보인다', 1), F2('뚜렷한 줄무늬가 보인다'), F2('둘레에 큰 고리가 보인다')],
     neptune: [F2('푸른색의 아주 작은 원반으로 보인다', 1), F2('뚜렷한 줄무늬가 보인다'), F2('둘레에 큰 고리가 보인다')],
     pluto: [F2('별처럼 아주 작고 어두운 점으로 보인다', 1), F2('표면의 무늬가 보인다'), F2('둘레에 고리가 보인다'), F2('달처럼 한쪽이 이지러져 보인다')],
-    sun: [F2('표면에 검은 점(흑점)이 보인다', 1), F2('가장자리가 가운데보다 어둡다', 1), F2('둘레에 고리가 보인다'), F2('운석 충돌구가 보인다')],
+    sun: tl.photoEcl === 'total' ? [F2('태양 둘레에 진주색 빛이 넓게 퍼져 보인다', 1), F2('가장자리에 붉은 불꽃 모양이 보인다', 1), F2('표면에 검은 점(흑점)이 보인다'), F2('둘레에 고리가 보인다')]
+      : tl.photoEcl === 'partial' ? [F2('달이 태양의 일부를 가리고 있다', 1), F2('가장자리가 가운데보다 어둡다', 1), F2('태양 둘레에 진주색 빛이 퍼져 보인다'), F2('둘레에 고리가 보인다')]
+      : [F2('표면에 검은 점(흑점)이 보인다', 1), F2('가장자리가 가운데보다 어둡다', 1), F2('둘레에 고리가 보인다'), F2('운석 충돌구가 보인다')],
   };
   return shuffle(L[id]);
 }
@@ -7391,7 +7481,7 @@ function tlGo(k) {
   if (k === 1 && tl.k !== 1) { t3.yaw = (118 - tl.az) * DEG; t3.pitch = 0.25; t3.zoom = 1; }   // 망원경을 비스듬한 옆에서 보도록
   tl.k = k; tl.fb = ''; tl.fbc = ''; tl.tries = 0;
   if (k < 4) tl.zoom = 1;
-  if (k === 5 && !tl.feat) { tl.feat = tlFeatures(tl.target); tl.pick = {}; }
+  if (k === 5 && (!tl.feat || (!tl.done[5] && tl.featKey !== tl.photoEcl))) { tl.feat = tlFeatures(tl.target); tl.featKey = tl.photoEcl; tl.pick = {}; }   // 일식 사진을 새로 찍으면 고를 특징도 바뀜
   if (k === 5) tlLogOpen();
   bk.open = false; $('#tlBook').hidden = true;
   $('#tlLog').hidden = k !== 5;
@@ -7399,14 +7489,15 @@ function tlGo(k) {
   if (nav.mode === 'tel') { renderNav(); panelLayout(); }
 }
 function tlChoose(id) {                            // 관측 대상을 정하고 망원경을 처음 상태로
+  if (id !== 'sun') tl.ecl = null;
   const base = 30 + Math.random() * 40, b0 = Math.abs(base - 50) < 12 ? base + (base < 50 ? -14 : 14) : base;
   const off = () => (Math.random() < 0.5 ? -1 : 1) * (4 + Math.random() * 5);
   Object.assign(tl, { target: id, ep: 0, zoom: 1, barlow: false, lg: null, focus: 50, best: [b0, b0 + off(), b0 + off()], capMain: true, capFinder: true, filter: false,
-    conf: {}, photo: null, photoAim: null, feat: null, pick: {}, obsJd: 0, bkE: null, alt: 30, az: wrap360(tl.bodies[id].az + (Math.random() < 0.5 ? -1 : 1) * (35 + Math.random() * 25)) });
+    conf: {}, photo: null, photoAim: null, photoEcl: '', feat: null, pick: {}, obsJd: 0, bkE: null, alt: 30, az: wrap360(tl.bodies[id].az + (Math.random() < 0.5 ? -1 : 1) * (35 + Math.random() * 25)) });
   tl.done = TL_STEPS.map((_, i) => i === 0);
   tlGo(1);
 }
-function tlSetKst(y, mo, d, min) { tl.jd = jdFromMs(Date.UTC(y, mo - 1, d, 0, min) - 9 * 3600e3); tl.F = tlFrame(tl.jd); TL_IDS.forEach(id => { tl.bodies[id] = tlBody(tl.F, id); }); }
+function tlSetKst(y, mo, d, min) { tl.ecl = null; tl.jd = jdFromMs(Date.UTC(y, mo - 1, d, 0, min) - 9 * 3600e3); tl.F = tlFrame(tl.jd); TL_IDS.forEach(id => { tl.bodies[id] = tlBody(tl.F, id); }); }
 function tlEvening() { const k = kst(jdFromMs(Date.now())); tlSetKst(k.y, k.mo, k.d, 19 * 60); }
 function tlPoint(id) { const o = tl.bodies[id]; tl.az = o.az; tl.alt = clamp(o.alt, 0, 88); }
 function tlSkip() {                                // 선생님: 이 단계를 대신 해 주기
@@ -7446,6 +7537,8 @@ function tlTakePhoto() {                           // 스마트 기기를 접안
   const c = document.createElement('canvas'); c.width = c.height = 480;
   c.getContext('2d').drawImage(tl.shown, 0, 0, 480, 480);
   tl.photo = c; tl.needPhoto = false;
+  const eg = tl.target === 'sun' && tlEclGeo();
+  tl.photoEcl = !eg ? '' : eg.total && !tl.filter ? 'total' : eg.cov > 0 ? 'partial' : '';
   const o = tl.bodies[tl.target], B = tl.B, fov = tlViewFov(), z = o && B ? tDot(o.v, B.t) : 0;   // 사진 속 천체의 자리와 크기(도장을 만들 때 천체 둘레만 잘라 씀)
   if (z > 0.3) {
     const sc = 240 / Math.tan(fov / 2 * DEG), sg = tl.invert ? -1 : 1;
@@ -7471,11 +7564,12 @@ function renderTlSide() {
   const k = tl.k, ko = tl.target ? tlKo(tl.target) : '';
   const steps = TL_STEPS.map((s, i) => `<button class="tl-st${i === k ? ' on' : ''}${tl.done[i] ? ' done' : ''}${tlOk(i) ? '' : ' lock'}" data-tlk="${i}" title="${s.t}">${i + 1}. ${s.s}${tl.done[i] ? ' ✓' : ''}</button>`).join('');
   const checks = tlChecks(), chk = checks.length ? `<ul class="tl-checks">${checks.map(([t, ok]) => `<li class="${ok ? 'ok' : ''}">${t}</li>`).join('')}</ul>` : '';
-  tl.sig = checks.map(c => +!!c[1]).join('') + '|' + k;
+  tl.sig = checks.map(c => +!!c[1]).join('') + '|' + k + (tl.ecl ? tlEclPhase() + tl.filter : '');
   let b = '';
   if (k === 0) {
     b = `<h2>관측 프로그램으로 천체 찾기</h2><ul class="sb-todo"><li>날짜·시각을 정하고 하늘을 둘러보며 떠 있는 천체를 찾아요.</li><li>천체를 누르면 방위각과 고도가 나와요.</li></ul>
-      <div class="tl-good"><b>관측하기 좋은 날로 가기 <small>누를 때마다 다른 날</small></b><div>${TL_IDS.filter(id => id !== 'sun').map(id => `<button class="sb-b${tl.sel === id ? ' on' : ''}" data-good="${id}">${tlKo(id)}</button>`).join('')}</div></div>`;
+      <div class="tl-good"><b>관측하기 좋은 날로 가기 <small>누를 때마다 다른 날</small></b><div>${TL_IDS.filter(id => id !== 'sun').map(id => `<button class="sb-b${tl.sel === id ? ' on' : ''}" data-good="${id}">${tlKo(id)}</button>`).join('')}
+        <button class="sb-b tl-eclgo${tl.ecl ? ' on' : ''}" id="tlEclGo">🌑 개기 일식 관측하기 (가상 상황)</button></div></div>`;
     if (tl.sel) {
       const o = tl.bodies[tl.sel], v = tlVerdict(tl.sel);
       b += `<div class="tl-card${v.ok ? '' : ' bad'}"><b>${tlKo(tl.sel)}</b><span>방위각 ${Math.round(o.az)}° (${azName(o.az)}) · 고도 ${Math.round(o.alt)}°</span><small>${v.msg}</small></div>
@@ -7507,6 +7601,7 @@ function renderTlSide() {
         : `${tl.bkE ? `<p class="bk-got">🏅 ${ko} 도장을 받았어요! <em>도감 ${bkHave()}/${TL_IDS.length}${tl.bkN > 1 ? ` · ${tl.bkN}번째` : ''}</em><span>왼쪽 일지에 느낀 점도 적어 보세요. 도감에도 함께 남아요.</span></p>` : ''}
         <div class="bk-two">${tl.bkE ? '<button class="bk-ob" id="bkOpen">📖 도감 보기</button>' : ''}<button class="qbtn" id="tlAgain">다른 천체 관측 →</button></div>`}`;
   }
+  if (tl.ecl && tl.target === 'sun' && k >= 2 && k <= 4) b = tlEclTip(k >= 3) + b;   // 망원경으로 볼 때는 일반 설명 대신 일식 안내
   const nextBtn = k >= 1 && k <= 4 && tl.done[k] ? `<button class="qbtn sb-go" id="tlNext">다음: ${TL_STEPS[k + 1].t} →</button>` : '';
   el.innerHTML = `<div class="qhead"><b>천체 관측</b><button class="qx" id="tlX" aria-label="천체 관측 닫기 (Esc)">×</button></div>
     <div class="tl-steps">${steps}</div><div class="sb-page">${b}${nextBtn}
@@ -7516,8 +7611,8 @@ function renderTlSide() {
   const on = (q, f) => { const n = el.querySelector(q); if (n) n.addEventListener('click', f); };
   on('#tlX', closeTel); on('#tlSkip', tlSkip); on('#tlNext', () => tlGo(tl.k + 1));
   on('#tlChoose', () => { if (tl.sel && tlVerdict(tl.sel).ok) tlChoose(tl.sel); });
-  on('#tlSubmit', tlSubmitLog); on('#bkOpen', bkOpen);
-  on('#tlAgain', () => { tl.sel = null; tl.target = null; tl.done = TL_STEPS.map(() => false); tlGo(0); });
+  on('#tlSubmit', tlSubmitLog); on('#bkOpen', bkOpen); on('#tlEclGo', tlEclStart);
+  on('#tlAgain', () => { tl.ecl = null; tl.sel = null; tl.target = null; tl.done = TL_STEPS.map(() => false); tlGo(0); });
   el.querySelectorAll('[data-good]').forEach(bt => bt.addEventListener('click', () => tlJumpGood(bt.dataset.good)));
   el.querySelectorAll('[data-feat]').forEach(bt => bt.addEventListener('click', () => { const i = +bt.dataset.feat; tl.pick[i] = !tl.pick[i]; tl.fb = ''; renderTlSide(); }));
 }
@@ -7537,7 +7632,11 @@ function renderTlCtrl() {
       <button class="sb-b${tl.capFinder ? '' : ' on'}" id="tlCapF">파인더 뚜껑 ${tl.capFinder ? '열기' : '닫기'}</button>
       ${tl.target === 'sun' ? `<button class="sb-b${tl.filter ? ' on' : ''}" id="tlFil">태양 필터 ${tl.filter ? '빼기' : '끼우기'}</button>` : ''}`;
   } else if (k <= 4) {
-    h = `<div class="sb-row"><b>망원경 돌리기</b><button class="sb-b pad" data-slew="-1,0" aria-label="왼쪽으로">◀</button><button class="sb-b pad" data-slew="0,1" aria-label="위로">▲</button>
+    h = `${tl.ecl && tl.target === 'sun' ? `<div class="sb-row"><b>개기 일식(가상)</b><button class="sb-b hot" id="tlEclPlay">${tl.ecl.play ? '❚❚ 멈춤' : '▶ 일식 진행'}</button>
+        <input type="range" class="tl-focus" id="tlEcl" min="${-TL_ECL.T - 6}" max="${TL_ECL.T + 6}" step="0.1" value="${tl.ecl.tau}" aria-label="일식 진행">
+        <output id="tlEclOut" class="tl-eclout">${tlEclText()}</output>
+        <button class="sb-b${tl.filter ? ' on' : ''}" id="tlFil">태양 필터 ${tl.filter ? '빼기' : '끼우기'}</button>${tl.capMain ? `<button class="sb-b" id="tlCapM">${tlSc().cap} 뚜껑 열기</button>` : ''}</div>` : ''}
+      <div class="sb-row"><b>망원경 돌리기</b><button class="sb-b pad" data-slew="-1,0" aria-label="왼쪽으로">◀</button><button class="sb-b pad" data-slew="0,1" aria-label="위로">▲</button>
         <button class="sb-b pad" data-slew="0,-1" aria-label="아래로">▼</button><button class="sb-b pad" data-slew="1,0" aria-label="오른쪽으로">▶</button>
         <button class="sb-b" id="tlDial">방위각·고도 넣기</button>
         <label class="sb-chk"><input type="checkbox" id="tlTrack"${tl.track ? ' checked' : ''}> 자동 추적</label>
@@ -7555,7 +7654,7 @@ function renderTlCtrl() {
   const on = (q, ev, f) => { const n = el.querySelector(q); if (n) n.addEventListener(ev, f); };
   el.querySelectorAll('[data-tlday]').forEach(b => b.addEventListener('click', () => { tlShiftJd(+b.dataset.tlday); }));
   el.querySelectorAll('[data-tlmon]').forEach(b => b.addEventListener('click', () => tlShiftMonth(+b.dataset.tlmon)));
-  on('#tlNow', 'click', () => { tl.jd = jdFromMs(Date.now()); tlRefresh(); renderTlCtrl(); renderTlSide(); });
+  on('#tlNow', 'click', () => { tl.ecl = null; tl.jd = jdFromMs(Date.now()); tlRefresh(); renderTlCtrl(); renderTlSide(); });
   on('#tlEve', 'click', () => { tlEvening(); renderTlCtrl(); renderTlSide(); });
   on('#tlTime', 'input', e => { const t = kst(tl.jd); tlSetKst(t.y, t.mo, t.d, +e.target.value); $('#tlTimeOut').textContent = fmtTime(kst(tl.jd)); renderTlSide(); });
   el.querySelectorAll('[data-look]').forEach(b => b.addEventListener('click', () => { tl.look = +b.dataset.look; renderTlCtrl(); }));
@@ -7571,6 +7670,8 @@ function renderTlCtrl() {
   });
   on('#tlDial', 'click', tlDial);
   on('#tlTrack', 'change', e => { tl.track = e.target.checked; });
+  on('#tlEclPlay', 'click', () => { if (tl.ecl.tau >= TL_ECL.T + 6) tl.ecl.tau = -TL_ECL.T - 6; tl.ecl.play = !tl.ecl.play; renderTlCtrl(); });
+  on('#tlEcl', 'input', e => { tl.ecl.tau = +e.target.value; tl.ecl.play = false; $('#tlEclOut').textContent = tlEclText(); const b = $('#tlEclPlay'); if (b) b.textContent = '▶ 일식 진행'; });
   on('#tlInv', 'change', e => { tl.invert = e.target.checked; });
   on('#tlTag', 'change', e => { tl.tag = e.target.checked; });
   el.querySelectorAll('[data-ep]').forEach(b => b.addEventListener('click', () => tlSetEp(+b.dataset.ep)));
@@ -7585,7 +7686,8 @@ function tlNudge(dx, dy) {                         // 한 번 누르면 시야�
   const st2 = (tl.k >= 3 ? tlViewFov() : TL_FF) * 0.03;
   tl.az = wrap360(tl.az + dx * st2 / Math.max(0.15, Math.cos(tl.alt * DEG))); tl.alt = clamp(tl.alt + dy * st2, 0, 88);
 }
-function tlShiftMonth(dm) {                        // 같은 날·같은 시각으로 한 달 앞뒤(31일이 없는 달이면 그 달 마지막 날)
+function tlShiftMonth(dm) {
+  tl.ecl = null;                        // 같은 날·같은 시각으로 한 달 앞뒤(31일이 없는 달이면 그 달 마지막 날)
   const k = kst(tl.jd), m0 = k.mo - 1 + dm, y = k.y + Math.floor(m0 / 12), mo = ((m0 % 12) + 12) % 12 + 1;
   const last = new Date(Date.UTC(y, mo, 0)).getUTCDate();
   tlSetKst(y, mo, Math.min(k.d, last), k.h * 60 + k.mi); renderTlCtrl(); renderTlSide();
@@ -7633,11 +7735,11 @@ function tlJumpGood(id) {
   const kk = kst(tl.jd); toast(`${kk.mo}월 ${kk.d}일 ${fmtTime(kk)}: ${josa(tlKo(id), '이', '가')} ${azName(o.az)}쪽 하늘 고도 ${Math.round(o.alt)}°에 있어요 (다시 누르면 다른 날)`);
   renderTlCtrl(); renderTlSide();
 }
-function tlShiftJd(days) { tl.jd += days; tlRefresh(); renderTlCtrl(); renderTlSide(); }
-function tlRefresh() { tl.F = tlFrame(tl.jd); TL_IDS.forEach(id => { tl.bodies[id] = tlBody(tl.F, id); }); }
+function tlShiftJd(days) { tl.ecl = null; tl.jd += days; tlRefresh(); renderTlCtrl(); renderTlSide(); }
+function tlRefresh() { tl.F = tlFrame(tl.jd); TL_IDS.forEach(id => { tl.bodies[id] = tlBody(tl.F, id); }); if (tl.ecl) tlEclMoon(); }
 function tlToggle(key) {
   tl[key] = !tl[key];
-  if (key === 'capMain' && !tl.capMain && tl.target === 'sun' && !tl.filter) { tl.capMain = true; toast(`⚠ 태양 필터를 먼저 끼워야 해요! 필터 없이 ${tlSc().cap} 뚜껑을 열면 위험해요.`); }
+  if (key === 'capMain' && !tl.capMain && tl.target === 'sun' && !tl.filter && !tlEclTotal()) { tl.capMain = true; toast(`⚠ 태양 필터를 먼저 끼워야 해요! 필터 없이 ${tlSc().cap} 뚜껑을 열면 위험해요.`); }
   renderTlCtrl(); renderTlSide();
 }
 function tlSetEp(i) { tl.ep = i; renderTlCtrl(); }
@@ -7669,21 +7771,24 @@ function tlLoop(t) {
       tl.az = wrap360(tl.az + kx * rate * dt / Math.max(0.15, Math.cos(tl.alt * DEG))); tl.alt = clamp(tl.alt + ky * rate * dt, 0, 88);
     } else tl.holdT = 0;
     if (scope && !tl.track) tl.jd += dt / 86400;                                  // 지구가 자전해서 천체가 조금씩 움직임
-    tlRefresh();
+    tlEclStep(dt); tlRefresh();
     tl.B = tlBasis(tl.az, tl.alt);
     const o = tl.target && tl.bodies[tl.target];
     const was = tl.inField;
-    tl.inField = !!o && !tl.capMain && tSep(o.v, tl.B.t) < tlViewFov() / 2 && (tl.target !== 'sun' || tl.filter);
-    if (was && !tl.inField && !kx && !ky && !tl.ptr.down && scope) tl.driftT = tl.t;
+    tl.inField = !!o && !tl.capMain && tSep(o.v, tl.B.t) < tlViewFov() / 2 && (tl.target !== 'sun' || tl.filter || tlEclTotal());
+    if (was && !tl.inField && o && tSep(o.v, tl.B.t) >= tlViewFov() / 2 && !kx && !ky && !tl.ptr.down && scope) tl.driftT = tl.t;   // 천체가 정말 시야 밖으로 나갔을 때만(뚜껑·필터 때문이 아니라)
     // 필터 없이 태양 쪽을 향하면 바로 뚜껑을 닫고 경고
     const sun = tl.bodies.sun;
     if (k >= 1 && sun.alt > 0) {
       const sm = tSep(sun.v, tl.B.t);
-      const why = !tl.capMain && !tl.filter && sm < tlFov(tl.ep) / 2 + 0.5 ? 'main' : !tl.capFinder && sm < TL_FF / 2 + 0.5 ? 'finder' : '';
+      const safe = tlEclTotal();                                                   // 개기 일식 동안에만 광구가 가려져 필터 없이 볼 수 있음
+      const why = safe ? '' : !tl.capMain && !tl.filter && sm < tlFov(tl.ep) / 2 + 0.5 ? 'main' : !tl.capFinder && sm < TL_FF / 2 + 0.5 ? 'finder' : '';
       if (why) {
         if (why === 'main') tl.capMain = true; else tl.capFinder = true;
         tl.dangerT = tl.t; tl.dangerWhy = why;
-        toast(why === 'main' ? `⚠ 위험! 필터 없이 태양을 보면 실명할 수 있어요. ${tlSc().cap} 뚜껑을 닫았어요.` : '⚠ 위험! 파인더로 태양을 보면 안 돼요. 파인더 뚜껑을 닫았어요.');
+        toast(why === 'main' && tl.ecl && tl.ecl.tau > 0 && tlEclPhase() === 'partial' ? `⚠ 개기 일식이 끝나 햇빛이 다시 나왔어요! 그 전에 필터를 끼워야 해요. ${tlSc().cap} 뚜껑을 닫았어요.`
+          : why === 'main' && tl.ecl && tlEclPhase() !== 'after' && tl.ecl.tau < 0 ? `⚠ 아직 부분 일식이라 햇빛이 강해요! 개기 일식이 될 때까지 필터를 끼워 둬요. ${tlSc().cap} 뚜껑을 닫았어요.`
+          : why === 'main' ? `⚠ 위험! 필터 없이 태양을 보면 실명할 수 있어요. ${tlSc().cap} 뚜껑을 닫았어요.` : '⚠ 위험! 파인더로 태양을 보면 안 돼요. 파인더 뚜껑을 닫았어요.');
         renderTlCtrl(); renderTlSide();
       }
     }
@@ -7702,7 +7807,7 @@ function tlLoop(t) {
     }
     if (tl.t - tl.sigT > 0.25) {                                                 // 체크 표시가 바뀌면 오른쪽 칸 새로 그림
       tl.sigT = tl.t;
-      const sig = tlChecks().map(q => +!!q[1]).join('') + '|' + k;
+      const sig = tlChecks().map(q => +!!q[1]).join('') + '|' + k + (tl.ecl ? tlEclPhase() + tl.filter : '');
       if (sig !== tl.sig) renderTlSide();
     }
     let cap = '';
@@ -7710,7 +7815,12 @@ function tlLoop(t) {
     else if (k === 1 && t3.ok && t3.up > 0.2) cap = '하늘을 올려다보고 있어요. 별과 행성은 이 날짜·시각의 실제 자리에 있어요. 아래로 끌면 망원경 부분 이름이 다시 보여요.';
     else if (k === 1) cap = '망원경을 끌어서 돌려 보고(위로 끌면 하늘을 올려다봐요), 휠로 크게 볼 수 있어요. ' + (tl.target === 'sun' ? `태양 필터를 ${tlSc().cap} 앞에 끼우고, 파인더는 뚜껑을 닫아 둬요.` : '뚜껑을 누르면 열리고 닫혀요.');
     else if (scope) {
+      const eph = tl.ecl && tl.target === 'sun' ? tlEclPhase() : '';
       if (tl.t - tl.driftT < 6) cap = '지구가 자전해서 천체가 시야 밖으로 움직였어요. 다시 맞춰 보세요. (자동 추적을 켜면 따라가요)';
+      else if (eph === 'total') cap = tl.filter ? '개기 일식 중에는 필터를 끼우면 아무것도 보이지 않아요. 광구가 완전히 가려진 지금만 필터를 빼도 돼요.'
+        : '개기 일식! 평소에는 보이지 않던 것이 태양 둘레에 보여요. 실제 개기 일식은 2~3분 정도예요.';
+      else if (eph && tl.capMain) cap = tl.filter ? `${tlSc().cap} 뚜껑이 닫혀 있어요. ‘뚜껑 열기’를 눌러요.` : `${tlSc().cap} 뚜껑이 닫혔어요. 태양 필터를 먼저 끼운 뒤 뚜껑을 열어요.`;
+      else if (eph === 'partial' && k >= 3 && tl.inField) cap = '달이 태양을 가리고 있어요(가상 상황). 실제 부분 일식은 1시간 넘게 이어져요.';
       else if (tl.filter && tl.target !== 'sun') cap = '태양 필터를 끼우면 태양 말고는 아무것도 보이지 않아요.';
       else if (k >= 3 && tlMag(tl.ep) > tlMaxMag()) cap = `쓸모 있는 최대 배율(약 ${tlMaxMag()}배)보다 높아서 상이 흐리고 어두워요. 배율만 높인다고 더 잘 보이지 않아요.`;
       else if (k >= 3 && tl.inField && tlBlurPx() > 1.6) cap = '천체가 시야에 들어왔어요. 초점 조절 나사를 돌려 또렷하게 맞춰요. (마우스 휠도 돼요)';
