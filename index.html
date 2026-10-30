@@ -6213,6 +6213,11 @@ function tlHash(a, b, c) {
   let h = Math.imul(a | 0, 374761393) ^ Math.imul(b | 0, 668265263) ^ Math.imul(c | 0, 1274126177);
   h = Math.imul(h ^ (h >>> 13), 1274126177); h ^= h >>> 16; return (h >>> 0) / 4294967296;
 }
+function tlVN(x, y) {                             // 부드러운 잡음(0~1): 격자점의 값을 이어 붙임
+  const ix = Math.floor(x), iy = Math.floor(y), fx = x - ix, fy = y - iy, sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy);
+  const h = (a, b) => tlHash(((a % 104) + 104) % 104, b, 77);                     // 경도 방향은 한 바퀴 돌면 이어지게
+  return (h(ix, iy) * (1 - sx) + h(ix + 1, iy) * sx) * (1 - sy) + (h(ix, iy + 1) * (1 - sx) + h(ix + 1, iy + 1) * sx) * sy;
+}
 function tlStars(B, rad, lim, cb) {                // 하늘에 붙박인 어두운 별(같은 자리에는 늘 같은 별)
   const cell = 0.25, q = tlEqOf(tl.F, B.t), dec0 = Math.asin(clamp(q[2], -1, 1)) / DEG, ra0 = wrap360(Math.atan2(q[1], q[0]) / DEG);
   for (let di = Math.floor((dec0 - rad) / cell); di <= Math.floor((dec0 + rad) / cell); di++) {
@@ -6305,8 +6310,9 @@ function tlDisc(id, D, g) {
         let u = (lon / (2 * Math.PI) + 0.5) % 1; if (u < 0) u += 1;
         const ti = (Math.min(T.h - 1, Math.floor((0.5 - lat / Math.PI) * T.h)) * T.w + Math.min(T.w - 1, Math.floor(u * T.w))) * 4;
         let r = T.d[ti], gg = T.d[ti + 1], bb = T.d[ti + 2], k = 1;
-        if (sun) {                                                              // 주연 감광 + 흑점
-          const col = sunRamp((1 - 0.9 * (1 - z) + 0.22 * (1 - z * z)) * clamp(r / 255 / 0.93, 0, 1)); r = col[0]; gg = col[1]; bb = col[2];
+        if (sun) {                                                              // 주연 감광 + 흑점 + 백반(가장자리 가까이에서만 밝게 드러남)
+          const fac = z < 0.5 && Math.abs(lat) < 38 * DEG ? smooth(0.68, 0.88, tlVN(u * 104, lat / DEG / 2.5)) * smooth(0.5, 0.15, z) : 0;
+          const col = sunRamp((1 - 0.9 * (1 - z) + 0.22 * (1 - z * z)) * clamp(r / 255 / 0.93, 0, 1) * (1 + 0.3 * fac)); r = col[0]; gg = col[1]; bb = col[2];
         } else {
           const mu0 = tDot(n, L), mu = Math.max(z, 0.02), ls = mu0 > 0 ? Math.min(1.3, 2 * mu0 / (mu0 + mu)) : 0;
           k = id === 'moon' || id === 'mercury' ? ls * 0.95                       // 울퉁불퉁한 표면: 보름달이 가장자리까지 고르게 밝음
@@ -6397,11 +6403,43 @@ function tlScene(cv, fov, B, opt) {
       x.globalAlpha = 1;
     } else {
       const disc = tlDisc(id, D, tlGeom(o, B)), k = D / disc.D;
-      x.drawImage(disc.c, p[0] - disc.o * k, p[1] - disc.o * k, disc.c.width * k, disc.c.height * k);
+      if (id === 'sun') tlSunLive(x, disc, p, D, S, o);
+      else x.drawImage(disc.c, p[0] - disc.o * k, p[1] - disc.o * k, disc.c.width * k, disc.c.height * k);
     }
     if (id === 'jupiter') tlGalilean(x, o, B, p, D);
   }
   if (opt.dim > 0.01) { x.setTransform(1, 0, 0, 1, 0, 0); x.fillStyle = `rgba(0,0,0,${opt.dim.toFixed(2)})`; x.fillRect(0, 0, S, S); }
+}
+function tlGranTile() {                            // 쌀알 무늬 판: 곱하면 쌀알 경계만 어두워짐(흰색 = 그대로)
+  if (tl.gran) return tl.gran;
+  const G = granTile(), N = G.c.width, c = document.createElement('canvas'); c.width = c.height = N;
+  const g = c.getContext('2d'), img = g.createImageData(N, N);
+  for (let i = 0; i < N * N; i++) { const v = 255 * (1 - 0.5 * (1 - Math.sqrt(G.v[i]))); img.data[i * 4] = img.data[i * 4 + 1] = img.data[i * 4 + 2] = v; img.data[i * 4 + 3] = 255; }
+  g.putImageData(img, 0, 0);
+  return (tl.gran = { c, cell: N / Math.sqrt(G.pts.length) });
+}
+function tlSunLive(x, disc, p, D, S, o) {          // 태양 필터로 본 태양: 쌀알 무늬가 끓듯 바뀌고, 햇빛에 데워진 공기 때문에 가장자리가 일렁임
+  const k = D / disc.D, t = tl.t, dpr = tl.dpr, R = D / 2, top = p[1] - disc.o * k, left = p[0] - disc.o * k, W = disc.c.width * k;
+  const pxs = D / (o.ang * 3600);                                              // 1″(각초)가 몇 픽셀인지
+  const amp = clamp(1.5 * pxs, 0.9 * dpr, 5 * dpr);                             // 공기 흔들림 약 1.5″(화면에서 보이게 적어도 1픽셀)
+  const hs = Math.max(2, Math.round(2 * dpr)), y0 = Math.max(top, -S / 2 - hs), y1 = Math.min(top + W, S / 2 + hs);
+  for (let y = y0; y < y1; y += hs) {                                           // 가로 띠마다 조금씩 어긋나게 그림
+    const dx = amp * (0.6 * Math.sin(y * 0.05 / dpr + t * 2.1) + 0.4 * Math.sin(y * 0.13 / dpr - t * 3.3));
+    x.drawImage(disc.c, 0, (y - top) / k, disc.c.width, hs / k, left + dx, y, W, hs + 0.6);
+  }
+  const res = 1.22 * 550e-9 / (tlSc().D * 1e-3) / DEG * 3600;                   // 망원경이 나눠 볼 수 있는 가장 작은 각(80 mm 약 1.7″, 400 mm 약 0.35″)
+  const g = tlGranTile(), cell = Math.max(3.2 * dpr, 1.4 * pxs), sc = cell / g.cell;   // 쌀알 하나는 약 1.4″(약 1,000 km)
+  const con = (0.22 + 0.5 * smooth(2.5 * dpr, 9 * dpr, 1.4 * pxs)) * clamp(1.4 / res, 0.45, 1);   // 쌀알이 크게 보이고 망원경이 작은 것까지 나눠 볼수록 또렷
+  const Tp = 7, pat = x.createPattern(g.c, 'repeat');                          // 한 무리가 생겨 사라지는 데 7초(실제는 5~10분)
+  x.save(); x.beginPath(); x.arc(p[0], p[1], R * 0.985, 0, 7); x.clip(); x.globalCompositeOperation = 'multiply';
+  for (let i = 0; i < 2; i++) {                                                 // 두 겹을 번갈아 나타났다 사라지게 해서 끓는 것처럼
+    const ph = t / Tp + i / 2, n = Math.floor(ph), a = 0.5 - 0.5 * Math.cos((ph - n) * 2 * Math.PI);
+    x.save(); x.globalAlpha = con * a;
+    x.translate(p[0] + tlHash(n, i, 3) * cell * 9, p[1] + tlHash(n, i, 5) * cell * 9); x.rotate(tlHash(n, i, 9) * 6.283); x.scale(sc * (1 + 0.13 * i), sc * (1 + 0.13 * i));   // 겹마다 각도·크기를 달리해 무늬가 되풀이되어 보이지 않게
+    x.fillStyle = pat; const L = Math.min(R, S) * 1.05 / sc; x.fillRect(-L - (p[0] + S) / sc, -L - (p[1] + S) / sc, 2 * L + 4 * S / sc, 2 * L + 4 * S / sc);
+    x.restore();
+  }
+  x.restore();
 }
 function tlGalilean(x, o, B, p, D) {               // 목성 적도면 위의 네 위성
   const toE = o.v.map(a => -a), P = o.P;
@@ -7148,7 +7186,11 @@ function bkSyncLive() {                            // 도장을 받은 뒤에 �
 function bkAdd(feats) {
   const g = tl.lg, c = document.createElement('canvas'); c.width = c.height = 320;
   const x = c.getContext('2d');
-  if (tl.photo) x.drawImage(tl.photo, 0, 0, 320, 320);
+  const A = tl.photo && tl.photoAim;
+  if (A) {                                                                      // 작게 찍힌 행성은 천체 둘레를 잘라 크게(목성은 위성까지, 토성은 고리까지)
+    const cs = clamp(A.d * (tl.target === 'jupiter' ? 7 : tl.target === 'saturn' ? 2.9 : 1.9), 48, 480);
+    x.drawImage(tl.photo, clamp(A.x - cs / 2, 0, 480 - cs), clamp(A.y - cs / 2, 0, 480 - cs), cs, cs, 0, 0, 320, 320);
+  } else if (tl.photo) x.drawImage(tl.photo, 0, 0, 320, 320);
   else { x.fillStyle = '#fffdf6'; x.fillRect(0, 0, 320, 320); bkStrokes(x, 160, 160, 160, g.strokes); }
   const e = { id: tl.target, jd: tl.obsJd || tl.jd, photo: c.toDataURL('image/jpeg', 0.82), feats,
     rot: Math.round((Math.random() * 2 - 1) * 12), seed: Math.floor(Math.random() * 1e9) };
@@ -7360,7 +7402,7 @@ function tlChoose(id) {                            // 관측 대상을 정하고
   const base = 30 + Math.random() * 40, b0 = Math.abs(base - 50) < 12 ? base + (base < 50 ? -14 : 14) : base;
   const off = () => (Math.random() < 0.5 ? -1 : 1) * (4 + Math.random() * 5);
   Object.assign(tl, { target: id, ep: 0, zoom: 1, barlow: false, lg: null, focus: 50, best: [b0, b0 + off(), b0 + off()], capMain: true, capFinder: true, filter: false,
-    conf: {}, photo: null, feat: null, pick: {}, obsJd: 0, bkE: null, alt: 30, az: wrap360(tl.bodies[id].az + (Math.random() < 0.5 ? -1 : 1) * (35 + Math.random() * 25)) });
+    conf: {}, photo: null, photoAim: null, feat: null, pick: {}, obsJd: 0, bkE: null, alt: 30, az: wrap360(tl.bodies[id].az + (Math.random() < 0.5 ? -1 : 1) * (35 + Math.random() * 25)) });
   tl.done = TL_STEPS.map((_, i) => i === 0);
   tlGo(1);
 }
@@ -7404,6 +7446,11 @@ function tlTakePhoto() {                           // 스마트 기기를 접안
   const c = document.createElement('canvas'); c.width = c.height = 480;
   c.getContext('2d').drawImage(tl.shown, 0, 0, 480, 480);
   tl.photo = c; tl.needPhoto = false;
+  const o = tl.bodies[tl.target], B = tl.B, fov = tlViewFov(), z = o && B ? tDot(o.v, B.t) : 0;   // 사진 속 천체의 자리와 크기(도장을 만들 때 천체 둘레만 잘라 씀)
+  if (z > 0.3) {
+    const sc = 240 / Math.tan(fov / 2 * DEG), sg = tl.invert ? -1 : 1;
+    tl.photoAim = { x: 240 + sg * tDot(o.v, B.r) / z * sc, y: 240 - sg * tDot(o.v, B.u) / z * sc, d: o.ang / fov * 480 };
+  } else tl.photoAim = null;
 }
 function tlSubmitLog() {
   const f = tl.feat || [], wrong = f.some((x, i) => tl.pick[i] && !x.ok), miss = f.some((x, i) => x.ok && !tl.pick[i]);
@@ -7670,6 +7717,7 @@ function tlLoop(t) {
       else if (k >= 3 && !tl.inField) cap = '시야에 천체가 없어요. 파인더 십자선 가운데로 맞춰 보세요.';
       else if (k === 4 && (tl.target === 'uranus' || tl.target === 'neptune') && tl.zoom < 4) cap = `${tlKo(tl.target)}은 아주 멀어서 작게 보여요. 확대 ×4, ×8을 누르면 작은 원반 모양을 볼 수 있어요.`;
       else if (k === 4 && (tl.target === 'uranus' || tl.target === 'neptune') && tl.scope === 'school') cap = `더 크고 또렷하게 보려면 관측 계획에서 천문대 망원경(구경 400 mm)을 골라 보세요. 빛을 25배 더 모아요.`;
+      else if (tl.target === 'sun' && tl.filter && k >= 3 && tl.inField) cap = '쌀알 무늬가 끓듯 바뀌어요(실제로는 5~10분에 한 번, 화면은 빠르게). 가장자리가 일렁이는 것은 햇빛에 데워진 공기 때문이에요.';
       else cap = '망원경이 향한 방향은 왼쪽 아래 3D 망원경에서 볼 수 있어요. 끌어서 돌려 볼 수도 있어요.';
     } else cap = tl.done[5] ? '관측 일지를 완성했어요. 칸을 눌러 직접 고쳐 쓰고, 스케치도 그려 보세요.' : '오른쪽에서 본 특징을 고르고, 일지의 칸은 직접 고쳐 쓸 수 있어요.';
     if (bk.open) cap = bk.view ? '◀ ▶ 로 같은 천체의 다른 날 관측을 넘겨 볼 수 있어요.' : '도장을 누르면 그날의 관측 일지를 다시 볼 수 있어요. 빈칸을 누르면 그 천체를 보기 좋은 날로 가요.';
