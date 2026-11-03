@@ -6525,6 +6525,263 @@ function tlEclTip(tight) {                         // 오른쪽 칸: 지금 일�
     : '<b>일식이 끝났어요.</b> 다시 보려면 ‘▶ 일식 진행’을 눌러요.';
   return `<p class="tl-ecl${tight ? ' tight' : ''}">🌑 ${msg}</p>`;
 }
+/* ---------- 망원경 탐구: 빛 모으기(구경) · 상과 배율 · 배율과 밝기·선명함 ----------
+   망원경 관측 화면 안에서 따로 여는 탐구. 태양 탐구처럼 알아보기 → 해 보기 → 문제 순서. */
+const TLL = [
+  { id: 'gather', tab: '빛 모으기', title: '대물렌즈는 빛을 모아요',
+    text: ['망원경에서 천체의 빛을 모으는 렌즈를 <b>대물렌즈</b>, 그 지름을 <b>구경</b>이라고 해요. 천문대의 큰 망원경은 렌즈 대신 오목한 거울로 빛을 모아요.',
+      '구경이 클수록 빛을 더 많이 모아 <b>어두운 천체</b>까지 볼 수 있어요. 모으는 빛의 양은 대물렌즈의 <b>넓이</b>에 비례해요.'],
+    todo: ['구경을 7 mm(눈동자)부터 늘려 보세요. 오른쪽 시야에 보이는 별의 수는 어떻게 바뀌나요?', '구경을 2배로 늘렸을 때 ‘모으는 빛’이 몇 배가 되는지 숫자로 확인해 보세요.',
+      '빛 알갱이가 대물렌즈에 떨어지는 모습을 보세요. 렌즈가 넓을수록 어떻게 되나요?'],
+    qs: [Q('구경 80 mm 망원경과 160 mm 망원경 가운데 더 어두운 별까지 볼 수 있는 것은?', ['160 mm: 빛을 더 많이 모으기 때문에', '80 mm: 빛이 덜 퍼지기 때문에', '160 mm: 배율이 더 높기 때문에', '두 망원경이 같다'],
+      '구경이 클수록 빛을 더 많이 모아서 어두운 별까지 보여요. 배율과는 다른 이야기예요.', '구경을 바꾸며 오른쪽 시야의 별 수를 비교해 보세요.'),
+    Q('구경이 2배가 되면 대물렌즈가 모으는 빛의 양은 몇 배가 될까요?', ['4배', '2배', '8배', '변하지 않는다'],
+      '빛의 양은 대물렌즈의 넓이에 비례하고, 원의 넓이는 지름의 제곱에 비례해요. 그래서 2 × 2 = 4배예요.', '구경을 40 mm와 80 mm로 바꿔 ‘모으는 빛’ 숫자를 비교해 보세요.')] },
+  { id: 'mag', tab: '상과 배율', title: '상을 만들고 크게 보기',
+    text: ['대물렌즈는 멀리서 온 빛을 모아, <b>초점 거리</b>만큼 떨어진 곳에 천체의 상을 만들어요. <b>접안렌즈</b>는 이 상을 돋보기처럼 크게 보여 줘요.',
+      '<b>배율 = 대물렌즈의 초점 거리 ÷ 접안렌즈의 초점 거리</b>예요.',
+      '배율이 높을수록 상은 커지지만, 한 번에 보이는 하늘의 범위(<b>시야</b>)는 좁아져요.'],
+    todo: ['접안렌즈를 바꿔 가며 배율을 직접 계산하고 ‘배율 넣기’로 확인해 보세요.', '광선이 대물렌즈의 초점에서 어떻게 지나가는지 보세요. 빨간 광선(달의 위쪽)과 파란 광선(아래쪽)은 상의 어디에 모이나요?',
+      '아래의 ‘맨눈으로 본 달’과 ‘망원경으로 본 달’에서 빨간 화살표의 방향을 비교해 보세요.'],
+    qs: [Q('초점 거리가 900 mm인 대물렌즈에 초점 거리 10 mm 접안렌즈를 끼우면 배율은?', ['90배', '9배', '910배', '9000배'],
+      '배율 = 대물렌즈 초점 거리 ÷ 접안렌즈 초점 거리 = 900 ÷ 10 = 90배예요.', '배율 = 대물렌즈의 초점 거리 ÷ 접안렌즈의 초점 거리'),
+    Q('같은 망원경에서 접안렌즈를 25 mm에서 10 mm로 바꾸면 어떻게 될까요?', ['배율이 높아지고 보이는 범위는 좁아진다', '배율이 낮아지고 보이는 범위는 넓어진다', '배율과 보이는 범위가 모두 그대로다', '배율이 높아지고 보이는 범위도 넓어진다'],
+      '접안렌즈의 초점 거리가 짧을수록 배율이 높아지고, 그만큼 보이는 하늘의 범위는 좁아져요.', '접안렌즈를 바꾸며 아래 시야 속 달의 크기를 보세요.'),
+    Q('굴절 망원경으로 달을 보면 상이 어떻게 보일까요?', ['위아래와 좌우가 모두 뒤집혀 보인다', '그대로 보인다', '위아래만 뒤집혀 보인다', '좌우만 뒤집혀 보인다'],
+      '달 위쪽의 빛과 아래쪽의 빛이 대물렌즈의 초점에서 엇갈려 지나가서, 상이 위아래·좌우로 뒤집혀요(180° 돌아간 모습).', '빨간 광선과 파란 광선이 초점에서 어떻게 지나가는지 보세요.')] },
+  { id: 'limit', tab: '밝기·선명함', title: '배율을 높이면 어떻게 될까요?',
+    text: ['배율을 높이면 상은 커지지만 같은 빛이 넓게 퍼져 <b>어두워지고</b> 보이는 범위가 좁아져요. 그래서 천체는 밝고 넓게 보이는 <b>저배율</b>로 먼저 찾아요.',
+      '작은 무늬를 구별하는 힘은 <b>구경</b>이 정해요. 쓸모 있는 최대 배율은 약 <b>구경(mm) × 2</b>이고, 그보다 높이면 흐려지기만 해요.'],
+    todo: ['구경 80 mm로 배율을 20배부터 천천히 높여 보세요. 달의 크기, 밝기, 선명함은 어떻게 바뀌나요?', '어느 배율부터 크기만 커지고 흐려지기 시작하나요?',
+      '구경을 400 mm로 바꾸고 같은 배율로 비교해 보세요.'],
+    qs: [Q('배율을 높일 때 일어나는 일로 옳은 것은?', ['상은 커지지만 어두워지고, 보이는 범위가 좁아진다', '상이 커지고 더 밝아진다', '상의 크기는 그대로이고 밝아진다', '보이는 범위가 넓어진다'],
+      '배율을 높이면 같은 빛이 넓게 퍼져 어두워지고, 하늘의 좁은 부분만 크게 보여요.', '배율을 바꾸며 오른쪽의 크기·밝기·범위 막대를 보세요.'),
+    Q('구경 80 mm 망원경으로 배율을 300배까지 높였더니 오히려 흐릿했어요. 까닭으로 옳은 것은?', ['구경이 구별할 수 있는 한계보다 더 크게 늘렸기 때문에', '접안렌즈가 더러워서', '배율이 너무 낮아서', '달이 움직였기 때문에'],
+      '구경 80 mm의 쓸모 있는 최대 배율은 약 160배예요. 그보다 높이면 커지기만 하고 새로운 무늬는 보이지 않아요.', '구경 80 mm와 400 mm에서 선명함 막대가 언제 줄어드는지 비교해 보세요.'),
+    Q('천체를 처음 찾을 때 저배율 접안렌즈를 쓰는 까닭은?', ['시야가 넓고 상이 밝아서 찾기 쉽기 때문에', '상이 가장 크게 보여서', '초점을 맞출 필요가 없어서', '태양 필터가 필요 없어서'],
+      '저배율은 보이는 범위가 넓고 밝아서 천체를 시야에 넣기 쉬워요. 찾은 다음에 배율을 높여요.', '배율이 낮을 때 보이는 범위와 밝기를 보세요.')] },
+];
+const TLL_SHORT = ['빛 모으기', '상과 배율', '밝기·선명함'];
+const tll = { on: false, k: 0, page: 0, qi: TLL.map(() => 0), ap: 80, F: 900, ep: 25, rev: {}, M: 40, ap3: 80, drops: [], hit: 0, hitT: 0, field: null };
+const tllDone = k => tll.qi[k] >= TLL[k].qs.length;
+const tllPages = () => (tll.k === TLL.length ? ['정리'] : ['알아보기', '해 보기', '문제']);
+const tllLim = D => 2.1 + 5 * Math.log10(D);       // 관측 화면과 같은 식(7 mm 눈동자는 약 6.3등급)
+function tlLearnOpen(k) {
+  tll.on = true; tll.k = clamp(k || 0, 0, TLL.length); tll.page = 0;
+  bkClose(); $('#tlLog').hidden = true;
+  renderTlSide(); renderTlCtrl();
+  if (nav.mode === 'tel') { renderNav(); panelLayout(); }
+}
+function tlLearnClose() { if (!tll.on) return; tll.on = false; tlGo(tl.k); }
+function tlLearnGo(k) { tll.k = clamp(k, 0, TLL.length); tll.page = 0; renderTlSide(); renderTlCtrl(); if (nav.mode === 'tel') renderNav(); }
+function tlLearnStep(d) {                          // ← →: 쪽을 넘기고, 끝 쪽에서는 다음·이전 단계로
+  const p = tll.page + d;
+  if (p >= 0 && p < tllPages().length) { tll.page = p; renderTlSide(); return; }
+  const k = tll.k + d; if (k < 0 || k > TLL.length) return;
+  tlLearnGo(k); if (d < 0) { tll.page = tllPages().length - 1; renderTlSide(); }
+}
+function tlLearnSide(el) {
+  const sum = tll.k === TLL.length, pages = tllPages();
+  tll.page = clamp(tll.page, 0, pages.length - 1);
+  const tabs = TLL_SHORT.map((t, k) => `<button class="tl-st${k === tll.k ? ' on' : ''}${tllDone(k) ? ' done' : ''}" data-tllk="${k}">${k + 1}. ${t}${tllDone(k) ? ' ✓' : ''}</button>`).join('')
+    + `<button class="tl-st${sum ? ' on' : ''}" data-tllk="${TLL.length}">정리</button>`;
+  const pg = pages.map((p, i) => `<button class="sb-pg${i === tll.page ? ' on' : ''}" data-tllp="${i}">${i + 1}. ${p}${!sum && i === 2 && tllDone(tll.k) ? ' ✓' : ''}</button>`).join('');
+  let body = '';
+  if (sum) {
+    const rows = [['구경', '클수록 빛을 많이 모아 <b>어두운 천체</b>까지 보여요.'], ['배율', '대물렌즈 초점 거리 ÷ 접안렌즈 초점 거리'],
+      ['배율을 높이면', '상은 커지지만 <b>어두워지고</b> 범위가 <b>좁아져요</b>. 최대 약 구경(mm) × 2배'], ['상의 방향', '위아래·좌우가 뒤집혀 보여요.']];
+    const left = TLL.filter((_, k) => !tllDone(k)).map(s => s.tab);
+    body = `<h2>망원경의 원리 정리</h2><table class="sb-sum">${rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table>
+      ${left.length ? `<p class="qfb">아직 풀지 않은 단계: ${left.join(', ')}</p>` : '<p class="qfb ok">모든 단계를 마쳤어요! 잘했어요.</p>'}`;
+  } else {
+    const s = TLL[tll.k], n = s.qs.length, qi = tll.qi[tll.k];
+    if (tll.page === 0) body = `<h2>${s.title}</h2><div class="sb-text">${s.text.map(t => `<p>${t}</p>`).join('')}</div><button class="qbtn sb-go" data-tllp="1">해 보기 →</button>`;
+    else if (tll.page === 1) body = `<h2>해 보기</h2><ul class="sb-todo">${s.todo.map(t => `<li>${t}</li>`).join('')}</ul><button class="qbtn sb-go" data-tllp="2">문제 풀기 →</button>`;
+    else if (qi < n) {
+      const q = s.qs[qi]; if (!q.shown) q.shown = shuffle(q.options);
+      body = `<h2>문제 ${n > 1 ? `${qi + 1} / ${n}` : ''}</h2><p class="qtext">${q.text}</p>
+        <div class="qopts">${q.shown.map((o, i) => `<button class="qopt" data-i="${i}">${o}</button>`).join('')}</div><p class="qfb" id="tllFb"></p>
+        <p><button class="qlink" id="tllSkip">선생님: 이 문제 건너뛰기</button></p>`;
+    } else body = `<h2>문제</h2><p class="qfb ok">이 단계의 문제를 모두 풀었어요!</p>
+      <button class="qbtn sb-go" id="tllNext">${tll.k < TLL.length - 1 ? `다음 단계: ${TLL_SHORT[tll.k + 1]} →` : '정리하기 →'}</button>`;
+  }
+  el.innerHTML = `<div class="qhead"><b>망원경 탐구</b><button class="qx" id="tlX" aria-label="닫기 (Esc)">×</button></div>
+    <div class="tl-steps">${tabs}</div><div class="sb-pgs">${pg}</div><div class="sb-page">${body}
+    ${sum ? '<button class="bk-ob" id="tllBack">🔭 망원경으로 관측하러 가기 →</button>' : tll.page < 2 ? '<button class="qlink" id="tllBack">← 망원경 관측으로 돌아가기</button>' : ''}</div>
+    <p class="sb-keys">← → 키로 넘기기 · Esc 닫기</p>`;
+  el.querySelectorAll('[data-tllk]').forEach(b => b.addEventListener('click', () => tlLearnGo(+b.dataset.tllk)));
+  el.querySelectorAll('[data-tllp]').forEach(b => b.addEventListener('click', () => { tll.page = +b.dataset.tllp; renderTlSide(); }));
+  const on = (q, f) => { const n = el.querySelector(q); if (n) n.addEventListener('click', f); };
+  on('#tlX', closeTel); on('#tllBack', tlLearnClose); on('#tllNext', () => tlLearnGo(tll.k + 1));
+  on('#tllSkip', () => askPin(() => { tll.qi[tll.k]++; renderTlSide(); }));
+  el.querySelectorAll('.qopt').forEach(b => b.addEventListener('click', () => {
+    const k = tll.k, q = TLL[k].qs[tll.qi[k]], fb = $('#tllFb');
+    if (q.shown[+b.dataset.i] === q.options[0]) {
+      b.classList.add('ok'); el.querySelectorAll('.qopt').forEach(o => { o.disabled = true; });
+      fb.className = 'qfb ok'; fb.textContent = `정답이에요! ${q.why}`;
+      const q0 = tll.qi[k];
+      setTimeout(() => { if (tll.on && tll.k === k && tll.qi[k] === q0) { tll.qi[k]++; renderTlSide(); } }, 2400);
+    } else { b.classList.add('bad'); b.disabled = true; fb.className = 'qfb bad'; fb.textContent = `다시 생각해 보세요. 힌트: ${q.hint}`; }
+  }));
+}
+function tlLearnCtrl() {                           // 아래 조작 막대
+  const k = tll.k;
+  if (k === 0) return `<div class="sb-row"><b>구경</b>${[7, 20, 40, 80, 160, 400].map(d => `<button class="sb-b${tll.ap === d ? ' on' : ''}" data-tlap="${d}">${d === 7 ? '눈동자 7' : d} mm</button>`).join('')}</div>`;
+  if (k === 1) {
+    const M = tll.F / tll.ep, key = `${tll.F}/${tll.ep}`;
+    return `<div class="sb-row"><b>대물렌즈 초점 거리</b>${[600, 900, 1200].map(f => `<button class="sb-b${tll.F === f ? ' on' : ''}" data-tlF="${f}">${f} mm</button>`).join('')}</div>
+      <div class="sb-row"><b>접안렌즈 초점 거리</b>${[25, 10, 6].map(f => `<button class="sb-b${tll.ep === f ? ' on' : ''}" data-tlep="${f}">${f} mm</button>`).join('')}
+        <span class="tl-date">배율 ${tll.rev[key] ? `${Math.round(M)}배` : '? 배'}</span><button class="sb-b hot" id="tlMagIn">배율 넣기</button></div>`;
+  }
+  if (k === 2) return `<div class="sb-row"><b>구경</b>${[80, 400].map(d => `<button class="sb-b${tll.ap3 === d ? ' on' : ''}" data-tlap3="${d}">${d} mm</button>`).join('')}
+      <label class="sb-range">배율 <input type="range" id="tlM" min="20" max="400" step="5" value="${tll.M}"><output id="tlMOut">${tll.M}배</output></label></div>`;
+  return '<button class="sb-b" id="tllObs">🔭 망원경으로 관측하러 가기 →</button>';
+}
+function tlLearnWire(el) {
+  el.querySelectorAll('[data-tlap]').forEach(b => b.addEventListener('click', () => { tll.ap = +b.dataset.tlap; renderTlCtrl(); }));
+  el.querySelectorAll('[data-tlap3]').forEach(b => b.addEventListener('click', () => { tll.ap3 = +b.dataset.tlap3; renderTlCtrl(); }));
+  el.querySelectorAll('[data-tlF]').forEach(b => b.addEventListener('click', () => { tll.F = +b.dataset.tlf; renderTlCtrl(); }));
+  el.querySelectorAll('[data-tlep]').forEach(b => b.addEventListener('click', () => { tll.ep = +b.dataset.tlep; renderTlCtrl(); }));
+  const m = el.querySelector('#tlM'); if (m) m.addEventListener('input', e => { tll.M = +e.target.value; $('#tlMOut').textContent = tll.M + '배'; });
+  const mi = el.querySelector('#tlMagIn');
+  if (mi) mi.addEventListener('click', () => openKeypad('num', `배율은 몇 배일까요? (${tll.F} mm ÷ ${tll.ep} mm)`, '', v => {   // 학생이 계산한 값을 넣어야 배율이 보임
+    const M = tll.F / tll.ep;
+    if (Math.abs(v - M) < 0.6) { tll.rev[`${tll.F}/${tll.ep}`] = true; toast(`정답! ${tll.F} ÷ ${tll.ep} = ${Math.round(M)}배예요.`); renderTlCtrl(); }
+    else toast(v > 0 && Math.abs(v - tll.ep / tll.F) < 0.01 ? '나누는 순서를 바꿔 보세요. 대물렌즈 초점 거리를 접안렌즈 초점 거리로 나눠요.' : '다시 계산해 보세요. 배율 = 대물렌즈 초점 거리 ÷ 접안렌즈 초점 거리');
+  }));
+  const ob = el.querySelector('#tllObs'); if (ob) ob.addEventListener('click', tlLearnClose);
+}
+function tllText(x, t, X, Y, col, sz, w8, al) {
+  x.font = sbFont(sz || tl.fs, w8 || 750); x.fillStyle = col || '#e8eeff'; x.textAlign = al || 'left'; x.fillText(t, X, Y); x.textAlign = 'left';
+}
+function tlLearnDraw(x, w, h, dt) {
+  x.fillStyle = '#02040c'; x.fillRect(0, 0, w, h);
+  const k = tll.k, fs = tl.fs;
+  if (k === 0) {                                     // 빛 모으기: 왼쪽 빛 알갱이가 떨어지는 대물렌즈, 오른쪽 그 구경으로 본 별
+    const D = tll.ap, cx = w * 0.27, cy = h * 0.53, Rmax = Math.min(w * 0.22, h * 0.36), R = Math.max(2, Rmax * D / 400);
+    for (let i = 0; i < 260 * dt * 60 / 60; i++) tll.drops.push({ x: cx + (Math.random() * 2 - 1) * Rmax * 1.05, y: cy + (Math.random() * 2 - 1) * Rmax * 1.05, t: 0 });
+    x.strokeStyle = 'rgba(190,210,255,.25)'; x.setLineDash([5, 6]); x.beginPath(); x.arc(cx, cy, Rmax, 0, 7); x.stroke(); x.setLineDash([]);
+    const g = x.createRadialGradient(cx - R * 0.3, cy - R * 0.3, R * 0.1, cx, cy, R);
+    g.addColorStop(0, '#5f8fd6'); g.addColorStop(1, '#1d3a6e'); x.fillStyle = g; x.beginPath(); x.arc(cx, cy, R, 0, 7); x.fill();
+    x.strokeStyle = '#b8c8e8'; x.lineWidth = 2; x.stroke();
+    let hits = 0;
+    tll.drops = tll.drops.filter(d => { d.t += dt; return d.t < 0.6; });
+    for (const d of tll.drops) {
+      const inn = Math.hypot(d.x - cx, d.y - cy) < R; if (inn && d.t < dt * 1.5) hits++;
+      x.globalAlpha = 1 - d.t / 0.6; x.fillStyle = inn ? '#ffe08a' : 'rgba(200,210,235,.5)';
+      x.beginPath(); x.arc(d.x, d.y, inn ? 2.4 : 1.4, 0, 7); x.fill();
+    }
+    x.globalAlpha = 1;
+    const eyeR = Math.max(2, Rmax * 7 / 400), ex = cx - Rmax * 1.05, ey = cy - Rmax * 0.75;
+    x.fillStyle = '#7d5a3c'; x.beginPath(); x.arc(ex, ey, Math.max(eyeR * 2.6, 6), 0, 7); x.fill();
+    x.fillStyle = '#05070c'; x.beginPath(); x.arc(ex, ey, Math.max(eyeR, 2.5), 0, 7); x.fill();
+    tllText(x, '눈동자(7 mm)', ex, ey + fs * 1.8, '#cfd9f2', fs * 0.85, 650, 'center');
+    tllText(x, D === 7 ? '눈동자 크기의 렌즈' : `대물렌즈 · 구경 ${D} mm`, cx, cy - Rmax - fs * 0.7, '#ffe08a', fs * 1.1, 800, 'center');
+    const gain = (D / 7) ** 2, lim = tllLim(D);
+    tllText(x, `모으는 빛: 눈동자의 ${gain < 10 ? gain.toFixed(1) : Math.round(gain).toLocaleString()}배`, cx, h - fs * 2.2, '#fff', fs * 1.15, 800, 'center');
+    tllText(x, `보이는 가장 어두운 별: 약 ${lim.toFixed(1)}등급`, cx, h - fs * 0.8, '#cfd9f2', fs, 700, 'center');
+    // 오른쪽: 이 구경으로 본 하늘(시야 2°)
+    const vx = w * 0.74, vy = h * 0.5, vr = Math.min(w * 0.22, h * 0.4);
+    if (!tll.field || tll.field.lim !== lim || tll.field.r !== Math.round(vr)) tll.field = tlLearnField(vr, lim);
+    x.drawImage(tll.field.c, vx - vr, vy - vr, vr * 2, vr * 2);
+    x.strokeStyle = '#3a4560'; x.lineWidth = 3; x.beginPath(); x.arc(vx, vy, vr, 0, 7); x.stroke();
+    tllText(x, `이 구경으로 본 하늘 · 보이는 별 ${tll.field.n.toLocaleString()}개`, vx, vy - vr - fs * 0.7, '#ffe08a', fs, 800, 'center');
+    tllText(x, '같은 배율·같은 범위(지름 2°)로 비교', vx, vy + vr + fs * 1.4, '#a9b6d4', fs * 0.85, 650, 'center');
+    tl.learnCap = '빛 알갱이가 대물렌즈에 떨어지는 모습이에요. 구경을 바꾸며 모이는 빛과 보이는 별의 수를 비교해 보세요.';
+  } else if (k === 2) tlLearnLimit(x, w, h);
+  else tlLearnRay(x, w, h);                        // 상과 배율, 정리
+}
+function tlLearnField(vr, lim) {                   // 지름 2°인 하늘에서 lim 등급까지 보이는 별(늘 같은 하늘)
+  const S = Math.round(vr * 2 * tl.dpr), c = document.createElement('canvas'); c.width = c.height = S;
+  const x = c.getContext('2d'); x.fillStyle = '#03060f'; x.fillRect(0, 0, S, S);
+  const v0 = tlEnu(tl.F, radec(84, -2)), a = altAz(v0), B = tlBasis(a.az, a.alt), sc = (S / 2) / Math.tan(1 * DEG);
+  let n = 0;
+  tlStars(B, 1.05, lim, (v, m, col) => {
+    const z = tDot(v, B.t); if (z <= 0) return;
+    const px = S / 2 + tDot(v, B.r) / z * sc, py = S / 2 - tDot(v, B.u) / z * sc;
+    if (Math.hypot(px - S / 2, py - S / 2) > S / 2) return;
+    n++;
+    const kk = clamp((lim + 0.5 - m) / 4, 0.15, 1);
+    x.globalAlpha = 0.35 + 0.65 * kk; x.fillStyle = col < 0.15 ? '#cfdcff' : col > 0.82 ? '#ffe6c2' : '#fff';
+    x.beginPath(); x.arc(px, py, (0.6 + 1.6 * kk) * tl.dpr, 0, 7); x.fill();
+  });
+  x.globalAlpha = 1;
+  return { c, n, lim, r: Math.round(vr) };
+}
+function tlLearnRay(x, w, h) {                     // 상과 배율: 굴절 망원경의 광선 그림 + 맨눈과 망원경으로 본 달
+  const fs = tl.fs, M = tll.F / tll.ep, key = `${tll.F}/${tll.ep}`;
+  const ay = h * 0.27, x0 = w * 0.16, Fd = w * 0.48 * tll.F / 1200, fd = w * 0.13 * tll.ep / 25, xF = x0 + Fd, xE = xF + fd;   // 길이는 줄여 그림(비율은 그대로)
+  const th = 2.6 * DEG, yi = Fd * Math.tan(th), lensH = h * 0.1, eH = Math.max(h * 0.05, lensH * 0.45);
+  x.strokeStyle = 'rgba(190,210,255,.35)'; x.setLineDash([6, 6]); x.beginPath(); x.moveTo(w * 0.02, ay); x.lineTo(w * 0.98, ay); x.stroke(); x.setLineDash([]);
+  const lens = (lx, hh, col) => { x.fillStyle = col; x.beginPath(); x.ellipse(lx, ay, Math.max(4, hh * 0.12), hh, 0, 0, 7); x.fill(); };
+  const ray = (col, s) => {                          // s = +1: 달의 위쪽에서 온 빛(아래로 기울어 들어옴), −1: 아래쪽
+    x.strokeStyle = col; x.lineWidth = 1.8;
+    const yImg = ay + s * yi, slopeOut = -s * yi / fd;
+    for (const hgt of [-0.7, 0, 0.7]) {
+      const yL = ay + hgt * lensH, yStart = yL - s * Math.tan(th) * (x0 - w * 0.02);
+      const yEyeLens = yImg + (yImg - yL) / Fd * fd;
+      x.beginPath(); x.moveTo(w * 0.02, yStart); x.lineTo(x0, yL); x.lineTo(xF, yImg); x.lineTo(xE, yEyeLens); x.lineTo(xE + w * 0.09, yEyeLens + slopeOut * w * 0.09); x.stroke();
+    }
+  };
+  ray('rgba(255,110,110,.85)', 1); ray('rgba(110,170,255,.85)', -1);
+  lens(x0, lensH, 'rgba(140,190,255,.55)'); lens(xE, eH, 'rgba(140,190,255,.55)');
+  x.strokeStyle = '#ffe08a'; x.lineWidth = 3; x.beginPath(); x.moveTo(xF, ay - yi); x.lineTo(xF, ay + yi); x.stroke();   // 초점에 생긴 상(뒤집힘)
+  x.fillStyle = '#ffe08a'; x.beginPath(); x.arc(xF, ay + yi, 4, 0, 7); x.fill();
+  const eyeX = xE + w * 0.1;
+  x.fillStyle = '#e8eeff'; x.beginPath(); x.ellipse(eyeX, ay, fs * 0.9, fs * 0.6, 0, 0, 7); x.fill(); x.fillStyle = '#2a3346'; x.beginPath(); x.arc(eyeX - fs * 0.3, ay, fs * 0.35, 0, 7); x.fill();
+  const lab = (t, X, Y, col, al) => tllText(x, t, X, Y, col || '#cfd9f2', fs * 0.88, 700, al || 'center');
+  lab('대물렌즈', x0, ay - lensH - fs * 0.5, '#9fd0ff'); lab('접안렌즈', xE, ay - lensH - fs * 0.5, '#9fd0ff'); lab('눈', eyeX, ay - fs * 1.2);
+  lab('상', xF, ay - yi - fs * 0.5, '#ffe08a');
+  const dim = (xa, xb, Y, t) => { x.strokeStyle = 'rgba(255,224,138,.7)'; x.lineWidth = 1.5; x.beginPath(); x.moveTo(xa, Y); x.lineTo(xb, Y); x.moveTo(xa, Y - 5); x.lineTo(xa, Y + 5); x.moveTo(xb, Y - 5); x.lineTo(xb, Y + 5); x.stroke(); lab(t, (xa + xb) / 2, Y - 6, '#ffe08a'); };
+  dim(x0, xF, ay + lensH + fs * 1.6, `대물렌즈 초점 거리 ${tll.F} mm`);
+  dim(xF, xE, ay + lensH + fs * 3.2, `${tll.ep} mm`);
+  lab('달 위쪽의 빛', w * 0.02, ay - lensH - fs * 1.9, '#ff9a9a', 'left'); lab('달 아래쪽의 빛', w * 0.02, ay + lensH + fs * 0.4, '#9cc4ff', 'left');
+  tllText(x, '그림은 길이를 줄여서 그렸어요', w * 0.98, h * 0.03 + fs, '#7f8ba6', fs * 0.78, 600, 'right');
+  // 아래: 맨눈으로 본 달 / 망원경으로 본 달(겉보기 시야 50°)
+  const by = h * 0.75, r1 = Math.min(h * 0.155, w * 0.13), nx = w * 0.27, tx = w * 0.7;
+  const moon = (cx, cy, D, inv) => {
+    if (D < 2) { x.fillStyle = '#e8e4da'; x.beginPath(); x.arc(cx, cy, 1.4, 0, 7); x.fill(); }
+    else { const d = tlDisc('moon', D * tl.dpr, { P: [0, 1, 0], L: [0, 0, 1], lon0: 0 }), kk = D / d.D; x.save(); x.translate(cx, cy); if (inv) x.rotate(Math.PI); x.drawImage(d.c, -d.o * kk, -d.o * kk, d.c.width * kk, d.c.height * kk); x.restore(); }
+    const ar = Math.min(Math.max(D / 2, 3) + fs * 0.5, r1 - fs * 1.8), s = inv ? 1 : -1;   // 달의 위쪽을 가리키는 빨간 화살표(달이 시야보다 크면 시야 안쪽에)
+    x.strokeStyle = '#ff6b6b'; x.fillStyle = '#ff6b6b'; x.lineWidth = 3; x.beginPath(); x.moveTo(cx, cy + s * (ar - fs * 0.2)); x.lineTo(cx, cy + s * (ar + fs * 1.1)); x.stroke();
+    x.beginPath(); x.moveTo(cx, cy + s * (ar + fs * 1.5)); x.lineTo(cx - fs * 0.4, cy + s * (ar + fs * 0.9)); x.lineTo(cx + fs * 0.4, cy + s * (ar + fs * 0.9)); x.fill();
+  };
+  const circ = (cx, t) => { x.save(); x.beginPath(); x.arc(cx, by, r1, 0, 7); x.fillStyle = '#05070c'; x.fill(); x.clip(); return () => { x.restore(); x.strokeStyle = '#3a4560'; x.lineWidth = 3; x.beginPath(); x.arc(cx, by, r1, 0, 7); x.stroke(); tllText(x, t, cx, by - r1 - fs * 0.5, '#ffe08a', fs * 0.95, 800, 'center'); }; };
+  let end = circ(nx, '맨눈으로 본 달'); moon(nx, by, r1 * 2 * 0.52 / 50 * 1, false); end();   // 맨눈도 같은 50° 범위로
+  end = circ(tx, '망원경으로 본 달'); moon(tx, by, Math.min(r1 * 2 * 0.52 * M / 50, r1 * 40), true); end();
+  tllText(x, `보이는 하늘의 범위: 약 ${(50 / M).toFixed(M > 50 ? 2 : 1)}°`, tx, by + r1 + fs * 1.3, tll.rev[key] ? '#cfd9f2' : '#7f8ba6', fs * 0.85, 650, 'center');
+  tll.cap = tll.rev[key] ? `배율 ${Math.round(M)}배: 달이 맨눈보다 ${Math.round(M)}배 크게 보여요. 접안렌즈를 바꿔 보세요.` : '배율을 계산해서 ‘배율 넣기’로 확인해 보세요. 맞히면 배율이 보여요.';
+  tl.learnCap = tll.cap;
+}
+function tlLearnLimit(x, w, h) {                   // 배율과 밝기·선명함: 같은 달을 배율을 바꿔 가며
+  const fs = tl.fs, D = tll.ap3, M = tll.M, maxM = 2 * D, over = M / maxM;
+  const cx = w * 0.36, cy = h * 0.5, R = Math.min(w * 0.3, h * 0.44);
+  const exitP = D / M, bTrue = Math.min(1, (exitP / 7) ** 2), b20 = Math.min(1, (D / 20 / 7) ** 2), rel = bTrue / b20;
+  const disp = clamp(0.45 + 0.55 * (Math.log10(rel) + 2) / 2, 0.45, 1);                    // 그림의 밝기(실제 차이는 훨씬 커서 줄여 보여 줌, 막대에는 실제 비율)
+  const blur = over > 1 ? Math.min(9, (over - 1) * 5) : 0;
+  const cv = tlCv('learn', Math.round(R * 2 * tl.dpr)), S = cv.width, cx2 = cv.getContext('2d');
+  cx2.setTransform(1, 0, 0, 1, 0, 0); cx2.fillStyle = '#05070c'; cx2.fillRect(0, 0, S, S);
+  const Dm = S * 0.52 * M / 50, d = tlDisc('moon', Math.min(Dm, 1100), { P: [0, 1, 0], L: [-0.6, 0.2, 0.77], lon0: 0 }), kk = Dm / d.D;
+  const ox = -Dm * 0.2, oy = Dm * 0.06;                                          // 밝은 쪽의 명암 경계 가까이(그림자가 길어 무늬가 잘 보이는 곳)를 보게
+  cx2.drawImage(d.c, S / 2 - d.o * kk + ox, S / 2 - d.o * kk + oy, d.c.width * kk, d.c.height * kk);
+  const out = tlBlur(cv, blur * tl.dpr);
+  x.save(); x.beginPath(); x.arc(cx, cy, R, 0, 7); x.clip(); x.drawImage(out, cx - R, cy - R, R * 2, R * 2);
+  x.fillStyle = `rgba(0,0,0,${(1 - disp).toFixed(2)})`; x.fillRect(cx - R, cy - R, R * 2, R * 2); x.restore();
+  x.strokeStyle = '#3a4560'; x.lineWidth = 3; x.beginPath(); x.arc(cx, cy, R, 0, 7); x.stroke();
+  tllText(x, `구경 ${D} mm · ${M}배로 본 달`, cx, cy - R - fs * 0.6, '#ffe08a', fs, 800, 'center');
+  const bx = w * 0.72, bw = w * 0.24, bars = [['상의 크기', clamp(M / 400, 0.03, 1), `${M}배`], ['보이는 범위', clamp(20 / M, 0.03, 1), `약 ${(50 / M).toFixed(M >= 100 ? 2 : 1)}°`],
+    ['밝기', clamp(rel, 0.01, 1), `20배일 때의 ${rel >= 0.1 ? Math.round(rel * 100) : (rel * 100).toFixed(1)}%`], ['선명함', over <= 1 ? 1 : clamp(1 / over, 0.05, 1), over <= 1 ? '또렷해요' : '흐려져요']];
+  bars.forEach(([t, v, s], i) => {
+    const y = h * 0.2 + i * h * 0.17;
+    tllText(x, t, bx, y, '#e8eeff', fs, 800);
+    x.fillStyle = 'rgba(226,234,255,.12)'; x.fillRect(bx, y + fs * 0.5, bw, fs * 0.9);
+    x.fillStyle = t === '선명함' && over > 1 ? '#ff8a7a' : '#7fc4ff'; x.fillRect(bx, y + fs * 0.5, bw * v, fs * 0.9);
+    tllText(x, s, bx + bw, y, '#cfd9f2', fs * 0.88, 650, 'right');
+  });
+  tl.learnCap = over > 1 ? '배율을 더 높였어요. 달의 무늬가 더 자세히 보이나요? 오른쪽 선명함 막대도 보세요.'
+    : M <= 40 ? '저배율: 보이는 범위가 넓고 밝아요. 배율을 높여 보세요. (그림의 밝기 차이는 실제보다 줄여서 보여 줘요)'
+    : '배율을 높일수록 달이 커지고, 어두워지고, 보이는 범위가 좁아져요. (그림의 밝기 차이는 실제보다 줄여서 보여 줘요)';
+}
 function tlGalilean(x, o, B, p, D) {               // 목성 적도면 위의 네 위성
   const toE = o.v.map(a => -a), P = o.P;
   const Bv = tNorm(toE.map((a, i) => a - tDot(toE, P) * P[i]));
@@ -7561,6 +7818,7 @@ function tlSubmitLog() {
 }
 function renderTlSide() {
   const el = $('#tlSide'); if (!el) return;
+  if (tll.on) { tlLearnSide(el); return; }
   const k = tl.k, ko = tl.target ? tlKo(tl.target) : '';
   const steps = TL_STEPS.map((s, i) => `<button class="tl-st${i === k ? ' on' : ''}${tl.done[i] ? ' done' : ''}${tlOk(i) ? '' : ' lock'}" data-tlk="${i}" title="${s.t}">${i + 1}. ${s.s}${tl.done[i] ? ' ✓' : ''}</button>`).join('');
   const checks = tlChecks(), chk = checks.length ? `<ul class="tl-checks">${checks.map(([t, ok]) => `<li class="${ok ? 'ok' : ''}">${t}</li>`).join('')}</ul>` : '';
@@ -7581,7 +7839,8 @@ function renderTlSide() {
     b = `<h2>망원경 준비하기</h2><p class="sb-p">망원경을 끌어서 돌려 보며 각 부분의 이름을 확인하고, 뚜껑을 눌러 열거나 닫아요.</p>
       <p class="sb-hint">${sc.ko}: 구경 ${sc.D} mm · 초점 거리 ${sc.F} mm · 볼 수 있는 가장 어두운 별 약 ${tlLim().toFixed(1)}등급 · 쓸모 있는 최대 배율 약 ${tlMaxMag()}배</p>${chk}
       ${tl.target === 'sun' ? '<p class="tl-warn">⚠ 태양을 망원경으로 직접 보면 실명할 수 있어요. 반드시 <b>태양 필터</b>를 끼우고, 파인더는 <b>뚜껑을 닫아</b> 막아요.</p>'
-        : '<p class="tl-warn">⚠ 밤에 관측할 때는 보호자와 함께하고 따뜻하게 입어요. 어두워서 삼각대에 걸려 넘어지지 않게 조심해요.</p>'}`;
+        : '<p class="tl-warn">⚠ 밤에 관측할 때는 보호자와 함께하고 따뜻하게 입어요. 어두워서 삼각대에 걸려 넘어지지 않게 조심해요.</p>'}
+      <button class="bk-ob" id="tlLearnGo">🔭 망원경의 원리 탐구하기</button>`;
   } else if (k === 2) {
     const o = tl.bodies[tl.target];
     b = `<h2>${tl.target === 'sun' ? '경통 그림자로 태양 찾기' : '파인더로 천체 찾기'}</h2>
@@ -7611,13 +7870,14 @@ function renderTlSide() {
   const on = (q, f) => { const n = el.querySelector(q); if (n) n.addEventListener('click', f); };
   on('#tlX', closeTel); on('#tlSkip', tlSkip); on('#tlNext', () => tlGo(tl.k + 1));
   on('#tlChoose', () => { if (tl.sel && tlVerdict(tl.sel).ok) tlChoose(tl.sel); });
-  on('#tlSubmit', tlSubmitLog); on('#bkOpen', bkOpen); on('#tlEclGo', tlEclStart);
+  on('#tlSubmit', tlSubmitLog); on('#bkOpen', bkOpen); on('#tlEclGo', tlEclStart); on('#tlLearnGo', () => tlLearnOpen(0));
   on('#tlAgain', () => { tl.ecl = null; tl.sel = null; tl.target = null; tl.done = TL_STEPS.map(() => false); tlGo(0); });
   el.querySelectorAll('[data-good]').forEach(bt => bt.addEventListener('click', () => tlJumpGood(bt.dataset.good)));
   el.querySelectorAll('[data-feat]').forEach(bt => bt.addEventListener('click', () => { const i = +bt.dataset.feat; tl.pick[i] = !tl.pick[i]; tl.fb = ''; renderTlSide(); }));
 }
 function renderTlCtrl() {
   const el = $('#tlCtrl'), k = tl.k;
+  if (tll.on) { el.innerHTML = tlLearnCtrl(); tlLearnWire(el); return; }
   let h = '';
   if (k === 0) {
     const t = kst(tl.jd), mins = t.h * 60 + t.mi;
@@ -7779,7 +8039,7 @@ function tlLoop(t) {
     if (was && !tl.inField && o && tSep(o.v, tl.B.t) >= tlViewFov() / 2 && !kx && !ky && !tl.ptr.down && scope) tl.driftT = tl.t;   // 천체가 정말 시야 밖으로 나갔을 때만(뚜껑·필터 때문이 아니라)
     // 필터 없이 태양 쪽을 향하면 바로 뚜껑을 닫고 경고
     const sun = tl.bodies.sun;
-    if (k >= 1 && sun.alt > 0) {
+    if (k >= 1 && sun.alt > 0 && !tll.on) {
       const sm = tSep(sun.v, tl.B.t);
       const safe = tlEclTotal();                                                   // 개기 일식 동안에만 광구가 가려져 필터 없이 볼 수 있음
       const why = safe ? '' : !tl.capMain && !tl.filter && sm < tlFov(tl.ep) / 2 + 0.5 ? 'main' : !tl.capFinder && sm < TL_FF / 2 + 0.5 ? 'finder' : '';
@@ -7794,18 +8054,19 @@ function tlLoop(t) {
     }
     const x = c.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0); x.clearRect(0, 0, w, h); x.textAlign = 'left';
     try {
-      if (k === 0) { if (t3.ok) t3Draw(null); tlDrawPlan(x, w, h); }
+      if (tll.on) { if (t3.ok) t3Draw(null); tlLearnDraw(x, w, h, dt); }   // 망원경 탐구
+      else if (k === 0) { if (t3.ok) t3Draw(null); tlDrawPlan(x, w, h); }
       else if (k === 1) { if (t3Draw({ x: 0, y: 0, w, h }, 'setup')) t3Labels(x); else tlDrawSetupFlat(x, w, h); }
       else if (k === 5) { if (t3.ok) t3Draw(null); tlSketchDraw(); }
       else tlDrawScope(x, w, h);
-      if (tl.needPhoto) { if (!scope) tlEyepiece(tl.lay || tlLayout(w, h)); tlTakePhoto(); }
+      if (tl.needPhoto && !tll.on) { if (!scope) tlEyepiece(tl.lay || tlLayout(w, h)); tlTakePhoto(); }
     } catch (e) { console.error(e); }
     // 해야 할 일을 해내면 자동으로 다음 단계가 열림
-    if (k >= 1 && k <= 4 && !tl.done[k]) {
+    if (k >= 1 && k <= 4 && !tl.done[k] && !tll.on) {
       const cs = tlChecks();
       if (cs.length && cs.every(q => q[1])) { tl.done[k] = true; toast(k === 4 ? '고배율 관측 성공! 사진이 관측 일지에 붙었어요.' : '잘했어요! 다음 단계가 열렸어요.'); renderTlSide(); if (nav.mode === 'tel') renderNav(); }
     }
-    if (tl.t - tl.sigT > 0.25) {                                                 // 체크 표시가 바뀌면 오른쪽 칸 새로 그림
+    if (tl.t - tl.sigT > 0.25 && !tll.on) {                                                 // 체크 표시가 바뀌면 오른쪽 칸 새로 그림
       tl.sigT = tl.t;
       const sig = tlChecks().map(q => +!!q[1]).join('') + '|' + k + (tl.ecl ? tlEclPhase() + tl.filter : '');
       if (sig !== tl.sig) renderTlSide();
@@ -7830,12 +8091,14 @@ function tlLoop(t) {
       else if (tl.target === 'sun' && tl.filter && k >= 3 && tl.inField) cap = '쌀알 무늬가 끓듯 바뀌어요(실제로는 5~10분에 한 번, 화면은 빠르게). 가장자리가 일렁이는 것은 햇빛에 데워진 공기 때문이에요.';
       else cap = '망원경이 향한 방향은 왼쪽 아래 3D 망원경에서 볼 수 있어요. 끌어서 돌려 볼 수도 있어요.';
     } else cap = tl.done[5] ? '관측 일지를 완성했어요. 칸을 눌러 직접 고쳐 쓰고, 스케치도 그려 보세요.' : '오른쪽에서 본 특징을 고르고, 일지의 칸은 직접 고쳐 쓸 수 있어요.';
-    if (bk.open) cap = bk.view ? '◀ ▶ 로 같은 천체의 다른 날 관측을 넘겨 볼 수 있어요.' : '도장을 누르면 그날의 관측 일지를 다시 볼 수 있어요. 빈칸을 누르면 그 천체를 보기 좋은 날로 가요.';
+    if (tll.on) cap = tl.learnCap || '';
+    else if (bk.open) cap = bk.view ? '◀ ▶ 로 같은 천체의 다른 날 관측을 넘겨 볼 수 있어요.' : '도장을 누르면 그날의 관측 일지를 다시 볼 수 있어요. 빈칸을 누르면 그 천체를 보기 좋은 날로 가요.';
     if (cap !== tl.capShown) { $('#tlCap').textContent = cap; tl.capShown = cap; }
   }
   requestAnimationFrame(tlLoop);
 }
 function tlPointer(e) {
+  if (tll.on) return;
   const c = $('#tlCanvas'), r = c.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top, p = tl.ptr;
   if (e.type === 'pointerdown') {
     let zone = '';
@@ -7874,6 +8137,7 @@ function tlPointer(e) {
   }
 }
 function tlWheel(e) {
+  if (tll.on) return;
   if (tl.k === 1 && t3.ok) { e.preventDefault(); t3.zoom = clamp(t3.zoom * (1 + e.deltaY * 0.001), 0.45, 1.8); return; }
   if (!(tl.k >= 3 && tl.k <= 4) || !tl.lay) return;
   const r = $('#tlCanvas').getBoundingClientRect(), L = tl.lay;
@@ -7886,6 +8150,10 @@ function tlKey(e) {
   if (typing) return;
   const k = e.key, scope = tl.k >= 2 && tl.k <= 4;
   if (e.type === 'keyup') { if (k.startsWith('Arrow')) tl.keys[k] = false; return; }
+  if (tll.on) {                                                                 // 망원경 탐구: ← → 로 쪽 넘기기
+    if (k === 'Escape') closeTel(); else if (k === 'ArrowRight' || k === 'ArrowLeft' || k === 'PageDown' || k === 'PageUp') tlLearnStep(k === 'ArrowRight' || k === 'PageDown' ? 1 : -1); else return;
+    e.preventDefault(); e.stopImmediatePropagation(); return;
+  }
   if (bk.open && (k === 'Escape' || (bk.view && (k === 'ArrowLeft' || k === 'ArrowRight')))) { if (k === 'Escape') bkClose(); else bkStep(k === 'ArrowLeft' ? -1 : 1); }
   else if (k === 'Escape') closeTel();
   else if (k === 'PageDown' || k === 'PageUp') tlGo(tl.k + (k === 'PageDown' ? 1 : -1));
@@ -7909,7 +8177,7 @@ function openTel(k) {
   tl.last = 0; requestAnimationFrame(tlLoop);
 }
 function closeTel(silent) {
-  bkClose(); tl.open = false; tl.keys = {}; tl.hold = null; $('#telBox').hidden = true; document.body.classList.remove('tel-on');
+  bkClose(); tll.on = false; tl.open = false; tl.keys = {}; tl.hold = null; $('#telBox').hidden = true; document.body.classList.remove('tel-on');
   if (silent !== true) navGo('free');
 }
 function wireTel() {
@@ -7934,6 +8202,7 @@ const NAV = [
   { g: '주제별로 확인해 보기', items: [
     { id: 'sun', t: '태양 활동 확인해 보기', d: '흑점 · 일식 · 홍염과 플레어 · 태양풍 · 흑점 수', sub: 'sun' },
     { id: 'tel', t: '천체 망원경으로 관측해 보기', d: '관측 프로그램으로 찾고 초점 맞춰 달·행성 보기' },
+    { id: 'scope', t: '망원경의 원리 확인해 보기', d: '빛 모으기(구경) · 배율 · 밝기와 선명함' },
     { id: 'size', t: '행성 크기와 거리 비교해 보기', d: '두 천체 크기 비교, 거리표, 운동장 모형' },
     { id: 'tb', t: '티티우스·보데 법칙 확인해 보기', d: 'n을 넣어 거리를 예측하고 궤도에서 찾기' },
     { id: 'season', t: '계절이 생기는 까닭 확인해 보기', d: '자전축 기울기, 남중 고도, 춘분~동지' },
@@ -7966,7 +8235,7 @@ function curTitle() {
   let title = it ? it.t : '무엇을 확인해 볼까요?';
   if (nav.id === 'q' && QSTEPS[quest.i] && QSTEPS[quest.i].look) title += ` · ${bodyOf(QSTEPS[quest.i].id).ko}`;
   if (nav.mode === 'sun') title += ` · ${sb.k < SB.length ? SB_SHORT[sb.k] : '정리'}`;
-  if (nav.mode === 'tel') title += ` · ${TL_STEPS[tl.k].t}`;
+  if (nav.mode === 'tel') title += ` · ${tll.on ? (tll.k < TLL.length ? TLL_SHORT[tll.k] : '정리') : TL_STEPS[tl.k].t}`;
   return { title, group: it ? it.g : '처음 화면', it };
 }
 function renderNav() {                             // 아래 메뉴 막대: 처음 화면 + 세 묶음 + 지금 보는 것 + 숨기기
@@ -8039,14 +8308,15 @@ function navGo(key) {
   if (id === 'resume') { id = 'q'; a = clamp(savedStep(), qIdx('order'), QSTEPS.length - 1); }
   if (id === 'q' && !qOpen(a)) { askPin(() => { renderNav(); navGo('q:' + a); }); return; }
   if (sb.open && id !== 'sun') closeSun(true);
-  if (tl.open && id !== 'tel') closeTel(true);
+  if (tl.open && id !== 'tel' && id !== 'scope') closeTel(true);
   if (lab.open && LAB_IDS.indexOf(id) < 0) closeLab();
   if (quest.on && id !== 'q') questLeave();
   if (nav.id === 'season' && id !== 'season') setSeasons(false);
   Object.assign(nav, { id, arg: a, mode: 'pane', pane: null });
   if (id === 'q') { nav.mode = 'quest'; quest.on = true; questGo(a); }
   else if (id === 'sun') { nav.mode = 'sun'; if (sb.open) sunGo(a || 0); else openSun(a || 0); }
-  else if (id === 'tel') { nav.mode = 'tel'; if (tl.open) tlGo(a == null ? tl.k : a); else openTel(a); }
+  else if (id === 'tel') { nav.mode = 'tel'; tll.on = false; if (tl.open) tlGo(a == null ? tl.k : a); else openTel(a); }
+  else if (id === 'scope') { nav.mode = 'tel'; if (!tl.open) openTel(); tlLearnOpen(a || 0); }
   else if (LAB_IDS.indexOf(id) >= 0) { nav.mode = 'lab'; if (lab.open) switchTool(id); else openLab(id); }
   else if (id === 'free') { nav.mode = 'free'; nav.pane = 'pane-obs'; cc.closed = false; goView('orbit', 1.4); }
   else if (id === 'size') { nav.pane = 'pane-scale'; goView('system', 1.4); }
