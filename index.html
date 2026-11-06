@@ -2519,6 +2519,12 @@ const josa = (w, a, b) => { const c = w.charCodeAt(w.length - 1); return w + ((c
 const sig2 = x => Number(x.toPrecision(2));
 
 function fatal() { $('#fatal').hidden = false; const b = $('#boot'); if (b) b.remove(); }
+function bootMsg(t) { const b = $('#boot p'); if (b) b.innerHTML = t; }      // 시작 화면에 안내(멈춘 까닭을 알 수 있게)
+function bootFail(e) {
+  console.error(e);
+  bootMsg(`시작하다가 문제가 생겼어요. 새로 고침(F5)을 눌러 보세요.<br><small style="opacity:.7">오류: ${String(e && e.message || e).replace(/</g, '&lt;').slice(0, 160)}</small>`);
+}
+window.addEventListener('error', e => { if ($('#boot')) bootFail(e.error || e.message); });
 if (!window.THREE) { fatal(); return; }
 
 /* ---------- 글자 모양 ---------- */
@@ -8810,6 +8816,11 @@ function init() {
   initLabels();
   applyScale(); lastRd = 0;
   rebuildOrbitBase();
+  try { initRest(); } catch (e) { bootFail(e); return; }      // 오류가 나면 시작 화면에 오류를 보여 줌
+  requestAnimationFrame(t => { last = t; frame(t); });
+  const boot = $('#boot'); boot.classList.add('gone'); setTimeout(() => boot.remove(), 700);
+}
+function initRest() {
   wireUi();
   if (window.innerWidth < 1100) setPanel(false);
   resize();
@@ -8828,10 +8839,12 @@ function init() {
   initNav();
   updateHud();
   window.__solar = { st, cam, B, SUN, E, REAL, sunMesh, tl, t3, tlGo, tlChoose, tlRefresh, settled: () => !cam.orb && !cam.tr && !jump && (st.gr.on ? st.gr.amt >= 1 && Math.abs(st.gr.A / st.gr.At - 1) < 0.01 : st.gr.op === 0), goView, setGr, setPreset, jumpSeason, focusBody, toggleTop, setPlaying, setSpeed, jumpTo, tourStep, setMore, toggleFullscreen, setTb, tbHighlight, TB, openNasa, updateFocusCard, quest, questGo, endQuest, PLANET_ORDER, openLab, lab, wi, QSTEPS, gx, GRAPH_I, ln, sb, openSun, sunGo, closeSun, sunClick };
-  requestAnimationFrame(t => { last = t; frame(t); });
-  const boot = $('#boot'); boot.classList.add('gone'); setTimeout(() => boot.remove(), 700);
 }
-requestAnimationFrame(() => requestAnimationFrame(() => loadRealMaps().then(init)));
+let booted = false;
+function boot() { if (booted) return; booted = true; loadRealMaps().then(init).catch(bootFail); }
+requestAnimationFrame(() => requestAnimationFrame(boot));
+setTimeout(boot, 1500);                            // 화면 그리기가 멈춘 곳(미리보기 창, 뒤에 숨은 탭)에서도 시작
+setTimeout(() => { if ($('#boot') && !$('#boot').classList.contains('gone') && !/문제/.test($('#boot').textContent)) bootMsg('아직 준비하고 있어요… 오래 걸리면 새로 고침(F5)을 눌러 보세요.'); }, 20000);
 })();
 
 </script>
