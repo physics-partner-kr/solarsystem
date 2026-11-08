@@ -752,6 +752,8 @@ body.tel-on #grToggle { display: none !important; }
 .tl-card small { display: block; font-size: 1rem; margin-top: .35rem; color: #cfe0ff; line-height: 1.45; }
 .tl-card.bad { border-color: rgba(255, 138, 122, .6); background: rgba(255, 138, 122, .08); }
 .tl-card.bad small { color: #ffc2b8; }
+.tl-mw .bk-ob { margin-top: .5rem; }
+.tl-mw ~ .sb-p { display: none; }                  /* 달을 천문대 망원경으로 볼 때는 일반 설명 대신 */
 .sb-side .qbtn:disabled { opacity: .45; cursor: default; }
 .tl-warn { margin: .6rem 0; padding: .55rem .8rem; border-radius: .7rem; background: rgba(255, 120, 80, .14); border: 1px solid rgba(255, 138, 76, .55);
   font-size: 1rem; line-height: 1.5; color: #ffd9c7; }
@@ -4193,7 +4195,7 @@ function renderTlSide() {
       왼쪽 아래의 망원경 모습과 방위각·고도 숫자를 보며 망원경을 돌려요.</p>${chk}
       <p class="sb-hint">${tl.target === 'sun' ? '태양을 정확히 향하면 경통의 그림자가 가장 작은 동그라미가 돼요.' : '파인더는 시야가 넓어서 천체를 찾기 쉬워요. ◀ ▲ ▼ ▶ 단추나 화살표 키, 끌기로 돌려요.'}</p>`;
   } else if (k === 3 || k === 4) {
-    b = `<h2>${k === 3 ? '저배율로 보고 초점 맞추기' : '고배율로 자세히 보기'}</h2>
+    b = `<h2>${k === 3 ? '저배율로 보고 초점 맞추기' : '고배율로 자세히 보기'}</h2>${tl.target === 'moon' && tl.scope === 'obs' ? tlMoonWide() : ''}
       <p class="sb-p">${k === 3 ? '처음에는 시야가 넓은 <b>저배율</b>로 천체를 시야에 넣어요. 초점 조절 나사(또는 휠)를 돌려 가장 또렷하게 맞춰요.'
         : '배율을 높이면 상은 커지지만 시야가 좁아지고, 초점도 다시 맞춰야 해요. 지구가 자전해서 천체가 시야 밖으로 움직이면 다시 맞춰요.'}</p>${chk}
       <p class="qfb ${tl.fbc}">${tl.fb}</p>${k === 4 && tl.photo ? '<p class="sb-hint">📷 사진을 찍었어요. 관측 일지에 붙어요.</p>' : ''}`;
@@ -4215,7 +4217,7 @@ function renderTlSide() {
   const on = (q, f) => { const n = el.querySelector(q); if (n) n.addEventListener('click', f); };
   on('#tlX', closeTel); on('#tlSkip', tlSkip); on('#tlNext', () => tlGo(tl.k + 1));
   on('#tlChoose', () => { if (tl.sel && tlVerdict(tl.sel).ok) tlChoose(tl.sel); });
-  on('#tlSubmit', tlSubmitLog); on('#bkOpen', bkOpen); on('#tlEclGo', tlEclStart); on('#tlLearnGo', () => tlLearnOpen(0));
+  on('#tlSubmit', tlSubmitLog); on('#tlToSchool', tlToSchool); on('#bkOpen', bkOpen); on('#tlEclGo', tlEclStart); on('#tlLearnGo', () => tlLearnOpen(0));
   on('#tlAgain', () => { tl.ecl = null; tl.sel = null; tl.target = null; tl.done = TL_STEPS.map(() => false); tlGo(0); });
   el.querySelectorAll('[data-good]').forEach(bt => bt.addEventListener('click', () => tlJumpGood(bt.dataset.good)));
   el.querySelectorAll('[data-feat]').forEach(bt => bt.addEventListener('click', () => { const i = +bt.dataset.feat; tl.pick[i] = !tl.pick[i]; tl.fb = ''; renderTlSide(); }));
@@ -4348,6 +4350,16 @@ function tlToggle(key) {
   renderTlCtrl(); renderTlSide();
 }
 function tlSetEp(i) { tl.ep = i; renderTlCtrl(); }
+function tlMoonWide() {                            // 천문대 망원경은 시야가 좁아 달 전체가 한눈에 들어오지 않음(달을 볼 때만)
+  return `<div class="tl-card tl-mw"><b>달이 시야보다 커요</b><small>천문대 망원경은 가장 낮은 배율(25 mm)에서도 시야가 약 ${(TL_AFOV / (tlSc().F / TL_EP[0])).toFixed(2)}°라서 지름 약 0.5°인 달이 다 들어오지 않아요.</small>
+    <button class="bk-ob" id="tlToSchool">🔭 학교 망원경으로 보기</button></div>`;
+}
+function tlToSchool() {                            // 시야가 넓은 학교 굴절 망원경으로 바꿈(망원경이 바뀌었으니 초점은 다시)
+  tl.scope = 'school'; tl.zoom = 1; delete tl.conf[tl.k];
+  tl.best = tl.best.map(v => clamp(v + (Math.random() < 0.5 ? -1 : 1) * (6 + Math.random() * 6), 5, 95));
+  toast(`학교 굴절 망원경으로 바꿨어요. ${tlMag(tl.ep)}배일 때 시야 약 ${tlFov(tl.ep).toFixed(1)}°라 달 전체가 들어와요. 초점을 다시 맞춰요.`);
+  renderTlCtrl(); renderTlSide();
+}
 function tlFocus(d) { tl.focus = clamp(tl.focus + d, 0, 100); const r = $('#tlFocus'); if (r) r.value = tl.focus; }
 function tlDial() {                                // 관측 프로그램에서 본 방위각·고도를 넣어 대충 돌리기(눈금이라 조금 어긋남)
   openKeypad('num', '망원경 방위각 (0~360°)', '', az => {
@@ -4431,6 +4443,7 @@ function tlLoop(t) {
       else if (k >= 3 && tlMag(tl.ep) > tlMaxMag()) cap = `쓸모 있는 최대 배율(약 ${tlMaxMag()}배)보다 높아서 상이 흐리고 어두워요. 배율만 높인다고 더 잘 보이지 않아요.`;
       else if (k >= 3 && tl.inField && tlBlurPx() > 1.6) cap = '천체가 시야에 들어왔어요. 초점 조절 나사를 돌려 또렷하게 맞춰요. (마우스 휠도 돼요)';
       else if (k >= 3 && !tl.inField) cap = '시야에 천체가 없어요. 파인더 십자선 가운데로 맞춰 보세요.';
+      else if (k >= 3 && tl.target === 'moon' && tl.scope === 'obs' && tl.inField) cap = '달이 시야보다 커서 한눈에 다 보이지 않아요. 오른쪽의 ‘학교 망원경으로 보기’를 눌러 보세요.';
       else if (k === 4 && (tl.target === 'uranus' || tl.target === 'neptune') && tl.zoom < 4) cap = `${tlKo(tl.target)}은 아주 멀어서 작게 보여요. 확대 ×4, ×8을 누르면 작은 원반 모양을 볼 수 있어요.`;
       else if (k === 4 && (tl.target === 'uranus' || tl.target === 'neptune') && tl.scope === 'school') cap = `더 크고 또렷하게 보려면 관측 계획에서 천문대 망원경(구경 400 mm)을 골라 보세요. 빛을 25배 더 모아요.`;
       else if (tl.target === 'sun' && tl.filter && k >= 3 && tl.inField) cap = '쌀알 무늬가 끓듯 바뀌어요(실제로는 5~10분에 한 번, 화면은 빠르게). 가장자리가 일렁이는 것은 햇빛에 데워진 공기 때문이에요.';
