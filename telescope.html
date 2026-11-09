@@ -1079,6 +1079,7 @@ body { display: flex; flex-direction: column; }
 <div id="boot"><p>망원경을 준비하고 있어요…</p></div>
 <header class="sc-top"><b>천체 망원경 관측</b><span id="scTitle"></span>
   <button type="button" id="scLearn">🔭 망원경 탐구</button>
+  <button type="button" id="scFull">⛶ 전체 화면</button>
   <small>행성 지도: Solar System Scope(CC BY 4.0)</small></header>
 <section id="telBox" hidden aria-label="천체 관측">
     <div class="sb-view"><div class="sb-stage"><canvas id="tlGL" aria-hidden="true"></canvas><canvas id="tlCanvas" aria-label="천체 관측 화면: 관측 프로그램, 망원경, 관측 일지"></canvas>
@@ -2198,6 +2199,17 @@ function loadMaps() {
 function scStart() {
   setupBodies(); wireTel(); openTel(0); renderNav();
   $('#scLearn').addEventListener('click', () => (tll.on ? tlLearnClose() : tlLearnOpen(0)));
+  const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement, fb = $('#scFull');   // 전체 화면(아이패드 사파리는 webkit 이름)
+  const fsSync = () => { fb.textContent = fsEl() ? '⛶ 전체 화면 끝내기' : '⛶ 전체 화면'; };
+  const de = document.documentElement;
+  if (!(de.requestFullscreen || de.webkitRequestFullscreen)) fb.hidden = true;   // 전체 화면을 못 쓰는 기기(아이폰 등)에서는 숨김
+  fb.addEventListener('click', () => {
+    try {
+      if (fsEl()) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+      else { const r = (de.requestFullscreen || de.webkitRequestFullscreen).call(de); if (r && r.catch) r.catch(() => toast('이 기기에서는 전체 화면을 쓸 수 없어요')); }
+    } catch (e) { toast('이 기기에서는 전체 화면을 쓸 수 없어요'); }
+  });
+  ['fullscreenchange', 'webkitfullscreenchange'].forEach(ev => document.addEventListener(ev, fsSync));
   const b = $('#boot'); b.classList.add('gone'); setTimeout(() => b.remove(), 700);
 }
 
