@@ -1,0 +1,23 @@
+{
+  "name": "milky-way-explorer",
+  "private": true,
+  "version": "1.0.0",
+  "description": "중학교 2학년 과학 '별과 우주' — 우리 은하 탐험 인터랙티브 수업자료",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "publish:root": "vite build && node scripts/copy-to-root.mjs"
+  },
+  "dependencies": {
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "three": "^0.187.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.3.0",
+    "vite": "^8.3.8",
+    "vite-plugin-singlefile": "^2.3.4"
+  }
+}
