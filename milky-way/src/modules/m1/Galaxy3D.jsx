@@ -358,7 +358,8 @@ const Galaxy3D = forwardRef(function Galaxy3D({ halo = true, labels = true, sele
         v.set(a.pos[0], a.pos[1], a.pos[2]).project(camera);
         const vis = v.z < 1 && Math.abs(v.x) < 1.1 && Math.abs(v.y) < 1.1;
         const polarNow = Math.acos(camera.position.z / camR) / D2R;
-        const armHidden = a.id === 'arm' && polarNow > 48 && polarNow < 132 && s.selected !== 'arm';
+        const armHidden = (a.id === 'arm' && polarNow > 48 && polarNow < 132 && s.selected !== 'arm')
+          || ((a.id === 'bar' || a.id === 'disk') && Math.abs(polarNow - 90) < 14 && measureRef.current);
         const tooSmall = (a.cls.includes('small') && camR > 300) || armHidden;
         const op = vis && !tooSmall ? (s.selected && s.selected !== a.id ? 0.45 : 1) : 0;
         el.style.opacity = op;
@@ -444,9 +445,21 @@ function drawMeasure(svg, camera, s, on) {
     `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${color}" stroke-width="2" ${dash ? `stroke-dasharray="${dash}"` : ''}/>`;
   const text = (p, t, color, anchor = 'middle', dy = 0) =>
     `<text x="${p.x}" y="${p.y + dy}" fill="${color}" font-size="15" font-weight="700" text-anchor="${anchor}" paint-order="stroke" stroke="#040a17" stroke-width="5" stroke-linejoin="round">${t}</text>`;
+  const defs = '<defs><marker id="m1-ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#ff5a5a"/></marker></defs>';
+  const arrow = (a, b) => `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#ff5a5a" stroke-width="4" stroke-linecap="round" marker-end="url(#m1-ah)"/>`;
+  const Sn = proj(camera, s, 0, -R_SUN, 0);
+  const C0 = proj(camera, s, 0, 0, 0);
+  const toward = (f) => ({ x: Sn.x + (C0.x - Sn.x) * f, y: Sn.y + (C0.y - Sn.y) * f });
+  parts.push(defs);
   if (side) {
     // 화면에서 가로 방향(은하 평면 위)
     const dir = new THREE.Vector3(-pos.y, pos.x, 0).normalize();
+    // 은하의 적도: 은하 원반 한가운데를 지나는 평면(옆에서 보면 직선)
+    const E1 = proj(camera, s, -dir.x * 66, -dir.y * 66, 0);
+    const E2 = proj(camera, s, dir.x * 66, dir.y * 66, 0);
+    parts.push(line(E1, E2, 'rgba(111,211,154,.85)'));
+    const Et = E1.x > E2.x ? E1 : E2;
+    parts.push(text({ x: Math.min(s.w - 12, Et.x), y: Et.y }, '은하의 적도', '#8fe6b4', 'end', -12));
     const dz = -12;
     const A = proj(camera, s, -dir.x * DISK_R, -dir.y * DISK_R, dz);
     const B = proj(camera, s, dir.x * DISK_R, dir.y * DISK_R, dz);
@@ -454,27 +467,41 @@ function drawMeasure(svg, camera, s, on) {
     const B0 = proj(camera, s, dir.x * DISK_R, dir.y * DISK_R, 0);
     parts.push(line(A, B, '#b3bfff'), line(A, A0, '#b3bfff', '4 4'), line(B, B0, '#b3bfff', '4 4'));
     parts.push(text({ x: (A.x + B.x) / 2, y: (A.y + B.y) / 2 }, '지름 약 10만 광년', '#dfe5ff', 'middle', 22));
-    // 팽대부 두께
-    const bx = dir.x * (BULGE.a + 3);
-    const by = dir.y * (BULGE.a + 3);
+    // 태양 → 은하 중심
+    const sunSide = Math.abs(Sn.x - C0.x) > 20;
+    if (sunSide) {
+      parts.push(arrow(toward(0.06), toward(0.62)));
+      const y6 = proj(camera, s, 0, -R_SUN, -6.5);
+      const c6 = proj(camera, s, 0, 0, -6.5);
+      parts.push(line(y6, c6, '#ffe14d'), line(Sn, y6, '#ffe14d', '3 4'), line(C0, c6, '#ffe14d', '3 4'));
+      parts.push(text({ x: (y6.x + c6.x) / 2, y: y6.y }, '약 2만 6천 광년', '#ffe14d', 'middle', 18));
+    }
+    // 팽대부 두께(태양 반대쪽에 표시)
+    const sgn = sunSide && (Sn.x - C0.x) * (B0.x - A0.x) > 0 ? -1 : 1;
+    const bx = sgn * dir.x * (BULGE.a + 3);
+    const by = sgn * dir.y * (BULGE.a + 3);
     const T1 = proj(camera, s, bx, by, BULGE.c + 0.6);
     const T2 = proj(camera, s, bx, by, -BULGE.c - 0.6);
+    const right = T1.x >= C0.x;
     parts.push(line(T1, T2, '#ffc46b'), line({ x: T1.x - 6, y: T1.y }, { x: T1.x + 6, y: T1.y }, '#ffc46b'), line({ x: T2.x - 6, y: T2.y }, { x: T2.x + 6, y: T2.y }, '#ffc46b'));
-    parts.push(text({ x: T1.x + 10, y: (T1.y + T2.y) / 2 - 8 }, '팽대부 두께', '#ffc46b', 'start'), text({ x: T1.x + 10, y: (T1.y + T2.y) / 2 + 12 }, '약 1만 광년 이상', '#ffc46b', 'start'));
-    // 원반 두께
-    const D = proj(camera, s, -dir.x * 32, -dir.y * 32, 0);
-    const L = { x: D.x, y: D.y - 70 };
-    parts.push(line(D, L, '#7cc4ff', '3 3'));
-    parts.push(text(L, '원반 두께 약 1천 광년', '#a9d6ff', 'middle', -8), text(L, '(지름의 약 1/100)', '#a9d6ff', 'middle', 12));
+    parts.push(
+      text({ x: T1.x + (right ? 10 : -10), y: (T1.y + T2.y) / 2 - 8 }, '팽대부 두께', '#ffc46b', right ? 'start' : 'end'),
+      text({ x: T1.x + (right ? 10 : -10), y: (T1.y + T2.y) / 2 + 12 }, '약 1만 광년 이상', '#ffc46b', right ? 'start' : 'end'),
+    );
+    // 원반 두께(팽대부 쪽 바깥 원반)
+    const D = proj(camera, s, sgn * dir.x * 34, sgn * dir.y * 34, 0);
+    const Lp = { x: D.x, y: D.y - 74 };
+    parts.push(line(D, Lp, '#7cc4ff', '3 3'));
+    parts.push(text(Lp, '원반 두께 약 1천 광년', '#a9d6ff', 'middle', -8), text(Lp, '(지름의 약 1/100)', '#a9d6ff', 'middle', 12));
   } else {
     const A = proj(camera, s, -DISK_R, 0, 0);
     const B = proj(camera, s, DISK_R, 0, 0);
     parts.push(line(A, B, 'rgba(179,191,255,.55)', '6 6'));
     parts.push(text({ x: A.x + (B.x - A.x) * 0.82, y: A.y }, '지름 약 10만 광년', '#dfe5ff', 'middle', -10));
-    const C = proj(camera, s, 0, 0, 0);
-    const Sn = proj(camera, s, 0, -R_SUN, 0);
-    parts.push(line(C, Sn, '#ffe14d', '5 5'));
-    parts.push(text({ x: (C.x + Sn.x) / 2 + 10, y: (C.y + Sn.y) / 2 }, '약 2만 6천 광년', '#ffe14d', 'start'));
+    parts.push(line(C0, Sn, 'rgba(255,225,77,.6)', '5 5'));
+    parts.push(arrow(toward(0.08), toward(0.5)));
+    parts.push(text({ x: Sn.x + 20, y: Sn.y }, '태양 → 은하 중심', '#ff8a8a', 'start', -2));
+    parts.push(text({ x: Sn.x + 20, y: Sn.y }, '약 2만 6천 광년', '#ffe14d', 'start', 18));
   }
   svg.innerHTML = parts.join('');
 }

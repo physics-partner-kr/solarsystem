@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import OrbitView, { nightConstellation } from './OrbitView.jsx';
 import SkyView, { LIGHT, twilightLevel } from './SkyView.jsx';
 import DirectionCompare, { DensityChart, PanoCrop } from './DirectionCompare.jsx';
+import CelestialCylinder from './CelestialCylinder.jsx';
 import { Mission, ModuleShell, ScaleNote, Seg, SubTabs, T, fmt, useArrowSteps } from '../../components/ui.jsx';
 import { CONFIG } from '../../config.js';
 import { GALACTIC_CENTER, airmass, hourLabel, kstDate, sunEclipticLon } from '../../lib/astro.js';
@@ -122,7 +123,14 @@ export default function Module4({ meta, onReset, goTo }) {
 
   // ③ 방향
   const [lon, setLon] = useState(0);
+  const [dirView, setDirView] = useState('cyl'); // cyl = 천구 원통(3D), map = 은하 지도(2D)
+  const [cylMode, setCylMode] = useState('diorama'); // diorama | earth
   const markCb = useCallback((k) => mark(k), [mark]);
+  useEffect(() => {
+    if (tab !== 'dir') return;
+    if (Math.abs(((lon + 540) % 360) - 180) < 12) mark('m4.dir.gc');
+    if (Math.abs(lon - 180) < 12) mark('m4.dir.ac');
+  }, [lon, tab, mark]);
 
   // ④ 관측
   const [obsHour, setObsHour] = useState(22);
@@ -397,14 +405,35 @@ export default function Module4({ meta, onReset, goTo }) {
     stage = (
       <>
         <SubTabs tabs={TABS} value={tab} onChange={setTab} />
-        <DirectionCompare l={lon} setL={(v) => { setLon(v); mark('m4.dir.pick'); }} onMark={markCb} />
-        <ScaleNote>은하 지도는 위에서 내려다본 모형이에요. 지도를 누르면 그 방향으로 시선이 바뀌어요.</ScaleNote>
+        {dirView === 'cyl' ? (
+          <>
+            <CelestialCylinder lon={lon} setLon={(v) => { setLon(v); mark('m4.dir.pick'); }} mode={cylMode} onDrag={() => mark('m4.cyl.drag')} />
+            <ScaleNote>
+              원통은 지구를 중심으로 한 천구의 띠(실제로는 아주 멀다고 생각해요)이고, 벽에는 그 방향의 실제 은하수 사진이 붙어 있어요. 앞쪽 벽은 뒤에서 비쳐 보여 좌우가 바뀌어 보여요.
+            </ScaleNote>
+          </>
+        ) : (
+          <>
+            <DirectionCompare l={lon} setL={(v) => { setLon(v); mark('m4.dir.pick'); }} onMark={markCb} />
+            <ScaleNote>은하 지도는 위에서 내려다본 모형이에요. 지도를 누르면 그 방향으로 시선이 바뀌어요.</ScaleNote>
+          </>
+        )}
         <div className="dock">
+          <button type="button" className={`btn ${dirView === 'cyl' && cylMode === 'diorama' ? 'on' : ''}`} onClick={() => { setDirView('cyl'); setCylMode('diorama'); }}>
+            천구 원통
+          </button>
+          <button type="button" className={`btn ${dirView === 'cyl' && cylMode === 'earth' ? 'on' : ''}`} onClick={() => { setDirView('cyl'); setCylMode('earth'); mark('m4.cyl.earth'); }}>
+            지구에서 둘러보기
+          </button>
+          <button type="button" className={`btn ${dirView === 'map' ? 'on' : ''}`} onClick={() => setDirView('map')}>
+            지도·밀도 그래프
+          </button>
+          <span className="sep" />
           <button type="button" className={`btn ${lon === 0 ? 'on' : ''}`} onClick={() => setLon(0)}>
-            <span style={{ color: '#ffc46b' }}>●</span> 은하 중심 쪽 보기(여름)
+            <span style={{ color: '#ffc46b' }}>●</span> 중심 쪽(여름)
           </button>
           <button type="button" className={`btn ${lon === 180 ? 'on' : ''}`} onClick={() => setLon(180)}>
-            <span style={{ color: '#7fd0ff' }}>●</span> 반대쪽 보기(겨울)
+            <span style={{ color: '#7fd0ff' }}>●</span> 반대쪽(겨울)
           </button>
         </div>
       </>
@@ -412,8 +441,23 @@ export default function Module4({ meta, onReset, goTo }) {
     panel = (
       <>
         <p>
-          태양계는 은하 원반 안에 있어요. 원반 방향을 보면 별빛이 겹겹이 겹쳐 <T k="은하수">은하수</T>로 보여요. 그런데 어느 쪽을 보느냐에 따라 시선이 지나가는 별의 양이 크게 달라요.
+          태양계는 은하 원반 <b>안</b>에 있어요. 원반 방향을 보면 별빛이 겹겹이 겹쳐 <T k="은하수">은하수</T>로 보여요. 그런데 어느 쪽을 보느냐에 따라 시선이 지나가는 별의 양이 크게 달라요.
         </p>
+        <div className="card">
+          <h3>은하수 = 우리 은하를 안에서 본 모습</h3>
+          <p>
+            지구에서 보이는 별들이 아주 먼 둥근 면(<T k="천구">천구</T>)에 붙어 있다고 생각해 보세요. 화면의 원통은 천구 가운데 <b>은하수가 지나는 띠</b>만 잘라 세운 것이고, 벽에는 지구에서 그 방향을 본 <b>실제 은하수 사진</b>이 붙어 있어요.
+          </p>
+          <ul>
+            <li>
+              <b style={{ color: '#ffb3cf' }}>넓고 밝은 은하수</b> = 은하 중심의 <b>팽대부</b> 쪽을 바라본 모습(궁수자리, 여름철 밤)
+            </li>
+            <li>
+              <b style={{ color: 'var(--c-winter)' }}>어둡고 가는 은하수</b> = 은하 중심에서 멀어지는, <b>별이 적은 바깥쪽</b>을 바라본 모습(마차부·황소자리, 겨울철 밤)
+            </li>
+          </ul>
+          <p className="note">‘지구에서 둘러보기’를 누르면 태양계 자리에서 빙 둘러본 하늘이 돼요. 좌우로 끌어 보세요.</p>
+        </div>
         <div className="row">
           <label htmlFor="m4-lon">시선 방향</label>
           <input id="m4-lon" type="range" min="0" max="359" value={lon} onChange={(e) => { setLon(Number(e.target.value)); mark('m4.dir.pick'); }} />

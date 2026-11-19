@@ -218,9 +218,19 @@ export default function Module1({ meta, onReset, goTo, openLy }) {
               </dd>
             </div>
           </dl>
-          <p className="note">
-            옆에서 보면 원반이 아주 얇아 보이죠? 실제 비율 그대로예요. 우리는 이 얇은 원반 <b>안</b>에 살고 있어서, 밤하늘의 <T k="은하수">은하수</T>가 띠처럼 보여요.
-          </p>
+          <div className="card">
+            <h3>태양은 어디에, 어느 쪽을 볼까?</h3>
+            <p>
+              옆에서 보면 태양계는 <b style={{ color: '#8fe6b4' }}>은하의 적도</b>(원반 한가운데를 지나는 평면) 가까이, 은하 중심에서 약 <b>2만 6천 광년</b> 떨어져 있어요. 원반이 아주 얇아서(실제 비율 그대로!) 우리는 이 얇은 원반 <b>안</b>에서 사방을 바라보는 셈이에요.
+            </p>
+            <p>
+              그래서 원반 방향으로 겹쳐 보이는 별빛이 밤하늘의 <T k="은하수">은하수</T>가 되고, <b style={{ color: '#ff8a8a' }}>빨간 화살표</b>처럼 은하 중심(팽대부) 쪽을 보면 은하수가 가장 넓고 밝아요.
+            </p>
+            <p className="note">교과서에 따라 태양계–은하 중심 거리를 약 3만 광년으로 소개하기도 해요. 최근 관측값은 약 2만 6천 광년이에요.</p>
+            <button type="button" className="btn outline" onClick={() => goTo(4)}>
+              탐험 4에서 은하수로 확인하기 →
+            </button>
+          </div>
           <Mission
             id="m1a"
             no="1"
