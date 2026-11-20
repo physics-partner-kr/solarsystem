@@ -91,7 +91,7 @@ void main() {
   if (uPhoto > 0.5) {
     // 노출을 오래 준 전천 사진처럼: 푸른 보랏빛 하늘 + 지평선 둘레의 주황빛(먼 도시 불빛)
     float hz = exp(-max(alt, 0.0) / 9.0);
-    c = col * vis * uGain * 1.12 + vec3(0.05, 0.05, 0.13) * (0.7 + 0.6 * horizonF) + vec3(0.62, 0.34, 0.12) * hz * 0.85;
+    c = pow(col * vis * uGain * 1.35, vec3(1.7)) * 1.6 + vec3(0.05, 0.05, 0.13) * (0.7 + 0.6 * horizonF) + vec3(0.62, 0.34, 0.12) * hz * 0.85;
   }
   gl_FragColor = vec4(c, 1.0);
 }`;

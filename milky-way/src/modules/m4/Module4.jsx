@@ -612,12 +612,15 @@ export default function Module4({ meta, onReset, goTo, tab: ctlTab, onTab, subta
         </p>
         <div className="card">
           <h3>이렇게 구별해요</h3>
+          <p style={{ color: 'var(--ink)', fontSize: '1rem', lineHeight: 1.6 }}>
+            북반구 <b style={{ color: '#ff9d5c' }}>여름철</b>에는 지구가 공전하면서 우리은하의 중심 방향을 볼 수 있어 은하수가 <b style={{ color: '#ff9d5c' }}>겨울철보다 두껍게</b> 관찰된다.
+          </p>
           <div className="pq-rule">
             <span style={{ color: '#ff9d5c' }}>
-              은하수가 <b>두껍고 밝다</b> → <b>여름철</b>
+              은하수가 <b>두껍다</b> → <b>여름철</b>
             </span>
             <span style={{ color: '#7fd0ff' }}>
-              은하수가 <b>얇고 희미하다</b> → <b>겨울철</b>
+              은하수가 <b>얇다</b> → <b>겨울철</b>
             </span>
           </div>
         </div>
