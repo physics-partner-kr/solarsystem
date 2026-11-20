@@ -312,6 +312,23 @@ table.cmp td { color: var(--ink-2); }
 .stage .sky-grid.both { grid-template-columns: 1fr 1fr; }
 .stage .sky-grid.stack { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); }
 
+/* 탐험 4-⑤ 전천 사진 퀴즈 */
+.stage .pq-grid { position: absolute; inset: 3.9rem .8rem 4.7rem; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: minmax(0, 1fr) auto; gap: .5rem .8rem; }
+.pq-card { display: flex; flex-direction: column; min-height: 0; border: 2px solid var(--line); border-radius: 1rem; background: rgba(6, 12, 30, .7); overflow: hidden; transition: border-color .3s; }
+.pq-photo { position: relative; flex: 1; min-height: 0; background: #000; }
+.pq-tag { position: absolute; left: .55rem; top: .5rem; font-size: .9rem; font-weight: 750; padding: .1rem .55rem; border-radius: .5rem; background: rgba(255, 255, 255, .12); }
+.pq-answer { display: flex; align-items: center; justify-content: space-between; gap: .6rem; padding: .55rem .75rem; border-top: 1px solid var(--line); flex-wrap: wrap; }
+.pq-blank { display: flex; align-items: baseline; gap: .3rem; font-size: 1.15rem; font-weight: 650; }
+.pq-fill { display: inline-block; min-width: 3.2rem; text-align: center; border-bottom: 2px dashed var(--ink-3); font-weight: 800; }
+.pq-mark { font-size: 1.4rem; margin-left: .3rem; }
+.pq-mark.ok { color: var(--ok); }
+.pq-mark.bad { color: var(--bad); }
+.pq-choices { display: flex; gap: .3rem; }
+.pq-choices button { height: 2.4rem; padding: 0 .9rem; border-radius: .65rem; border: 1px solid var(--line); background: transparent; font-weight: 700; font-size: .95rem; }
+.pq-choices button:hover:not(:disabled) { background: var(--btn-hover); }
+.pq-choices button:disabled { cursor: default; }
+.pq-caption { grid-column: 1 / -1; margin: 0; font-size: .78rem; color: var(--ink-3); text-align: center; }
+
 /* ───────── 좁은 화면(세로 태블릿·휴대폰): 무대 위, 패널 아래, 페이지 스크롤 ───────── */
 @media (max-width: 899px), (max-aspect-ratio: 1/1) {
   :root { --top-h: auto; font-size: clamp(15px, 2.1vw, 20px); }
@@ -329,6 +346,9 @@ table.cmp td { color: var(--ink-2); }
   .stage { --dock-h: 4.3rem; height: calc(min(64vh, 44rem) + var(--dock-h)); min-height: 24rem; }
   .stage > .fill, .stage > .neb-grid, .stage > .vs-grid { bottom: var(--dock-h) !important; height: auto !important; }
   .stage .sky-grid, .stage .spin-grid { padding-bottom: 0 !important; }
+  .stage .pq-grid { bottom: calc(var(--dock-h) + .3rem); gap: .4rem; }
+  .pq-answer { padding: .4rem .5rem; gap: .3rem; }
+  .pq-blank { font-size: 1rem; }
   .dock { bottom: .4rem; }
   .dir-chart { display: none; }
   .narrow-only { display: block; }

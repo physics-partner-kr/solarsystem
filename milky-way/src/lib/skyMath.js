@@ -39,17 +39,19 @@ export function vecToAltAz(v) {
  * 투영: 'dome' = 머리 위를 올려다본 전천(가운데 천정, 위 북쪽, 왼쪽 동쪽)
  *       'pano' = 지평선을 따라 펼친 파노라마(가운데 방위 az0)
  */
-export function makeProjector(mode, w, h, az0 = 180) {
+export function makeProjector(mode, w, h, az0 = 180, opt = {}) {
   if (mode === 'dome') {
-    const R = Math.max(40, Math.min(w / 2 - 30, h / 2 - 26));
+    const rot = opt.rot || 0;
+    const R = opt.photo ? Math.max(30, Math.min(w, h) / 2 - 4) : Math.max(40, Math.min(w / 2 - 30, h / 2 - 26));
     const cx = w / 2;
-    const cy = h / 2 + 6;
+    const cy = opt.photo ? h / 2 : h / 2 + 6;
     return {
-      mode, R, cx, cy,
+      mode, R, cx, cy, rot,
       fwd(alt, az) {
         if (alt < -1) return null;
         const r = ((90 - alt) / 90) * R;
-        return [cx - r * Math.sin(az * D2R), cy - r * Math.cos(az * D2R)];
+        const a = (az + rot) * D2R;
+        return [cx - r * Math.sin(a), cy - r * Math.cos(a)];
       },
     };
   }

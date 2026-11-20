@@ -3,6 +3,7 @@ import OrbitView, { nightConstellation } from './OrbitView.jsx';
 import SkyView, { LIGHT, twilightLevel } from './SkyView.jsx';
 import DirectionCompare, { DensityChart, PanoCrop } from './DirectionCompare.jsx';
 import CelestialCylinder from './CelestialCylinder.jsx';
+import SeasonPhotoQuiz, { SEASON_COLOR, SEASON_NAME, makeRounds, photoDate } from './SeasonPhotoQuiz.jsx';
 import { Mission, ModuleShell, ScaleNote, Seg, SubTabs, T, fmt, useArrowSteps } from '../../components/ui.jsx';
 import { CONFIG } from '../../config.js';
 import { GALACTIC_CENTER, airmass, hourLabel, kstDate, sunEclipticLon } from '../../lib/astro.js';
@@ -17,6 +18,7 @@ const TABS = [
   { id: 'spin', label: '② 자전' },
   { id: 'dir', label: '③ 중심 vs 반대 방향' },
   { id: 'sky', label: '④ 여름·겨울 관측' },
+  { id: 'quiz', label: '⑤ 어느 계절일까?' },
 ];
 const IDS = TABS.map((t) => t.id);
 const TIMES = [
@@ -131,6 +133,48 @@ export default function Module4({ meta, onReset, goTo }) {
     if (Math.abs(((lon + 540) % 360) - 180) < 12) mark('m4.dir.gc');
     if (Math.abs(lon - 180) < 12) mark('m4.dir.ac');
   }, [lon, tab, mark]);
+
+  // ⑤ 사진 퀴즈
+  const [rounds, setRounds] = useState(() => makeRounds(3));
+  const [qi, setQi] = useState(0);
+  const [qAns, setQAns] = useState([null, null]);
+  const [qStatus, setQStatus] = useState('idle'); // idle | wrong | right
+  const [qWrong, setQWrong] = useState([]);
+  const [qReveal, setQReveal] = useState(false);
+  const [qScore, setQScore] = useState([]); // 각 문제를 첫 시도에 맞혔는지
+  const [qTries, setQTries] = useState(0);
+  const qRound = rounds[qi];
+  const setQAnswer = (i, v) => {
+    setQAns((a) => a.map((x, k) => (k === i ? v : x)));
+    setQWrong((w) => w.filter((k) => k !== i));
+  };
+  const checkQuiz = () => {
+    const wrong = qRound.photos.map((ph, i) => (qAns[i] === ph.season ? null : i)).filter((i) => i !== null);
+    mark('m4.photo.check');
+    if (!wrong.length) {
+      setQStatus('right');
+      setQReveal(true);
+      setQScore((sc) => [...sc.slice(0, qi), qTries === 0]);
+      mark('m4.photo.correct');
+    } else {
+      setQStatus('wrong');
+      setQWrong(wrong);
+      setQTries((t) => t + 1);
+    }
+  };
+  const nextQuiz = () => {
+    if (qi < rounds.length - 1) setQi(qi + 1);
+    else {
+      setRounds(makeRounds(3));
+      setQi(0);
+      setQScore([]);
+    }
+    setQAns([null, null]);
+    setQStatus('idle');
+    setQWrong([]);
+    setQReveal(false);
+    setQTries(0);
+  };
 
   // ④ 관측
   const [obsHour, setObsHour] = useState(22);
@@ -499,6 +543,103 @@ export default function Module4({ meta, onReset, goTo }) {
         <button type="button" className="btn primary next-link" onClick={() => setTab('sky')}>
           다음: ④ 여름·겨울 은하수 관측 →
         </button>
+      </>
+    );
+  } else if (tab === 'quiz') {
+    const peaks = qRound.photos.map((ph) => visibleMilkyWay(lum, photoDate(ph.season, qRound.hour), 0, false));
+    const pmax = Math.max(...peaks.map((v) => v?.peak || 0)) || 1;
+    stage = (
+      <>
+        <SubTabs tabs={TABS} value={tab} onChange={setTab} />
+        <SeasonPhotoQuiz
+          round={qRound}
+          answers={qAns}
+          setAnswer={setQAnswer}
+          checked={qStatus === 'right'}
+          wrong={qWrong}
+          reveal={qReveal}
+        />
+        <div className="dock">
+          <span className="btn" style={{ cursor: 'default', fontVariantNumeric: 'tabular-nums' }}>
+            문제 {qi + 1}/{rounds.length}
+          </span>
+          {qStatus !== 'right' ? (
+            <button type="button" className="btn primary" disabled={qAns.some((a) => !a)} onClick={checkQuiz}>
+              {qAns.some((a) => !a) ? '두 사진의 계절을 모두 고르세요' : '확인하기'}
+            </button>
+          ) : (
+            <>
+              <button type="button" className={`btn ${qReveal ? 'on' : ''}`} onClick={() => setQReveal(!qReveal)}>
+                은하 중심·별자리 표시
+              </button>
+              <button type="button" className="btn primary" onClick={nextQuiz}>
+                {qi < rounds.length - 1 ? '다음 사진 →' : '새 사진으로 다시'}
+              </button>
+            </>
+          )}
+        </div>
+      </>
+    );
+    panel = (
+      <>
+        <p style={{ fontSize: '1rem', color: 'var(--ink)' }}>
+          <b>우리나라에서 찍은 두 사진은 각각 어느 계절의 은하수일까요?</b>
+        </p>
+        <p>
+          하늘 전체를 한 장에 담은 <b>전천 사진</b>이에요. 원의 가운데가 머리 위(<T k="천정">천정</T>), 둘레가 <T k="지평선">지평선</T>이에요. 두 사진을 비교해 계절을 골라 보세요.
+        </p>
+        <div className="card">
+          <h3>관찰 포인트</h3>
+          <ul>
+            <li>은하수 띠가 <b>넓고 밝은가</b>, 아니면 <b>가늘고 희미한가</b>?</li>
+            <li>은하수가 <b>검은 틈(먼지 띠)</b>으로 갈라져 보이는가?</li>
+            <li>은하수가 특히 <b>밝게 부풀어 오른 곳</b>이 있는가? 있다면 어디쯤인가?</li>
+          </ul>
+          <p className="note">사진마다 카메라 방향이 달라요. 사진 속 위치보다 은하수 자체의 모습을 비교하세요.</p>
+        </div>
+        {qStatus === 'wrong' && (
+          <div className="feedback hint" role="status">
+            <b>다시 생각해 보세요.</b> ×표가 붙은 사진을 다시 보세요. ③의 천구 원통을 떠올려 보세요: 여름철 밤에는 은하 중심(팽대부) 쪽을 보므로, 별과 성간 물질이 많아 은하수가 <b>넓고 밝으며 먼지 띠로 갈라져</b> 보여요. 밝은 별이 몇 개 있는 것과 은하수가 밝은 것은 달라요!
+          </div>
+        )}
+        {qStatus === 'right' && (
+          <div className="feedback good" role="status">
+            <b>정답이에요!</b>
+            {qRound.photos.map((ph, i) => (
+              <span key={i} style={{ display: 'block', marginTop: '.3rem' }}>
+                <b style={{ color: SEASON_COLOR[ph.season] }}>사진 {['가', '나'][i]} — {SEASON_NAME[ph.season]}철 은하수:</b>{' '}
+                {ph.season === 'summer'
+                  ? '은하 중심(궁수자리) 쪽을 본 모습. 넓고 밝으며 검은 먼지 띠로 갈라져 보이고, 가장 밝은 부분(팽대부 방향)이 남쪽 지평선 가까이에 있어요.'
+                  : '은하 중심 반대쪽(마차부·황소자리 부근)을 본 모습. 별이 적은 은하 바깥쪽이라 희미하고 가늘게 보여요.'}
+              </span>
+            ))}
+          </div>
+        )}
+        {qStatus === 'right' && lum && (
+          <>
+            <h2>사진으로 잰 은하수의 가장 밝은 부분</h2>
+            <div className="bars">
+              {qRound.photos.map((ph, i) => (
+                <div className="bar" key={i}>
+                  <span>사진 {['가', '나'][i]}</span>
+                  <span className="track">
+                    <span className="fillb" style={{ display: 'block', width: `${Math.max(2, ((peaks[i]?.peak || 0) / pmax) * 100)}%`, background: SEASON_COLOR[ph.season] }} />
+                  </span>
+                  <output>{fmt(((peaks[i]?.peak || 0) / pmax) * 100, 0)}</output>
+                </div>
+              ))}
+            </div>
+            <p className="note">은하의 두께가 계절마다 변하는 게 아니라, 바라보는 방향의 별과 성간 물질 양이 달라서 생기는 차이예요.</p>
+          </>
+        )}
+        {qScore.length > 0 && (
+          <p style={{ fontVariantNumeric: 'tabular-nums' }}>
+            첫 시도에 맞힌 문제: <b>{qScore.filter(Boolean).length}</b> / {qScore.length}
+          </p>
+        )}
+        <p className="note">
+          사진은 ESO의 실제 은하수 사진과 실제 별 위치로, 서울에서 그 날짜·시각에 보이는 하늘을 전천 카메라처럼 만든 시뮬레이션이에요. 여름은 {CONFIG.summerDate.month}월 {CONFIG.summerDate.day}일, 겨울은 {CONFIG.winterDate.month}월 {CONFIG.winterDate.day}일 밤이에요.
+        </p>
       </>
     );
   } else {

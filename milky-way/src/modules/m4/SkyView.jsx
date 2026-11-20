@@ -41,6 +41,8 @@ uniform float uGlow;
 uniform float uTwi;
 uniform vec3 uSunDir;
 uniform float uGain;
+uniform float uRot;
+uniform float uPhoto;
 varying vec2 vUv;
 const float D2R = 0.017453292519943295;
 float hill(float az) {
@@ -52,9 +54,9 @@ void main() {
   if (uMode < 0.5) {
     vec2 d = px - uCenter;
     float r = length(d);
-    if (r > uRadius + 1.5) { gl_FragColor = vec4(0.012, 0.03, 0.07, 1.0); return; }
+    if (r > uRadius + 1.5) { gl_FragColor = uPhoto > 0.5 ? vec4(0.0, 0.0, 0.0, 1.0) : vec4(0.012, 0.03, 0.07, 1.0); return; }
     alt = 90.0 * (1.0 - r / uRadius);
-    az = atan(-d.x, d.y) / D2R;
+    az = atan(-d.x, d.y) / D2R - uRot;
   } else {
     az = uAz0 + (vUv.x - 0.5) * uFovH;
     alt = uAltMin + vUv.y * (uAltMax - uAltMin);
@@ -62,8 +64,11 @@ void main() {
   float ca = cos(alt * D2R);
   vec3 h = vec3(ca * cos(az * D2R), ca * sin(az * D2R), sin(alt * D2R));
   // 땅
-  float ground = uMode > 0.5 ? hill(az * D2R) : 0.6;
+  // 전천 사진: 나무·건물 실루엣이 둘레에 걸림
+  float trees = 2.2 + 1.6 * sin(az * D2R * 5.0 + 0.7) + 1.1 * sin(az * D2R * 13.0) + 0.9 * abs(sin(az * D2R * 31.0)) + 2.5 * step(0.93, fract(az / 47.0));
+  float ground = uMode > 0.5 ? hill(az * D2R) : (uPhoto > 0.5 ? max(1.0, trees) : 0.6);
   if (alt < ground) {
+    if (uPhoto > 0.5) { gl_FragColor = vec4(0.03, 0.02, 0.015, 1.0); return; }
     float city = uGlow * 2.2 * exp(-max(0.0, -alt) / 6.0);
     vec3 g = vec3(0.016, 0.02, 0.028) + vec3(0.09, 0.06, 0.03) * city;
     gl_FragColor = vec4(g, 1.0);
@@ -82,6 +87,11 @@ void main() {
   vec3 tw = uTwi * (vec3(0.05, 0.11, 0.24) * (0.45 + 0.8 * horizonF) + vec3(0.28, 0.17, 0.08) * pow(sd, 6.0) * horizonF * 1.4);
   float vis = uMW * ext * clamp(1.0 - uTwi * 1.25, 0.0, 1.0);
   vec3 c = col * vis * uGain + lp + tw + vec3(0.004, 0.008, 0.02);
+  if (uPhoto > 0.5) {
+    // 노출을 오래 준 전천 사진처럼: 푸른 보랏빛 하늘 + 지평선 둘레의 주황빛(먼 도시 불빛)
+    float hz = exp(-max(alt, 0.0) / 9.0);
+    c = col * vis * uGain * 1.12 + vec3(0.05, 0.05, 0.13) * (0.7 + 0.6 * horizonF) + vec3(0.62, 0.34, 0.12) * hz * 0.85;
+  }
   gl_FragColor = vec4(c, 1.0);
 }`;
 const VERT = `varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }`;
@@ -96,6 +106,7 @@ export function twilightLevel(sunAlt) {
 
 export default function SkyView({
   date, mode = 'dome', az0 = 180, onAz0, lines = true, names = true, galEq = true, light = 0, twilight = true, compact = false, title, sub, accent = '#fff', onReady,
+  photo = false, rot = 0,
 }) {
   const wrap = useRef(null);
   const gl = useRef(null);
@@ -124,6 +135,7 @@ export default function SkyView({
         uPano: { value: null }, uH2G: { value: new THREE.Matrix3() }, uMode: { value: 0 }, uSize: { value: new THREE.Vector2(1, 1) },
         uCenter: { value: new THREE.Vector2() }, uRadius: { value: 1 }, uAz0: { value: 180 }, uFovH: { value: 180 }, uAltMin: { value: -8 },
         uAltMax: { value: 82 }, uMW: { value: 1 }, uGlow: { value: 0 }, uTwi: { value: 0 }, uSunDir: { value: new THREE.Vector3() }, uGain: { value: 1.25 },
+        uRot: { value: 0 }, uPhoto: { value: 0 },
       },
       depthTest: false,
     });
@@ -184,7 +196,7 @@ export default function SkyView({
     if (!w || !S.renderer) return;
     const L = LIGHT[light];
     const twi = twilight ? twilightLevel(sky.sunAlt) : 0;
-    const proj = makeProjector(mode, w, h, az0);
+    const proj = makeProjector(mode, w, h, az0, { rot, photo });
     // 1) 배경(사진)
     S.renderer.setPixelRatio(dpr);
     S.renderer.setSize(w, h, false);
@@ -206,6 +218,8 @@ export default function SkyView({
     u.uGlow.value = L.glow;
     u.uTwi.value = twi;
     u.uSunDir.value.set(...sky.sunHor);
+    u.uRot.value = mode === 'dome' ? rot : 0;
+    u.uPhoto.value = photo ? 1 : 0;
     if (u.uPano.value) S.renderer.render(S.scene, S.cam);
 
     // 2) 별·선·글씨(2D)
@@ -233,7 +247,7 @@ export default function SkyView({
       const { alt, az } = vecToAltAz(hv);
       return { alt, az, p: proj.fwd(alt, az) };
     };
-    const limBase = L.lim - twi * 4.5;
+    const limBase = photo ? 4.2 : L.lim - twi * 4.5;
     const scale = Math.max(0.75, Math.min(1.4, Math.min(w, h) / 520));
     // 별자리 선
     if (lines) {
@@ -269,7 +283,7 @@ export default function SkyView({
       const ext = 0.28 * (airmass(Math.max(0.5, alt)) - 1);
       const m = mag + ext;
       if (m > limBase + 0.3) continue;
-      const r = Math.max(0.55, (2.7 - 0.42 * m) * scale);
+      const r = Math.max(0.55, (2.7 - 0.42 * m) * scale * (photo ? 0.7 : 1));
       const a = Math.max(0.15, Math.min(1, (limBase + 0.5 - m) / 2.2));
       const [cr, cg, cb] = bvColor(STARS[i * 4 + 3]);
       g.fillStyle = `rgba(${cr},${cg},${cb},${a})`;
@@ -307,14 +321,14 @@ export default function SkyView({
       { l: 0, t: '은하 중심 방향', s: '궁수자리', c: '#ffc46b' },
       { l: 180, t: '은하 중심 반대 방향', s: '황소·마차부자리', c: '#7fd0ff' },
     ];
-    marks.forEach((mk) => {
+    (galEq ? marks : []).forEach((mk) => {
       const e = galToEq(mk.l, 0);
       const r = toScr(unit(e.ra, e.dec));
       if (!r.p) return;
       const [x, y] = r.p;
       if (r.alt < 0) {
         // 지평선 아래: 방향만 표시
-        if (mode === 'pano' || r.alt > -25) {
+        if (!photo && (mode === 'pano' || r.alt > -25)) {
           const yy = mode === 'pano' ? h - 18 : y;
           text(`${mk.t}: 지평선 아래`, x, yy, mk.c + 'cc', 11.5, 'center', 600);
         }
@@ -363,7 +377,9 @@ export default function SkyView({
       });
     }
     // 지평선·방위·천정
-    if (mode === 'dome') {
+    if (photo) {
+      // 사진처럼: 글씨 없음
+    } else if (mode === 'dome') {
       g.strokeStyle = 'rgba(200,215,255,.55)';
       g.lineWidth = 1.5;
       g.beginPath();
@@ -407,20 +423,20 @@ export default function SkyView({
         if (p) text(`${a}°`, 6, p[1], 'rgba(200,215,255,.6)', 10.5, 'left', 600);
       });
     }
-    if (title) {
+    if (title && !photo) {
       text(title, 12, 20, accent, compact ? 15 : 17, 'left', 800);
       if (sub) text(sub, 12, 42, 'rgba(220,228,255,.92)', 12, 'left', 600);
     }
-    if (twilight && sky.sunAlt > -18) {
+    if (twilight && !photo && sky.sunAlt > -18) {
       text(sky.sunAlt > -6 ? '해가 진 지 얼마 안 되어 하늘이 밝아요(박명)' : '아직 하늘이 조금 밝아요(박명)', w / 2, mode === 'dome' ? 16 : 34, '#ffd8a8', 12, 'center', 650);
     }
-  }, [size, sky, mode, az0, lines, names, galEq, light, twilight, ready, title, sub, compact, accent]);
+  }, [size, sky, mode, az0, lines, names, galEq, light, twilight, ready, title, sub, compact, accent, photo, rot]);
 
   if (failed) {
     return <div className="fill" style={{ display: 'grid', placeItems: 'center', color: 'var(--ink-2)', padding: '1rem', textAlign: 'center' }}>이 기기에서는 하늘 그림(WebGL)을 그릴 수 없어요.</div>;
   }
   return (
-    <div ref={wrap} className="fill" style={{ background: '#030a1c' }}>
+    <div ref={wrap} className="fill" style={{ background: photo ? '#000' : '#030a1c' }}>
       <canvas ref={gl} className="fill" aria-hidden="true" />
       <canvas ref={ov} className={`fill ${mode === 'pano' && onAz0 ? 'grab' : ''}`} role="img" aria-label={`${title || ''} 밤하늘 모습`} />
     </div>
