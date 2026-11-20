@@ -43,6 +43,7 @@ uniform vec3 uSunDir;
 uniform float uGain;
 uniform float uRot;
 uniform float uPhoto;
+uniform float uGround;
 varying vec2 vUv;
 const float D2R = 0.017453292519943295;
 float hill(float az) {
@@ -67,7 +68,7 @@ void main() {
   // 전천 사진: 나무·건물 실루엣이 둘레에 걸림
   float trees = 2.2 + 1.6 * sin(az * D2R * 5.0 + 0.7) + 1.1 * sin(az * D2R * 13.0) + 0.9 * abs(sin(az * D2R * 31.0)) + 2.5 * step(0.93, fract(az / 47.0));
   float ground = uMode > 0.5 ? hill(az * D2R) : (uPhoto > 0.5 ? max(1.0, trees) : 0.6);
-  if (alt < ground) {
+  if (alt < ground && uGround > 0.5) {
     if (uPhoto > 0.5) { gl_FragColor = vec4(0.03, 0.02, 0.015, 1.0); return; }
     float city = uGlow * 2.2 * exp(-max(0.0, -alt) / 6.0);
     vec3 g = vec3(0.016, 0.02, 0.028) + vec3(0.09, 0.06, 0.03) * city;
@@ -79,10 +80,10 @@ void main() {
   // 대기에 의한 감광(지평선 가까울수록 어두움)
   float s = max(sin(alt * D2R), 0.02);
   float X = 1.0 / (s + 0.025 * exp(-11.0 * s));
-  float ext = pow(10.0, -0.4 * 0.28 * (X - 1.0));
+  float ext = uGround > 0.5 ? pow(10.0, -0.4 * 0.28 * (X - 1.0)) : 1.0;
   // 하늘 밝기(광공해 + 박명)
   float horizonF = pow(1.0 - clamp(alt / 90.0, 0.0, 1.0), 2.2);
-  vec3 lp = vec3(0.32, 0.24, 0.16) * uGlow * (0.35 + 1.6 * horizonF);
+  vec3 lp = vec3(0.32, 0.24, 0.16) * uGlow * (0.35 + 1.6 * horizonF) * uGround;
   float sd = max(dot(h, uSunDir), 0.0);
   vec3 tw = uTwi * (vec3(0.05, 0.11, 0.24) * (0.45 + 0.8 * horizonF) + vec3(0.28, 0.17, 0.08) * pow(sd, 6.0) * horizonF * 1.4);
   float vis = uMW * ext * clamp(1.0 - uTwi * 1.25, 0.0, 1.0);
@@ -106,7 +107,7 @@ export function twilightLevel(sunAlt) {
 
 export default function SkyView({
   date, mode = 'dome', az0 = 180, onAz0, lines = true, names = true, galEq = true, light = 0, twilight = true, compact = false, title, sub, accent = '#fff', onReady,
-  photo = false, rot = 0,
+  photo = false, rot = 0, noGround = false, alt0 = 37, fovV = 90, onPan, onZoom, marks = [], selected = null, onPick, titleY = 20,
 }) {
   const wrap = useRef(null);
   const gl = useRef(null);
@@ -135,7 +136,7 @@ export default function SkyView({
         uPano: { value: null }, uH2G: { value: new THREE.Matrix3() }, uMode: { value: 0 }, uSize: { value: new THREE.Vector2(1, 1) },
         uCenter: { value: new THREE.Vector2() }, uRadius: { value: 1 }, uAz0: { value: 180 }, uFovH: { value: 180 }, uAltMin: { value: -8 },
         uAltMax: { value: 82 }, uMW: { value: 1 }, uGlow: { value: 0 }, uTwi: { value: 0 }, uSunDir: { value: new THREE.Vector3() }, uGain: { value: 1.25 },
-        uRot: { value: 0 }, uPhoto: { value: 0 },
+        uRot: { value: 0 }, uPhoto: { value: 0 }, uGround: { value: 1 },
       },
       depthTest: false,
     });
@@ -159,12 +160,84 @@ export default function SkyView({
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // 관측 프로그램: 가로·세로로 끌어 둘러보기, 휠·두 손가락으로 확대, 천체 표시 누르기
+  const viewRef = useRef({ az0, alt0, fovV, onPan, onZoom, onPick });
+  viewRef.current = { az0, alt0, fovV, onPan, onZoom, onPick };
+  useEffect(() => {
+    const el = ov.current;
+    if (!onPan) return undefined;
+    const pts = new Map();
+    let start = null;
+    let pinch = null;
+    const down = (e) => {
+      pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      el.setPointerCapture?.(e.pointerId);
+      const v = viewRef.current;
+      if (pts.size === 1) start = { x: e.clientX, y: e.clientY, az: v.az0, alt: v.alt0, moved: false };
+      if (pts.size === 2) {
+        const [a, b] = [...pts.values()];
+        pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), f: v.fovV };
+        start = null;
+      }
+    };
+    const move = (e) => {
+      if (!pts.has(e.pointerId)) return;
+      pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      const v = viewRef.current;
+      const r = el.getBoundingClientRect();
+      if (pinch && pts.size === 2) {
+        const [a, b] = [...pts.values()];
+        v.onZoom?.(Math.max(15, Math.min(100, (pinch.f * pinch.d) / Math.max(10, Math.hypot(a.x - b.x, a.y - b.y)))));
+      } else if (start) {
+        const dx = e.clientX - start.x;
+        const dy = e.clientY - start.y;
+        if (Math.hypot(dx, dy) > 5) start.moved = true;
+        const degPx = v.fovV / r.height;
+        v.onPan({ az0: (((start.az - dx * degPx) % 360) + 360) % 360, alt0: Math.max(-90 + v.fovV / 2, Math.min(90 - v.fovV / 2, start.alt + dy * degPx)) });
+      }
+    };
+    const up = (e) => {
+      if (start && !start.moved && viewRef.current.onPick) {
+        const r = el.getBoundingClientRect();
+        const x = e.clientX - r.left;
+        const y = e.clientY - r.top;
+        let best = null;
+        (st.current.markScreen || []).forEach((m) => {
+          if (!m.p) return;
+          const d = Math.hypot(m.p[0] - x, m.p[1] - y);
+          if (d < 30 && (!best || d < best.d)) best = { id: m.id, d };
+        });
+        if (best) viewRef.current.onPick(best.id);
+      }
+      pts.delete(e.pointerId);
+      if (pts.size < 2) pinch = null;
+      if (!pts.size) start = null;
+    };
+    const wheel = (e) => {
+      e.preventDefault();
+      const v = viewRef.current;
+      v.onZoom?.(Math.max(15, Math.min(100, v.fovV * Math.exp(e.deltaY * 0.0012))));
+    };
+    el.addEventListener('pointerdown', down);
+    el.addEventListener('pointermove', move);
+    el.addEventListener('pointerup', up);
+    el.addEventListener('pointercancel', up);
+    el.addEventListener('wheel', wheel, { passive: false });
+    return () => {
+      el.removeEventListener('pointerdown', down);
+      el.removeEventListener('pointermove', move);
+      el.removeEventListener('pointerup', up);
+      el.removeEventListener('pointercancel', up);
+      el.removeEventListener('wheel', wheel);
+    };
+  }, [onPan]);
+
   // 파노라마: 끌어서 방향 바꾸기
   const az0Ref = useRef(az0);
   az0Ref.current = az0;
   useEffect(() => {
     const el = ov.current;
-    if (mode !== 'pano' || !onAz0) return undefined;
+    if (mode !== 'pano' || !onAz0 || onPan) return undefined;
     let start = null;
     const down = (e) => {
       start = { x: e.clientX, az: az0Ref.current };
@@ -196,7 +269,7 @@ export default function SkyView({
     if (!w || !S.renderer) return;
     const L = LIGHT[light];
     const twi = twilight ? twilightLevel(sky.sunAlt) : 0;
-    const proj = makeProjector(mode, w, h, az0, { rot, photo });
+    const proj = makeProjector(mode, w, h, az0, { rot, photo, noGround, alt0, fovV });
     // 1) 배경(사진)
     S.renderer.setPixelRatio(dpr);
     S.renderer.setSize(w, h, false);
@@ -220,6 +293,7 @@ export default function SkyView({
     u.uSunDir.value.set(...sky.sunHor);
     u.uRot.value = mode === 'dome' ? rot : 0;
     u.uPhoto.value = photo ? 1 : 0;
+    u.uGround.value = noGround ? 0 : 1;
     if (u.uPano.value) S.renderer.render(S.scene, S.cam);
 
     // 2) 별·선·글씨(2D)
@@ -276,11 +350,11 @@ export default function SkyView({
       const mag = STARS[i * 4 + 2];
       if (mag > limBase) continue;
       const hv = apply(sky.E2H, [STAR_EQ[i * 3], STAR_EQ[i * 3 + 1], STAR_EQ[i * 3 + 2]]);
-      if (hv[2] < 0) continue;
+      if (hv[2] < 0 && !noGround) continue;
       const { alt, az } = vecToAltAz(hv);
       const p = proj.fwd(alt, az);
       if (!p) continue;
-      const ext = 0.28 * (airmass(Math.max(0.5, alt)) - 1);
+      const ext = noGround ? 0 : 0.28 * (airmass(Math.max(0.5, alt)) - 1);
       const m = mag + ext;
       if (m > limBase + 0.3) continue;
       const r = Math.max(0.55, (2.7 - 0.42 * m) * scale * (photo ? 0.7 : 1));
@@ -317,11 +391,11 @@ export default function SkyView({
       g.stroke();
       g.setLineDash([]);
     }
-    const marks = [
+    const gcMarks = [
       { l: 0, t: '은하 중심 방향', s: '궁수자리', c: '#ffc46b' },
       { l: 180, t: '은하 중심 반대 방향', s: '황소·마차부자리', c: '#7fd0ff' },
     ];
-    (galEq ? marks : []).forEach((mk) => {
+    (galEq ? gcMarks : []).forEach((mk) => {
       const e = galToEq(mk.l, 0);
       const r = toScr(unit(e.ra, e.dec));
       if (!r.p) return;
@@ -376,6 +450,31 @@ export default function SkyView({
         text(NAME_FIX[ab] || ko, r.p[0], r.p[1], 'rgba(170,200,255,.9)', 12, 'center', 560);
       });
     }
+    // 표시할 천체(관측 프로그램·도입 화면)
+    marks.forEach((mk) => {
+      const r = toScr(unit(mk.ra, mk.dec));
+      if (!r.p || (r.alt < 0 && !noGround)) return;
+      const [x, y] = r.p;
+      const sel = selected && selected === mk.id;
+      g.strokeStyle = mk.color || '#9fe0ff';
+      g.lineWidth = sel ? 3 : 1.6;
+      g.beginPath();
+      g.arc(x, y, (sel ? 16 : mk.r || 9) * scale, 0, Math.PI * 2);
+      g.stroke();
+      if (sel) {
+        g.beginPath();
+        [[-1, 0], [1, 0], [0, -1], [0, 1]].forEach(([dx, dy]) => {
+          g.moveTo(x + dx * 20 * scale, y + dy * 20 * scale);
+          g.lineTo(x + dx * 28 * scale, y + dy * 28 * scale);
+        });
+        g.stroke();
+      }
+      if (mk.label) text(mk.label, x, y - (sel ? 34 : 20) * scale, mk.color || '#cfefff', sel ? 15 : 12.5, 'center', sel ? 800 : 650);
+      if (mk.sub) text(mk.sub, x, y + (sel ? 34 : 20) * scale, mk.color || '#cfefff', 11.5, 'center', 600);
+      mk._p = [x, y];
+    });
+    S.markScreen = marks.map((mk) => ({ id: mk.id, p: mk._p }));
+
     // 지평선·방위·천정
     if (photo) {
       // 사진처럼: 글씨 없음
@@ -403,34 +502,36 @@ export default function SkyView({
       text('원의 둘레 = 지평선', w - 8, h - 10, 'rgba(200,215,255,.8)', 11, 'right', 550);
     } else {
       const y0 = proj.fwd(0, az0)[1];
-      g.strokeStyle = 'rgba(200,215,255,.6)';
+      g.strokeStyle = noGround ? 'rgba(120,220,160,.7)' : 'rgba(200,215,255,.6)';
       g.lineWidth = 1.2;
+      if (noGround) g.setLineDash([8, 6]);
       g.beginPath();
       g.moveTo(0, y0);
       g.lineTo(w, y0);
       g.stroke();
-      text('지평선', 8, y0 - 10, 'rgba(200,215,255,.85)', 11, 'left', 600);
+      g.setLineDash([]);
+      text(noGround ? '지평선(없앤 상태)' : '지평선', 8, y0 - 10, noGround ? '#9ff0c0' : 'rgba(200,215,255,.85)', 11, 'left', 600);
       [[0, '북'], [45, '북동'], [90, '동'], [135, '남동'], [180, '남'], [225, '남서'], [270, '서'], [315, '북서']].forEach(([az, t]) => {
         const p = proj.fwd(0, az);
-        if (p) text(t, p[0], h - 12, '#ffffff', t.length > 1 ? 13 : 16, 'center', 800);
+        if (p) text(t, p[0], Math.min(h - 12, p[1] + 16), '#ffffff', t.length > 1 ? 13 : 16, 'center', 800);
       });
       const z = proj.fwd(90, az0);
       if (z && z[1] > 0) {
         text('▲ 천정(머리 위) 방향', w / 2, 14, '#ffffff', 11.5, 'center', 650);
       }
-      [30, 60].forEach((a) => {
+      [-60, -30, 30, 60].forEach((a) => {
         const p = proj.fwd(a, az0 - proj.fovH / 2 + 2);
-        if (p) text(`${a}°`, 6, p[1], 'rgba(200,215,255,.6)', 10.5, 'left', 600);
+        if (p && p[1] > 20 && p[1] < h - 20) text(`${a}°`, 6, p[1], 'rgba(200,215,255,.6)', 10.5, 'left', 600);
       });
     }
     if (title && !photo) {
-      text(title, 12, 20, accent, compact ? 15 : 17, 'left', 800);
-      if (sub) text(sub, 12, 42, 'rgba(220,228,255,.92)', 12, 'left', 600);
+      text(title, 12, titleY, accent, compact ? 15 : 17, 'left', 800);
+      if (sub) text(sub, 12, titleY + 22, 'rgba(220,228,255,.92)', 12, 'left', 600);
     }
     if (twilight && !photo && sky.sunAlt > -18) {
       text(sky.sunAlt > -6 ? '해가 진 지 얼마 안 되어 하늘이 밝아요(박명)' : '아직 하늘이 조금 밝아요(박명)', w / 2, mode === 'dome' ? 16 : 34, '#ffd8a8', 12, 'center', 650);
     }
-  }, [size, sky, mode, az0, lines, names, galEq, light, twilight, ready, title, sub, compact, accent, photo, rot]);
+  }, [size, sky, mode, az0, lines, names, galEq, light, twilight, ready, title, sub, compact, accent, photo, rot, noGround, alt0, fovV, marks, selected, titleY]);
 
   if (failed) {
     return <div className="fill" style={{ display: 'grid', placeItems: 'center', color: 'var(--ink-2)', padding: '1rem', textAlign: 'center' }}>이 기기에서는 하늘 그림(WebGL)을 그릴 수 없어요.</div>;
@@ -438,7 +539,7 @@ export default function SkyView({
   return (
     <div ref={wrap} className="fill" style={{ background: photo ? '#000' : '#030a1c' }}>
       <canvas ref={gl} className="fill" aria-hidden="true" />
-      <canvas ref={ov} className={`fill ${mode === 'pano' && onAz0 ? 'grab' : ''}`} role="img" aria-label={`${title || ''} 밤하늘 모습`} />
+      <canvas ref={ov} className={`fill ${mode === 'pano' && (onAz0 || onPan) ? 'grab' : ''}`} role="img" aria-label={`${title || ''} 밤하늘 모습`} />
     </div>
   );
 }

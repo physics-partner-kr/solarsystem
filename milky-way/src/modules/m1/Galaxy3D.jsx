@@ -416,7 +416,7 @@ const Galaxy3D = forwardRef(function Galaxy3D({ halo = true, labels = true, sele
   }
   return (
     <div ref={wrap} className="fill">
-      <canvas ref={canvasRef} className="fill grab" aria-label="우리 은하 3D 모형. 끌어서 돌리고, 휠이나 두 손가락으로 확대·축소" />
+      <canvas ref={canvasRef} className="fill grab" aria-label="우리은하 3D 모형. 끌어서 돌리고, 휠이나 두 손가락으로 확대·축소" />
       <svg ref={svgRef} className="fill" style={{ pointerEvents: 'none', zIndex: 2 }} aria-hidden="true" />
       <div ref={labelRef} className="labels" />
     </div>
@@ -466,7 +466,7 @@ function drawMeasure(svg, camera, s, on) {
     const A0 = proj(camera, s, -dir.x * DISK_R, -dir.y * DISK_R, 0);
     const B0 = proj(camera, s, dir.x * DISK_R, dir.y * DISK_R, 0);
     parts.push(line(A, B, '#b3bfff'), line(A, A0, '#b3bfff', '4 4'), line(B, B0, '#b3bfff', '4 4'));
-    parts.push(text({ x: (A.x + B.x) / 2, y: (A.y + B.y) / 2 }, '지름 약 10만 광년', '#dfe5ff', 'middle', 22));
+    parts.push(text({ x: (A.x + B.x) / 2, y: (A.y + B.y) / 2 }, '지름 약 30000 pc (약 10만 광년)', '#dfe5ff', 'middle', 22));
     // 태양 → 은하 중심
     const sunSide = Math.abs(Sn.x - C0.x) > 20;
     if (sunSide) {
@@ -474,7 +474,7 @@ function drawMeasure(svg, camera, s, on) {
       const y6 = proj(camera, s, 0, -R_SUN, -6.5);
       const c6 = proj(camera, s, 0, 0, -6.5);
       parts.push(line(y6, c6, '#ffe14d'), line(Sn, y6, '#ffe14d', '3 4'), line(C0, c6, '#ffe14d', '3 4'));
-      parts.push(text({ x: (y6.x + c6.x) / 2, y: y6.y }, '약 2만 6천 광년', '#ffe14d', 'middle', 18));
+      parts.push(text({ x: (y6.x + c6.x) / 2, y: y6.y }, '약 8500 pc (약 2만 8천 광년)', '#ffe14d', 'middle', 18));
     }
     // 팽대부 두께(태양 반대쪽에 표시)
     const sgn = sunSide && (Sn.x - C0.x) * (B0.x - A0.x) > 0 ? -1 : 1;
@@ -497,11 +497,11 @@ function drawMeasure(svg, camera, s, on) {
     const A = proj(camera, s, -DISK_R, 0, 0);
     const B = proj(camera, s, DISK_R, 0, 0);
     parts.push(line(A, B, 'rgba(179,191,255,.55)', '6 6'));
-    parts.push(text({ x: A.x + (B.x - A.x) * 0.82, y: A.y }, '지름 약 10만 광년', '#dfe5ff', 'middle', -10));
+    parts.push(text({ x: A.x + (B.x - A.x) * 0.82, y: A.y }, '지름 약 30000 pc (약 10만 광년)', '#dfe5ff', 'middle', -10));
     parts.push(line(C0, Sn, 'rgba(255,225,77,.6)', '5 5'));
     parts.push(arrow(toward(0.08), toward(0.5)));
     parts.push(text({ x: Sn.x + 20, y: Sn.y }, '태양 → 은하 중심', '#ff8a8a', 'start', -2));
-    parts.push(text({ x: Sn.x + 20, y: Sn.y }, '약 2만 6천 광년', '#ffe14d', 'start', 18));
+    parts.push(text({ x: Sn.x + 20, y: Sn.y }, '약 8500 pc (약 2만 8천 광년)', '#ffe14d', 'start', 18));
   }
   svg.innerHTML = parts.join('');
 }

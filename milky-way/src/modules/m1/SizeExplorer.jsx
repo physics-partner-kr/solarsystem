@@ -193,7 +193,7 @@ const SizeExplorer = forwardRef(function SizeExplorer({ logW, setLogW, onAction 
       g.lineTo(X2, Y2);
       g.stroke();
       g.setLineDash([]);
-      label('태양 ↔ 은하 중심: 약 2만 6천 광년', (X1 + X2) / 2 + 12, (Y1 + Y2) / 2, '#ffe14d', 14, 'left');
+      label('태양 ↔ 은하 중심: 약 8500 pc (약 2만 8천 광년)', (X1 + X2) / 2 + 12, (Y1 + Y2) / 2, '#ffe14d', 14, 'left');
       label('은하 중심', X1, Y1 - 16, '#ffc46b', 13);
       g.globalAlpha = 1;
     }
@@ -213,7 +213,7 @@ const SizeExplorer = forwardRef(function SizeExplorer({ logW, setLogW, onAction 
       g.moveTo(X2, yy - 7);
       g.lineTo(X2, yy + 7);
       g.stroke();
-      label('우리 은하 지름: 약 10만 광년', (X1 + X2) / 2, yy - 14, '#dfe5ff', 15);
+      label('우리은하 지름: 약 30000 pc (약 10만 광년)', (X1 + X2) / 2, yy - 14, '#dfe5ff', 15);
       g.globalAlpha = 1;
     }
     const aHalo = smooth(140000, 230000, W);

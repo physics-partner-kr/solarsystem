@@ -19,7 +19,7 @@ const STEPS = [
 // 태양 근처에서 각 나선팔까지의 거리(태양-은하 중심 방향 직선 위)
 const armAtSun = (id) => armRadius(ARMS.find((a) => a.id === id), 0);
 
-export default function Module3({ meta, onReset, goTo }) {
+export default function Module3({ meta, onReset, goTo, tab: ctlTab, onTab, subtabs, shell }) {
   const p = useProgress();
   const { mark } = p;
   const map = useRef(null);
@@ -216,7 +216,7 @@ export default function Module3({ meta, onReset, goTo }) {
           g.lineTo(SX, SY);
           g.stroke();
           g.setLineDash([]);
-          label(g, '약 2만 6천 광년', (GX + SX) / 2 + 12, (GY + SY) / 2, '#ffe14d', 15, 'left');
+          label(g, '약 8500 pc (약 2만 8천 광년)', (GX + SX) / 2 + 12, (GY + SY) / 2, '#ffe14d', 15, 'left');
         }
         const pulse = 9 + 3 * Math.sin(performance.now() / 300);
         g.strokeStyle = '#ffe14d';
@@ -259,14 +259,15 @@ export default function Module3({ meta, onReset, goTo }) {
 
   const stage = (
     <>
+      {subtabs}
       <GalaxyMap ref={map} view={view} setView={setView} draw={draw} onPick={pick} frame={frame} onGesture={() => mark('m3.gesture')} />
       <ScaleNote>은하와 거리는 실제 비율이에요. 태양계·천체의 점과 고리는 위치만 표시한 것으로, 실제 크기는 이 그림에서 보이지 않을 만큼 작아요.</ScaleNote>
       {step === 1 && !revealed && (
         <div
-          style={{ position: 'absolute', left: '.9rem', top: '.9rem', zIndex: 6, maxWidth: '24rem', padding: '.7rem .9rem', borderRadius: '.9rem', background: 'rgba(9,16,38,.9)', border: '1px solid rgba(111,211,154,.5)' }}
+          style={{ position: 'absolute', left: '.9rem', top: subtabs ? '4.4rem' : '.9rem', zIndex: 6, maxWidth: '24rem', padding: '.7rem .9rem', borderRadius: '.9rem', background: 'rgba(9,16,38,.9)', border: '1px solid rgba(111,211,154,.5)' }}
         >
           <b style={{ color: '#6fd39a' }}>예측해 보기</b>
-          <div style={{ fontSize: '.92rem', color: 'var(--ink-2)' }}>태양계는 우리 은하의 어디에 있을까요? 지도에서 예상하는 곳을 눌러 보세요.</div>
+          <div style={{ fontSize: '.92rem', color: 'var(--ink-2)' }}>태양계는 우리은하의 어디에 있을까요? 지도에서 예상하는 곳을 눌러 보세요.</div>
         </div>
       )}
       <div className="dock">
@@ -345,7 +346,7 @@ export default function Module3({ meta, onReset, goTo }) {
         <div>
           <dt>은하 중심까지</dt>
           <dd>
-            약 2만 6천 광년<small>은하 반지름(5만 광년)의 약 절반</small>
+            약 8500 pc<small>약 2만 8천 광년 · 은하 반지름의 약 절반</small>
           </dd>
         </div>
         <div>
@@ -408,8 +409,8 @@ export default function Module3({ meta, onReset, goTo }) {
       )}
       <Mission
         id="m3a"
-        no="3"
-        question="태양계는 우리 은하의 중심에 위치할까요?"
+        title="확인 문제 ③-2"
+        question="태양계는 우리은하의 중심에 위치할까요?"
         requires={[
           { key: 'm3.select', label: '① 은하 전체 화면에서 태양계 찾기(선택)' },
           { key: 'm3.zoomin', label: '② 태양계 위치 확대하기' },
@@ -417,34 +418,35 @@ export default function Module3({ meta, onReset, goTo }) {
         ]}
         options={[
           { text: '네, 태양계는 은하의 한가운데에 있다.', hint: '지도에서 태양계(노란 점)와 은하 중심(주황 십자)의 위치를 다시 비교해 보세요.' },
-          { text: '아니요, 은하 중심에서 약 2만 6천 광년 떨어진 원반의 나선팔(오리온자리 팔)에 있다.', correct: true },
+          { text: '아니요, 은하 중심에서 약 8500 pc 떨어진 원반의 나선팔(오리온자리 팔)에 있다.', correct: true },
           { text: '아니요, 원반을 벗어난 헤일로에 있다.', hint: '태양계는 원반 안의 나선팔에 있어요. 확대했을 때 주변에 무엇이 있었는지 떠올려 보세요.' },
-          { text: '아니요, 우리 은하 바깥에 있다.', hint: '은하수가 밤하늘을 띠처럼 둘러싸 보이는 것은 우리가 은하 원반 안에 있기 때문이에요.' },
+          { text: '아니요, 우리은하 바깥에 있다.', hint: '은하수가 밤하늘을 띠처럼 둘러싸 보이는 것은 우리가 은하 원반 안에 있기 때문이에요.' },
         ]}
-        explain="태양계는 은하 중심이 아니라, 중심에서 약 2만 6천 광년 떨어진 원반의 한쪽(오리온자리 팔)에 있어요. 은하 반지름의 약 절반쯤 되는 곳이에요."
+        explain="태양계는 은하 중심이 아니라, 중심에서 약 8500 pc(약 2만 8천 광년) 떨어진 원반의 한쪽(오리온자리 팔)에 있어요. 은하 반지름의 약 절반쯤 되는 곳이에요."
       />
       <Mission
         id="m3b"
-        no="3-2"
+        title="확인 문제 ③-3"
         question="태양계가 은하 중심을 한 바퀴 도는 데 걸리는 시간은 대략 얼마일까요?"
         requires={[{ key: 'm3.orbit', label: '‘은하 공전 보기’를 켜고 공전을 재생해 보기' }]}
         options={[
           { text: '약 1년', hint: '1년은 지구가 태양 둘레를 한 바퀴 도는 시간이에요. 은하는 훨씬 커요!' },
-          { text: '약 2만 6천 년', hint: '2만 6천은 은하 중심까지의 거리(광년)예요. 시간과 헷갈리지 마세요.' },
+          { text: '약 2만 8천 년', hint: '2만 8천은 은하 중심까지의 거리(광년)예요. 시간과 헷갈리지 마세요.' },
           { text: '약 2억 2천만~2억 5천만 년', correct: true },
           { text: '약 100억 년', hint: '공전 애니메이션의 ‘흐른 시간’이 한 바퀴일 때 얼마였는지 확인해 보세요.' },
         ]}
         explain="태양계는 약 220 km/s로 움직이지만, 은하가 워낙 커서 한 바퀴 도는 데 약 2억 2천만~2억 5천만 년이 걸려요. 이것을 ‘은하년’이라고도 해요."
-        next={{ label: '다음 탐험: 계절에 따른 은하수', onClick: () => goTo(4) }}
+        next={{ label: '다음: 크기 비교', onClick: () => (onTab ? onTab('size') : goTo('shape', 'size')) }}
       />
     </>
   );
 
   return (
     <ModuleShell
+      override={shell}
       no={meta.no}
       title={meta.title}
-      goal="태양계가 우리 은하의 중심이 아닌 은하 원반의 한쪽에 위치한다는 사실을 이해한다."
+      goal="태양계가 우리은하의 중심이 아닌 은하 원반의 한쪽에 위치한다는 사실을 이해한다."
       onReset={onReset}
       stage={stage}
       panel={panel}

@@ -6,13 +6,13 @@ const ROWS = [
   { what: '태양 → 해왕성', dist: '약 45억 km', time: '약 4시간' },
   { what: '태양 → 가장 가까운 별(프록시마 센타우리)', dist: '약 4.2광년', time: '약 4.2년' },
   { what: '태양 → 플레이아데스 성단', dist: '약 440광년', time: '약 440년' },
-  { what: '태양 → 우리 은하 중심', dist: '약 2만 6천 광년', time: '약 2만 6천 년' },
-  { what: '우리 은하 한쪽 끝 → 반대쪽 끝(지름)', dist: '약 10만 광년', time: '약 10만 년' },
+  { what: '태양 → 우리은하 중심', dist: '약 8500 pc (약 2만 8천 광년)', time: '약 2만 8천 년' },
+  { what: '우리은하 한쪽 끝 → 반대쪽 끝(지름)', dist: '약 30000 pc (약 10만 광년)', time: '약 10만 년' },
 ];
 
 export default function LightYear({ onClose }) {
   return (
-    <Modal title="광년이란 무엇일까요?" onClose={onClose}>
+    <Modal title="광년과 파섹(pc)" onClose={onClose}>
       <p style={{ fontSize: '1.05rem', color: 'var(--ink)' }}>
         <b style={{ color: 'var(--gold)' }}>1광년</b>은 <b>빛이 1년 동안 가는 거리</b>예요. 시간의 단위가 아니라 <b>거리의 단위</b>랍니다.
       </p>
@@ -53,8 +53,17 @@ export default function LightYear({ onClose }) {
           ))}
         </tbody>
       </table>
+      <div className="card">
+        <h3>파섹(pc)</h3>
+        <p>
+          교과서에서는 우리은하의 크기를 <b>파섹(pc)</b>으로 나타내요. <b>1 pc는 연주 시차가 1″(1초)인 별까지의 거리</b>로, 약 <b>3.26광년</b>(약 3×10¹³ km)이에요.
+        </p>
+        <p>
+          우리은하의 지름 약 30000 pc ≈ 약 10만 광년 · 태양계에서 은하 중심까지 약 8500 pc ≈ 약 2만 8천 광년
+        </p>
+      </div>
       <p>
-        💡 <b>그래서 별빛은 과거에서 온 빛이에요.</b> 은하 중심 쪽에서 지금 우리 눈에 들어온 빛은 약 2만 6천 년 전에 출발한 빛이에요.
+        💡 <b>그래서 별빛은 과거에서 온 빛이에요.</b> 은하 중심 쪽에서 지금 우리 눈에 들어온 빛은 약 2만 8천 년 전에 출발한 빛이에요.
       </p>
       <p className="note">천문학에서는 태양계 안의 거리는 주로 천문단위(AU, 지구–태양 거리)를, 별과 은하의 거리는 광년이나 파섹을 써요.</p>
     </Modal>

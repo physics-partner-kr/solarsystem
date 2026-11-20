@@ -16,9 +16,13 @@ const R_MAX = 460;
 const toSlider = (r) => Math.round((Math.log(r / R_MIN) / Math.log(R_MAX / R_MIN)) * 100);
 const fromSlider = (v) => R_MIN * Math.pow(R_MAX / R_MIN, v / 100);
 
-export default function Module1({ meta, onReset, goTo, openLy }) {
+const NO_KEYS = [];
+
+export default function Module1({ meta, onReset, goTo, openLy, tab: ctlTab, onTab, subtabs, shell }) {
   const p = useProgress();
-  const [tab, setTab] = useState('3d');
+  const [tabSt, setTabSt] = useState('3d');
+  const tab = ctlTab || tabSt;
+  const setTab = ctlTab ? (t) => onTab?.(t) : setTabSt;
   const [sel, setSel] = useState(null);
   const [armInfo, setArmInfo] = useState(null);
   const [halo, setHalo] = useState(true);
@@ -29,7 +33,7 @@ export default function Module1({ meta, onReset, goTo, openLy }) {
   const [logW, setLogW] = useState(Math.log10(0.0016));
   const g3 = useRef(null);
   const sz = useRef(null);
-  useArrowSteps(['3d', 'size'], tab, setTab);
+  useArrowSteps(ctlTab ? NO_KEYS : ['3d', 'size'], tab, setTab);
 
   const pick = useCallback(
     (id, arm) => {
@@ -66,7 +70,7 @@ export default function Module1({ meta, onReset, goTo, openLy }) {
 
   const stage = (
     <>
-      <SubTabs tabs={TABS} value={tab} onChange={setTab} />
+      {subtabs || <SubTabs tabs={TABS} value={tab} onChange={setTab} />}
       {tab === '3d' && (
         <>
           <Galaxy3D ref={g3} halo={halo} labels={labels} measure={measure} selected={sel} onPick={pick} onAction={action} onZoom={setDist} />
@@ -81,13 +85,13 @@ export default function Module1({ meta, onReset, goTo, openLy }) {
                 ))}
               </ul>
               {(sel === 'halo' || sel === 'globular') && (
-                <button type="button" className="btn outline" onClick={() => goTo(2)}>
-                  탐험 2: 구상 성단 보러 가기 →
+                <button type="button" className="btn outline" onClick={() => goTo('members')}>
+                  성단과 성운 보러 가기 →
                 </button>
               )}
               {sel === 'sun' && (
-                <button type="button" className="btn outline" onClick={() => goTo(3)}>
-                  탐험 3: 태양계의 위치 →
+                <button type="button" className="btn outline" onClick={() => onTab ? onTab('sun') : goTo('shape', 'sun')}>
+                  태양계의 위치 자세히 보기 →
                 </button>
               )}
             </InfoCard>
@@ -157,8 +161,12 @@ export default function Module1({ meta, onReset, goTo, openLy }) {
       {tab === '3d' ? (
         <>
           <p>
-            우리 은하는 가운데에 <b>막대</b>가 있는 <T k="막대나선은하">막대나선은하</T>예요. 은하를 끌어서 돌려 보고, 궁금한 부분을 눌러 보세요.
+            우주에는 수천억 개의 별들로 이루어진 천체 집단인 <T k="은하">은하</T>들이 있어요. 그중 태양계가 속해 있는 은하를 <b>우리은하</b>라고 해요.
           </p>
+          <p>
+            <b>그림 10</b>과 같이 우리은하는 <b>위에서 보면</b> 중심부에 <b>막대 구조</b>가 있고 막대 끝에 소용돌이 모양의 <b>나선팔</b>이 있어요. 우리은하를 <b>옆에서 보면</b> 중심부가 <b>볼록한 원반 모양</b>이에요.
+          </p>
+          <p className="note">‘위에서 보기’, ‘옆에서 보기’를 누르거나 은하를 끌어서 돌려 보고, 궁금한 부분을 눌러 보세요.</p>
           <h2>구조 살펴보기</h2>
           <div className="chips">
             {ORDER.map((id) => (
@@ -192,49 +200,49 @@ export default function Module1({ meta, onReset, goTo, openLy }) {
             <div>
               <dt>지름</dt>
               <dd>
-                약 10만 광년<small>
+                약 30000 pc<small>약 10만 광년 · 
                   <button type="button" className="term" onClick={openLy}>
-                    광년이란?
+                    pc와 광년
                   </button>
                 </small>
               </dd>
             </div>
             <div>
+              <dt>태양계 ↔ 은하 중심</dt>
+              <dd>
+                약 8500 pc<small>약 2만 8천 광년 · 나선팔의 원반 면</small>
+              </dd>
+            </div>
+            <div>
+              <dt>중심부(팽대부) 두께</dt>
+              <dd>
+                약 1만 광년 이상<small>옆에서 보면 볼록한 곳</small>
+              </dd>
+            </div>
+            <div>
               <dt>원반 두께</dt>
               <dd>
-                약 1천 광년<small>지름의 약 1/100</small>
-              </dd>
-            </div>
-            <div>
-              <dt>팽대부 두께</dt>
-              <dd>
-                약 1만 광년 이상<small>가장 두꺼운 곳</small>
-              </dd>
-            </div>
-            <div>
-              <dt>별의 수</dt>
-              <dd>
-                약 1000억~4000억 개<small>추정값</small>
+                약 300 pc<small>약 1천 광년 · 지름의 약 1/100</small>
               </dd>
             </div>
           </dl>
           <div className="card">
-            <h3>태양은 어디에, 어느 쪽을 볼까?</h3>
+            <h3>우리은하는 지름이 약 30000 pc이고, 태양계는 우리은하 중심에서 약 8500 pc 떨어진 나선팔의 원반 면에 있어.</h3>
             <p>
-              옆에서 보면 태양계는 <b style={{ color: '#8fe6b4' }}>은하의 적도</b>(원반 한가운데를 지나는 평면) 가까이, 은하 중심에서 약 <b>2만 6천 광년</b> 떨어져 있어요. 원반이 아주 얇아서(실제 비율 그대로!) 우리는 이 얇은 원반 <b>안</b>에서 사방을 바라보는 셈이에요.
+              옆에서 보면 태양계는 <b style={{ color: '#8fe6b4' }}>은하의 적도</b>(원반 한가운데를 지나는 평면) 가까이에 있어요. 원반이 아주 얇아서(실제 비율 그대로!) 우리는 이 얇은 원반 <b>안</b>에서 사방을 바라보는 셈이에요.
             </p>
             <p>
               그래서 원반 방향으로 겹쳐 보이는 별빛이 밤하늘의 <T k="은하수">은하수</T>가 되고, <b style={{ color: '#ff8a8a' }}>빨간 화살표</b>처럼 은하 중심(팽대부) 쪽을 보면 은하수가 가장 넓고 밝아요.
             </p>
-            <p className="note">교과서에 따라 태양계–은하 중심 거리를 약 3만 광년으로 소개하기도 해요. 최근 관측값은 약 2만 6천 광년이에요.</p>
-            <button type="button" className="btn outline" onClick={() => goTo(4)}>
-              탐험 4에서 은하수로 확인하기 →
+            <p className="note">1 pc(파섹)는 약 3.26광년이에요. 자료에 따라 태양계–은하 중심 거리를 약 2만 6천~3만 광년으로 소개하기도 해요.</p>
+            <button type="button" className="btn outline" onClick={() => (onTab ? onTab('band') : goTo('shape', 'band'))}>
+              은하수가 띠로 보이는 까닭 알아보기 →
             </button>
           </div>
           <Mission
             id="m1a"
-            no="1"
-            question="우리 은하를 옆에서 바라보았을 때 가장 두꺼운 부분은 어디인가요?"
+            title="확인 문제 ③-1"
+            question="우리은하를 옆에서 바라보았을 때 가장 두꺼운 부분은 어디인가요?"
             requires={[
               { key: 'm1.side', label: '‘옆에서 보기’ 버튼을 눌러 은하를 옆에서 보기' },
               { key: 'm1.drag', label: '은하를 끌어서 여러 방향으로 돌려 보기' },
@@ -253,7 +261,7 @@ export default function Module1({ meta, onReset, goTo, openLy }) {
       ) : (
         <>
           <p>
-            아래 단추를 차례로 누르거나, 화면에서 휠·두 손가락(또는 위아래로 끌기)으로 확대·축소해 보세요. 태양계에서 출발해 우리 은하 전체까지 나가 봐요.
+            아래 단추를 차례로 누르거나, 화면에서 휠·두 손가락(또는 위아래로 끌기)으로 확대·축소해 보세요. 태양계에서 출발해 우리은하 전체까지 나가 봐요.
           </p>
           <div className="row">
             <label htmlFor="m1-scale">축척</label>
@@ -279,7 +287,7 @@ export default function Module1({ meta, onReset, goTo, openLy }) {
           <div className="bars">
             {[
               { n: '태양계', d: '해왕성 궤도 지름', ly: 0.00095, c: 'var(--accent)' },
-              { n: '태양 ↔ 은하 중심', d: '', ly: 26000, c: 'var(--c-sun)' },
+              { n: '태양 ↔ 은하 중심', d: '', ly: 27700, c: 'var(--c-sun)' },
               { n: '은하 지름', d: '', ly: 100000, c: 'var(--c-disk)' },
             ].map((b) => {
               const pct = ((Math.log10(b.ly) - -4) / (5 - -4)) * 100;
@@ -298,10 +306,10 @@ export default function Module1({ meta, onReset, goTo, openLy }) {
           <div className="card">
             <h3>얼마나 차이 날까?</h3>
             <p>
-              우리 은하 지름(10만 광년)은 태양계(해왕성 궤도 지름 약 0.001광년)의 약 <b>1억 배</b>예요.
+              우리은하 지름(10만 광년)은 태양계(해왕성 궤도 지름 약 0.001광년)의 약 <b>1억 배</b>예요.
             </p>
             <p>
-              태양계를 지름 2 cm짜리 동전으로 줄이면, 우리 은하는 지름 약 <b>2,000 km</b> — 한반도 남북 길이(약 1,000 km)의 2배쯤 되는 크기예요.
+              태양계를 지름 2 cm짜리 동전으로 줄이면, 우리은하는 지름 약 <b>2,000 km</b> — 한반도 남북 길이(약 1,000 km)의 2배쯤 되는 크기예요.
             </p>
           </div>
           <p className="note">
@@ -312,8 +320,8 @@ export default function Module1({ meta, onReset, goTo, openLy }) {
           </p>
           <Mission
             id="m1b"
-            no="1-2"
-            question="태양계(해왕성 궤도)의 크기와 우리 은하의 지름을 비교하면, 우리 은하는 대략 몇 배 클까요?"
+            title="확인 문제 ③-4"
+            question="태양계(해왕성 궤도)의 크기와 우리은하의 지름을 비교하면, 우리은하는 대략 몇 배 클까요?"
             requires={[
               { key: 'm1.size.sun', label: '‘태양계’ 단계에서 행성 궤도 살펴보기' },
               { key: 'm1.size.galaxy', label: '‘은하 지름’ 단계까지 축소해 보기' },
@@ -324,15 +332,15 @@ export default function Module1({ meta, onReset, goTo, openLy }) {
               { text: '약 1억 배', correct: true },
               { text: '약 1조 배', hint: '조금 지나쳤어요. 0.001광년에서 10만 광년까지 10배씩 몇 번인지 세어 보세요.' },
             ]}
-            explain="0.001광년에서 10만 광년까지는 10배씩 8번 커져요(10⁸ = 1억). 태양계는 우리 은하에 비하면 정말 작은 점이에요."
-            next={{ label: '다음 탐험: 성단과 성운', onClick: () => goTo(2) }}
+            explain="0.001광년에서 10만 광년까지는 10배씩 8번 커져요(10⁸ = 1억). 태양계는 우리은하에 비하면 정말 작은 점이에요."
+            next={{ label: '다음: 은하수가 띠로 보이는 까닭', onClick: () => (onTab ? onTab('band') : goTo('shape', 'band')) }}
           />
         </>
       )}
     </>
   );
 
-  return <ModuleShell no={meta.no} title={meta.title} goal="우리 은하의 전체적인 구조와 크기를 이해한다." onReset={onReset} stage={stage} panel={panel} />;
+  return <ModuleShell override={shell} no={meta.no} title={meta.title} goal="우리은하의 전체적인 구조와 크기를 이해한다." onReset={onReset} stage={stage} panel={panel} />;
 }
 
 function lightTime(ly) {

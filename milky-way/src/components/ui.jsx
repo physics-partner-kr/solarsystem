@@ -156,7 +156,7 @@ export function useCanvasSize(ref) {
  * requires: [{ key, label }]
  * options: [{ text, correct?, hint? }]
  */
-export function Mission({ id, no, question, requires = [], options, explain, next }) {
+export function Mission({ id, no, title, question, requires = [], options, explain, next }) {
   const p = useProgress();
   const [picked, setPicked] = useState(null);
   const [wrong, setWrong] = useState([]);
@@ -181,10 +181,10 @@ export function Mission({ id, no, question, requires = [], options, explain, nex
   const correctIdx = options.findIndex((o) => o.correct);
   const showSolved = solved && (picked === null || options[picked]?.correct);
   return (
-    <section className="mission" aria-label={`탐구 미션 ${no}`}>
+    <section className="mission" aria-label={title || `탐구 미션 ${no}`}>
       <div className="mission-head">
         <span aria-hidden="true">🔭</span>
-        <b>탐구 미션 {no}</b>
+        <b>{title || `탐구 미션 ${no}`}</b>
         <span className={`state ${solved ? 'solved' : ''}`}>{solved ? '해결!' : open ? '도전 중' : `준비 ${doneReq}/${requires.length}`}</span>
       </div>
       <p className="q">{question}</p>
@@ -283,7 +283,12 @@ export function useArrowSteps(ids, value, onChange) {
   }, [ids, value, onChange]);
 }
 
-export function ModuleShell({ no, title, goal, onReset, stage, panel, stageClass = '' }) {
+export function ModuleShell({ no, title, goal, onReset, stage, panel, stageClass = '', override }) {
+  if (override) {
+    no = override.no ?? no;
+    title = override.title ?? title;
+    goal = override.goal ?? goal;
+  }
   return (
     <section className="module">
       <div className={`stage ${stageClass}`}>{stage}</div>
@@ -291,7 +296,8 @@ export function ModuleShell({ no, title, goal, onReset, stage, panel, stageClass
         <div className="panel-head">
           <div className="row1">
             <h1>
-              <span className="num">{no}.</span>
+              {override?.kind && <span className="kind" style={{ '--c': override.color }}>{override.kind}</span>}
+              {no != null && <span className="num">{no}.</span>}
               {title}
             </h1>
             <button type="button" className="reset-btn" onClick={onReset} title="이 모듈을 처음 상태로">

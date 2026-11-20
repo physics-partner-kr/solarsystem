@@ -82,11 +82,15 @@ function gcAltitude(date) {
   return vecToAltAz(hv);
 }
 
-export default function Module4({ meta, onReset, goTo }) {
+const NO_KEYS = [];
+
+export default function Module4({ meta, onReset, goTo, tab: ctlTab, onTab, subtabs, shell }) {
   const p = useProgress();
   const { mark } = p;
-  const [tab, setTab] = useState('orbit');
-  useArrowSteps(IDS, tab, setTab);
+  const [tabSt, setTabSt] = useState('orbit');
+  const tab = ctlTab || tabSt;
+  const setTab = ctlTab ? (t) => onTab?.(t) : setTabSt;
+  useArrowSteps(ctlTab ? NO_KEYS : IDS, tab, setTab);
 
   // ① 공전
   const [doy, setDoy] = useState(dateToDoy(7, 15));
@@ -224,7 +228,7 @@ export default function Module4({ meta, onReset, goTo }) {
   if (tab === 'orbit') {
     stage = (
       <>
-        <SubTabs tabs={TABS} value={tab} onChange={setTab} />
+        {subtabs || <SubTabs tabs={TABS} value={tab} onChange={setTab} />}
         <OrbitView
           ref={orbitRef}
           date={orbitDate}
@@ -332,7 +336,7 @@ export default function Module4({ meta, onReset, goTo }) {
         </label>
         <Mission
           id="m4c"
-          no="4-①"
+          title="확인 문제 ③-5"
           question="같은 자정이라도 여름철과 겨울철에 지구의 밤하늘은 우주의 어느 쪽을 향할까요?"
           requires={[
             { key: 'm4.orbit.summer', label: '‘여름’ 단추를 눌러 지구의 위치와 밤하늘 방향 보기' },
@@ -344,7 +348,22 @@ export default function Module4({ meta, onReset, goTo }) {
             { text: '계절과 상관없이 밤하늘은 늘 같은 방향을 향한다.', hint: '날짜 막대를 움직이며 보라색 화살표가 어떻게 돌아가는지 보세요. 지구가 공전하면 태양 반대쪽도 바뀌어요.' },
           ]}
           explain="지구가 공전하면서 태양 반대쪽(밤하늘 방향)이 1년에 한 바퀴 돌아요. 여름 밤에는 은하 중심(궁수자리) 쪽을, 겨울 밤에는 그 반대쪽을 바라봐요."
-          next={{ label: '다음: ② 자전', onClick: () => setTab('spin') }}
+        />
+        <Mission
+          id="m4b"
+          title="확인 문제 ③-6"
+          question="지구의 자전과 공전 중, 계절에 따라 관측할 수 있는 은하 영역이 달라지는 원인과 관련된 운동은 무엇일까요?"
+          requires={[
+            { key: 'm4.orbit.season', label: '계절(날짜)을 바꿔 지구의 공전 위치 보기' },
+            { key: 'm4.spin.time', label: '‘더 알아보기: 자전’에서 시각을 바꿔 자전 효과 보기' },
+          ]}
+          options={[
+            { text: '지구의 자전', hint: '자전은 하루 동안 하늘을 동→서로 돌게 할 뿐, 몇 달에 걸친 변화는 만들지 않아요. 날짜를 바꿨을 때 무엇이 달라졌나요?' },
+            { text: '지구의 공전', correct: true },
+            { text: '달의 공전', hint: '달은 밤하늘을 밝혀 은하수를 가릴 수는 있지만, 계절마다 보이는 은하 영역을 바꾸지는 않아요.' },
+          ]}
+          explain="지구가 태양 둘레를 공전하면서 밤하늘이 향하는 우주의 방향이 1년에 걸쳐 바뀌어요. 그래서 여름에는 은하 중심 쪽, 겨울에는 반대쪽 은하수를 보게 돼요. 자전은 하루 동안의 겉보기 운동을 만들어요."
+          next={{ label: '다음: 탐구 — 우리은하를 구성하는 천체 관측하기', onClick: () => goTo('observe') }}
         />
       </>
     );
@@ -352,7 +371,7 @@ export default function Module4({ meta, onReset, goTo }) {
     const pos = gcAltitude(spinDate);
     stage = (
       <>
-        <SubTabs tabs={TABS} value={tab} onChange={setTab} />
+        {subtabs || <SubTabs tabs={TABS} value={tab} onChange={setTab} />}
         <div className="fill spin-grid">
           <div style={{ position: 'relative', minHeight: 0 }}>
             <OrbitView date={spinDate} follow nightCone={false} seasonMarks={false} />
@@ -432,7 +451,7 @@ export default function Module4({ meta, onReset, goTo }) {
         <p className="note">여름 오후 8시에는 해가 진 직후라 하늘이 아직 밝아요(박명). 실제 관측도 이 시간에는 은하수가 잘 보이지 않아요.</p>
         <Mission
           id="m4d"
-          no="4-②"
+          title="더 알아보기"
           question="같은 날 밤, 시간이 지나면 남쪽 하늘의 은하수와 별들은 어느 쪽으로 움직여 보일까요?"
           requires={[{ key: 'm4.spin.time', label: '시각을 바꾸거나 ‘시간 흐르기’로 하늘 변화 보기' }]}
           options={[
@@ -441,14 +460,14 @@ export default function Module4({ meta, onReset, goTo }) {
             { text: '움직이지 않는다', hint: '‘시간 흐르기’를 눌러 보세요. 지구가 자전하니까 하늘이 움직여 보여요.' },
           ]}
           explain="지구가 서쪽에서 동쪽으로 자전하므로, 별과 은하수는 동쪽에서 서쪽으로 움직여 보여요(1시간에 약 15°). 이것을 ‘겉보기 운동’이라고 해요."
-          next={{ label: '다음: ③ 은하 중심 vs 반대 방향', onClick: () => setTab('dir') }}
+          next={{ label: '다음: 탐구 — 우리은하를 구성하는 천체 관측하기', onClick: () => goTo('observe') }}
         />
       </>
     );
   } else if (tab === 'dir') {
     stage = (
       <>
-        <SubTabs tabs={TABS} value={tab} onChange={setTab} />
+        {subtabs || <SubTabs tabs={TABS} value={tab} onChange={setTab} />}
         {dirView === 'cyl' ? (
           <>
             <CelestialCylinder lon={lon} setLon={(v) => { setLon(v); mark('m4.dir.pick'); }} mode={cylMode} onDrag={() => mark('m4.cyl.drag')} />
@@ -484,11 +503,14 @@ export default function Module4({ meta, onReset, goTo }) {
     );
     panel = (
       <>
+        <p style={{ color: 'var(--ink)' }}>
+          우리은하의 별들은 대부분 <b>원반 면에 분포</b>하기 때문에 옆에서 보았을 때 <b>띠 모양의 <T k="은하수">은하수</T></b>로 관측돼요. 북반구 <b>여름철</b>에는 지구가 공전하면서 <b>우리은하의 중심 방향</b>을 볼 수 있어 은하수가 겨울철보다 <b>두껍게</b> 관찰돼요.
+        </p>
         <p>
-          태양계는 은하 원반 <b>안</b>에 있어요. 원반 방향을 보면 별빛이 겹겹이 겹쳐 <T k="은하수">은하수</T>로 보여요. 그런데 어느 쪽을 보느냐에 따라 시선이 지나가는 별의 양이 크게 달라요.
+          태양계는 은하 원반 <b>안</b>에 있어요. 어느 쪽을 보느냐에 따라 시선이 지나가는 별의 양이 크게 달라져요.
         </p>
         <div className="card">
-          <h3>은하수 = 우리 은하를 안에서 본 모습</h3>
+          <h3>은하수 = 우리은하를 안에서 본 모습</h3>
           <p>
             지구에서 보이는 별들이 아주 먼 둥근 면(<T k="천구">천구</T>)에 붙어 있다고 생각해 보세요. 화면의 원통은 천구 가운데 <b>은하수가 지나는 띠</b>만 잘라 세운 것이고, 벽에는 지구에서 그 방향을 본 <b>실제 은하수 사진</b>이 붙어 있어요.
           </p>
@@ -540,8 +562,8 @@ export default function Module4({ meta, onReset, goTo }) {
             아니에요! 은하의 실제 모양과 두께는 몇 달 사이에 변하지 않아요. 계절에 따라 <b>바라보는 방향</b>이 달라져서, 그 방향에 있는 별과 성간 물질의 양이 다르기 때문에 겉보기 밝기와 모습이 달라 보이는 거예요.
           </p>
         </div>
-        <button type="button" className="btn primary next-link" onClick={() => setTab('sky')}>
-          다음: ④ 여름·겨울 은하수 관측 →
+        <button type="button" className="btn primary next-link" onClick={() => setTab('orbit')}>
+          다음: 계절과 지구의 공전 →
         </button>
       </>
     );
@@ -550,7 +572,7 @@ export default function Module4({ meta, onReset, goTo }) {
     const pmax = Math.max(...peaks.map((v) => v?.peak || 0)) || 1;
     stage = (
       <>
-        <SubTabs tabs={TABS} value={tab} onChange={setTab} />
+        {subtabs || <SubTabs tabs={TABS} value={tab} onChange={setTab} />}
         <SeasonPhotoQuiz
           round={qRound}
           answers={qAns}
@@ -599,7 +621,7 @@ export default function Module4({ meta, onReset, goTo }) {
         </div>
         {qStatus === 'wrong' && (
           <div className="feedback hint" role="status">
-            <b>다시 생각해 보세요.</b> ×표가 붙은 사진을 다시 보세요. ③의 천구 원통을 떠올려 보세요: 여름철 밤에는 은하 중심(팽대부) 쪽을 보므로, 별과 성간 물질이 많아 은하수가 <b>넓고 밝으며 먼지 띠로 갈라져</b> 보여요. 밝은 별이 몇 개 있는 것과 은하수가 밝은 것은 달라요!
+            <b>다시 생각해 보세요.</b> ×표가 붙은 사진을 다시 보세요. 여름철 밤에는 별이 많은 은하 중심(팽대부) 쪽을 보게 되므로, 별과 성간 물질이 많아 은하수가 <b>넓고 밝으며 먼지 띠로 갈라져</b> 보여요. 밝은 별이 몇 개 있는 것과 은하수가 밝은 것은 달라요!
           </div>
         )}
         {qStatus === 'right' && (
@@ -647,7 +669,7 @@ export default function Module4({ meta, onReset, goTo }) {
     const views = both ? ['summer', 'winter'] : [layout];
     stage = (
       <>
-        <SubTabs tabs={TABS} value={tab} onChange={setTab} />
+        {subtabs || <SubTabs tabs={TABS} value={tab} onChange={setTab} />}
         <div className={`fill sky-grid ${both ? (mode === 'pano' ? 'stack' : 'both') : ''}`}>
           {views.map((sv) => {
             const d = sv === 'summer' ? sumDate : winDate;
@@ -782,37 +804,21 @@ export default function Module4({ meta, onReset, goTo }) {
         </div>
         <Mission
           id="m4a"
-          no="4"
+          title="해보기 정리"
           question="북반구에서 여름철 은하수가 겨울철보다 밝고 두드러지게 관측되는 주된 이유는 무엇일까요?"
           requires={[
-            { key: 'm4.dir.gc', label: '③에서 은하 중심 쪽 시선 보기' },
-            { key: 'm4.dir.ac', label: '③에서 은하 중심 반대쪽 시선 보기' },
-            { key: 'm4.sky.compare', label: '④에서 여름·겨울 하늘을 나란히 비교하기' },
-            { key: 'm4.sky.time', label: '④에서 관측 시각 바꿔 보기' },
+            { key: 'm4.photo.check', label: '① 사진 비교에서 계절 맞혀 보기' },
+            { key: 'm4.sky.compare', label: '여름·겨울 하늘을 나란히 비교하기' },
+            { key: 'm4.sky.time', label: '관측 시각을 바꿔 보기' },
           ]}
           options={[
-            { text: '여름에는 우리 은하의 원반이 더 두꺼워지기 때문이다.', hint: '은하의 실제 두께는 몇 달 사이에 변하지 않아요. 계절에 따라 바뀌는 것은 무엇이었나요? ③을 다시 보세요.' },
+            { text: '여름에는 우리은하의 원반이 더 두꺼워지기 때문이다.', hint: '은하의 실제 두께는 몇 달 사이에 변하지 않아요. 계절에 따라 바뀌는 것은 ‘바라보는 방향’이에요.' },
             { text: '여름철 밤에는 은하 중심 방향을 보게 되어, 시선 방향에 별과 성간 물질이 훨씬 많기 때문이다.', correct: true },
-            { text: '여름에는 지구가 은하 중심에 더 가까워지기 때문이다.', hint: '지구 공전 궤도의 지름(약 3억 km)은 은하 중심까지 거리(2만 6천 광년)에 비하면 1억 분의 1도 안 돼요. 거리 차이는 거의 없어요.' },
+            { text: '여름에는 지구가 은하 중심에 더 가까워지기 때문이다.', hint: '지구 공전 궤도의 지름(약 3억 km)은 은하 중심까지 거리(약 8500 pc)에 비하면 1억 분의 1도 안 돼요. 거리 차이는 거의 없어요.' },
             { text: '여름에는 태양이 더 밝게 빛나기 때문이다.', hint: '은하수는 밤에 태양 반대쪽 하늘에서 봐요. 태양빛이 밝으면 오히려 별이 안 보여요.' },
           ]}
           explain="여름철 밤하늘은 은하 중심(궁수자리) 방향을 향해요. 이 방향에는 은하 중심부의 팽대부와 여러 나선팔이 겹쳐 있어 별과 성간 물질이 매우 많아요. 겨울에는 별이 적은 원반 바깥쪽을 보게 돼요. 은하의 모양이 변하는 것이 아니라 보는 방향이 바뀌는 거예요."
-        />
-        <Mission
-          id="m4b"
-          no="5"
-          question="지구의 자전과 공전 중, 계절에 따라 관측할 수 있는 은하 영역이 달라지는 원인과 관련된 운동은 무엇일까요?"
-          requires={[
-            { key: 'm4.orbit.season', label: '①에서 계절(날짜)을 바꿔 공전 위치 보기' },
-            { key: 'm4.spin.time', label: '②에서 시각을 바꿔 자전 효과 보기' },
-          ]}
-          options={[
-            { text: '지구의 자전', hint: '자전은 하루 동안 하늘을 동→서로 돌게 할 뿐, 몇 달에 걸친 변화는 만들지 않아요. ①에서 날짜를 바꿨을 때 무엇이 달라졌나요?' },
-            { text: '지구의 공전', correct: true },
-            { text: '달의 공전', hint: '달은 밤하늘을 밝혀 은하수를 가릴 수는 있지만, 계절마다 보이는 은하 영역을 바꾸지는 않아요.' },
-          ]}
-          explain="지구가 태양 둘레를 공전하면서 밤하늘이 향하는 우주의 방향이 1년에 걸쳐 바뀌어요. 그래서 여름에는 은하 중심 쪽, 겨울에는 반대쪽 은하수를 보게 돼요. 자전은 하루 동안의 겉보기 운동을 만들어요."
-          next={{ label: '처음 화면으로', onClick: () => goTo('home') }}
+          next={{ label: '다음: ③ 그림 9로 생각해 보기', onClick: () => goTo('try', 'fig9') }}
         />
       </>
     );
@@ -820,6 +826,7 @@ export default function Module4({ meta, onReset, goTo }) {
 
   return (
     <ModuleShell
+      override={shell}
       no={meta.no}
       title={meta.title}
       goal="북반구에서 여름철과 겨울철에 관측되는 은하수의 모습이 다른 이유를 지구의 자전·공전, 은하 중심 방향과 연결해 설명한다."

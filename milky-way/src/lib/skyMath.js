@@ -48,18 +48,20 @@ export function makeProjector(mode, w, h, az0 = 180, opt = {}) {
     return {
       mode, R, cx, cy, rot,
       fwd(alt, az) {
-        if (alt < -1) return null;
+        if (alt < -1 && !opt.noGround) return null;
         const r = ((90 - alt) / 90) * R;
         const a = (az + rot) * D2R;
         return [cx - r * Math.sin(a), cy - r * Math.cos(a)];
       },
     };
   }
-  const altMin = -8;
-  const altMax = 82;
+  const fovV = opt.fovV || 90;
+  const alt0 = Math.max(-90 + fovV / 2, Math.min(90 - fovV / 2, opt.alt0 ?? 37));
+  const altMin = alt0 - fovV / 2;
+  const altMax = alt0 + fovV / 2;
   const fovH = Math.min(300, ((altMax - altMin) * w) / h);
   return {
-    mode, altMin, altMax, fovH, az0,
+    mode, altMin, altMax, fovH, az0, alt0, fovV,
     fwd(alt, az) {
       let d = az - az0;
       d = ((d + 540) % 360) - 180;

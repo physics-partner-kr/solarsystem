@@ -11,7 +11,7 @@ const VIEW = { cx: 0, cy: -8, w: 128 };
 export const dirOf = (l) => [-Math.sin(l * D2R), Math.cos(l * D2R)];
 
 /** 은하 좌표 파노라마 사진에서 한 방향을 잘라 보여 줌 */
-export function PanoCrop({ l0, lSpan = 100, bSpan = 56, label: lab, color }) {
+export function PanoCrop({ l0, b0 = 0, lSpan = 100, bSpan = 56, label: lab, color }) {
   const wrap = useRef(null);
   const cv = useRef(null);
   const size = useCanvasSize(wrap);
@@ -37,14 +37,14 @@ export function PanoCrop({ l0, lSpan = 100, bSpan = 56, label: lab, color }) {
     const sh = (bSpan / 180) * H;
     let sx = (0.5 - l0 / 360) * W - sw / 2;
     sx = ((sx % W) + W) % W;
-    const sy = H / 2 - sh / 2;
+    const sy = Math.max(0, Math.min(H - sh, H / 2 - (b0 / 180) * H - sh / 2));
     g.fillStyle = '#000';
     g.fillRect(0, 0, c.width, c.height);
     // 이음매를 넘으면 두 번에 나눠 그림
     const first = Math.min(sw, W - sx);
     g.drawImage(im, sx, sy, first, sh, 0, 0, (first / sw) * c.width, c.height);
     if (first < sw) g.drawImage(im, 0, sy, sw - first, sh, (first / sw) * c.width, 0, ((sw - first) / sw) * c.width, c.height);
-  }, [size, img, l0, lSpan, bSpan]);
+  }, [size, img, l0, b0, lSpan, bSpan]);
   return (
     <figure className="photo" style={{ margin: 0, height: '100%' }} ref={wrap}>
       <canvas ref={cv} style={{ width: '100%', height: '100%', display: 'block' }} aria-label={lab} />

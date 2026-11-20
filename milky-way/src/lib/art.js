@@ -118,7 +118,17 @@ export function drawArt(kind, w = 640, h = 420) {
     const V = [[0.3, 0.3], [0.38, 0.45], [0.45, 0.58], [0.52, 0.66], [0.6, 0.55], [0.66, 0.42], [0.72, 0.3]];
     V.forEach(([x, y]) => glowStar(g, x * w, y * h, 2.4, '255,225,180'));
     glowStar(g, 0.64 * w, 0.62 * h, 4.2, '255,170,110');
-  } else if (kind === 'm13' || kind === 'omega') {
+  } else if (kind === 'beehive' || kind === 'jewel') {
+    stars(g, w, h, R, 600, { pow: 4 });
+    const n = kind === 'jewel' ? 60 : 45;
+    for (let i = 0; i < n; i++) {
+      const a = R() * Math.PI * 2;
+      const r = Math.pow(R(), 0.8) * Math.min(w, h) * (kind === 'jewel' ? 0.22 : 0.38);
+      const col = kind === 'jewel' ? (R() < 0.8 ? '190,215,255' : '255,240,220') : R() < 0.6 ? '255,240,215' : '255,210,160';
+      glowStar(g, w / 2 + r * Math.cos(a), h / 2 + r * Math.sin(a) * 0.8, 0.8 + R() * (kind === 'jewel' ? 2 : 1.6), col, R() < 0.3);
+    }
+    if (kind === 'jewel') glowStar(g, w * 0.53, h * 0.47, 3, '255,140,90');
+  } else if (kind === 'm13' || kind === 'omega' || kind === 'globular') {
     stars(g, w, h, R, 300);
     const cx = w / 2;
     const cy = h / 2;
@@ -157,6 +167,48 @@ export function drawArt(kind, w = 640, h = 420) {
       return [r, gg, b, a];
     }, 3.5);
     [[0.5, 0.47], [0.51, 0.49], [0.49, 0.5], [0.505, 0.455]].forEach(([x, y]) => glowStar(g, x * w, y * h, 1.8, '210,230,255', false));
+  } else if (['rosette', 'crescent', 'chicken'].includes(kind)) {
+    stars(g, w, h, R, 500);
+    const nz = noise2(kind.length * 13);
+    cloud(g, w, h, nz, (u, v, n) => {
+      const x = u - 0.5;
+      const y = (v - 0.5) * h / w;
+      const d = Math.hypot(x, y);
+      let env;
+      if (kind === 'rosette') env = Math.exp(-((d - 0.2) ** 2) / 0.01) * (d > 0.07 ? 1 : 0.15);
+      else if (kind === 'crescent') env = Math.exp(-((d - 0.18) ** 2) / 0.0015) * (0.25 + 0.75 * Math.max(0, Math.cos(Math.atan2(y, x) - 2.3)));
+      else env = Math.exp(-((x + 0.12) ** 2 + y * y) / 0.012) + 0.8 * Math.exp(-((x - 0.15) ** 2 + (y + 0.05) ** 2) / 0.008);
+      const a = Math.min(0.92, env * Math.pow(n, 1.3) * 2.2);
+      return [255, 70 + n * 50, 95 + n * 30, a];
+    }, 4);
+    if (kind === 'rosette') for (let i = 0; i < 9; i++) glowStar(g, w * (0.46 + R() * 0.08), h * (0.44 + R() * 0.12), 1.6, '200,220,255', false);
+    if (kind === 'crescent') glowStar(g, w * 0.5, h * 0.5, 2.2, '220,235,255', false);
+  } else if (['iris', 'witch', 'runningman'].includes(kind)) {
+    stars(g, w, h, R, 450);
+    const nz = noise2(kind.length * 7);
+    cloud(g, w, h, nz, (u, v, n) => {
+      const x = u - 0.5;
+      const y = (v - 0.5) * h / w;
+      let env;
+      if (kind === 'iris') env = Math.exp(-(x * x + y * y) / 0.02);
+      else if (kind === 'witch') env = Math.exp(-((x * 0.45 + y * 0.9) ** 2) / 0.004) * Math.exp(-((x * 0.9 - y * 0.45) ** 2) / 0.09);
+      else env = Math.exp(-(x * x + y * y) / 0.04) * (1 - 0.85 * Math.exp(-((x - 0.02) ** 2 / 0.0015 + (y + 0.02) ** 2 / 0.012)));
+      const a = Math.min(0.88, env * Math.pow(n, 1.2) * 2.4);
+      return [110, 150 + n * 40, 255, a];
+    }, 3.5);
+    if (kind === 'iris') glowStar(g, w * 0.5, h * 0.5, 3, '255,250,235');
+    if (kind === 'witch') glowStar(g, w * 0.93, h * 0.12, 4.5, '200,220,255');
+    if (kind === 'runningman') [[0.42, 0.45], [0.58, 0.55]].forEach(([x, y]) => glowStar(g, x * w, y * h, 2.2, '210,225,255'));
+  } else if (kind === 'coalsack') {
+    stars(g, w, h, R, 4500, { pow: 5, big: 1.8 });
+    const nz = noise2(5);
+    cloud(g, w, h, nz, (u, v, n) => {
+      const d = Math.hypot(u - 0.48, (v - 0.52) * h / w);
+      const glow = 0.25 * (1 - Math.abs(v - 0.5));
+      const dark = Math.exp(-(d * d) / 0.03) * (0.7 + 0.5 * n);
+      return dark > 0.12 ? [6, 5, 8, Math.min(0.97, dark * 1.4)] : [70, 75, 95, glow * n];
+    }, 3);
+    [[0.18, 0.2], [0.85, 0.3], [0.78, 0.82], [0.12, 0.75]].forEach(([x, y]) => glowStar(g, x * w, y * h, 2.6, '200,220,255'));
   } else if (kind === 'dark') {
     stars(g, w, h, R, 450);
     const nz = noise2(11);

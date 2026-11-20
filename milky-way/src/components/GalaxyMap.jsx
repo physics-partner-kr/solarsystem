@@ -2,7 +2,7 @@ import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from 'rea
 import { R_SUN, makeGalaxyCanvas, rng, surfaceDensity } from '../lib/galaxy.js';
 import { useCanvasSize } from './ui.jsx';
 
-// 위에서 내려다본 우리 은하 지도(2D). 확대·이동·클릭 가능. 단위: kly(1000광년)
+// 위에서 내려다본 우리은하 지도(2D). 확대·이동·클릭 가능. 단위: kly(1000광년)
 let TEX = null;
 function textures() {
   if (!TEX) {
@@ -209,7 +209,7 @@ const GalaxyMap = forwardRef(function GalaxyMap({ view, setView, draw, onPick, o
 
   return (
     <div ref={wrap} className="fill">
-      <canvas ref={cv} className={`fill ${interactive ? 'grab' : ''}`} aria-label="위에서 내려다본 우리 은하 지도. 끌어서 이동, 휠·두 손가락으로 확대" />
+      <canvas ref={cv} className={`fill ${interactive ? 'grab' : ''}`} aria-label="위에서 내려다본 우리은하 지도. 끌어서 이동, 휠·두 손가락으로 확대" />
     </div>
   );
 });

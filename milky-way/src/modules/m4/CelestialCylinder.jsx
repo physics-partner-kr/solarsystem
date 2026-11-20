@@ -235,7 +235,7 @@ export default function CelestialCylinder({ lon, setLon, mode = 'diorama', onDra
       dim: mk('big', narrow0 ? '어둡고 가는 은하수<br><small>바깥쪽 · 겨울</small>' : '어둡고 가는 은하수<br><small>별이 적은 은하 바깥쪽을 바라본 모습 · 겨울철 밤</small>', 'var(--c-winter)'),
       sphere: mk('small', '천구의 일부: 지구에서 보이는 별들이 붙어 있다고 생각한 면', '#a9e6ff'),
       radius: mk('small', '은하의 반지름: 약 5만 광년', '#ffffff'),
-      dist: mk('small', '약 2만 6천 광년', '#ffd0e0'),
+      dist: mk('small', '약 8500 pc (약 2만 8천 광년)', '#ffd0e0'),
       sight: mk('', '', '#e6d6ff'),
     };
     const rimLbl = RIM_NAMES.map(([l, n]) => ({ l, el: mk('small', n, 'rgba(200,225,255,.95)') }));
@@ -409,7 +409,7 @@ export default function CelestialCylinder({ lon, setLon, mode = 'diorama', onDra
   if (failed) return <div className="fill" style={{ display: 'grid', placeItems: 'center', color: 'var(--ink-2)' }}>이 기기에서는 3D 그래픽(WebGL)을 쓸 수 없어요.</div>;
   return (
     <div ref={wrap} className="fill">
-      <canvas ref={cvs} className="fill grab" aria-label="우리 은하를 둘러싼 천구의 띠(원통)에 실제 은하수 사진을 붙인 모형. 끌어서 돌리기" />
+      <canvas ref={cvs} className="fill grab" aria-label="우리은하를 둘러싼 천구의 띠(원통)에 실제 은하수 사진을 붙인 모형. 끌어서 돌리기" />
       <div ref={lbl} className="labels" />
     </div>
   );
