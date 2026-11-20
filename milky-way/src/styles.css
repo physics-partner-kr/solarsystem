@@ -327,6 +327,8 @@ table.cmp td { color: var(--ink-2); }
 .pq-choices button { height: 2.4rem; padding: 0 .9rem; border-radius: .65rem; border: 1px solid var(--line); background: transparent; font-weight: 700; font-size: .95rem; }
 .pq-choices button:hover:not(:disabled) { background: var(--btn-hover); }
 .pq-choices button:disabled { cursor: default; }
+.pq-rule { display: grid; gap: .35rem; font-size: 1.05rem; }
+.pq-rule b { color: inherit; }
 .pq-caption { grid-column: 1 / -1; margin: 0; font-size: .78rem; color: var(--ink-3); text-align: center; }
 
 /* 교과서 흐름: 꼭지 표시와 상자 */

@@ -611,17 +611,19 @@ export default function Module4({ meta, onReset, goTo, tab: ctlTab, onTab, subta
           하늘 전체를 한 장에 담은 <b>전천 사진</b>이에요. 원의 가운데가 머리 위(<T k="천정">천정</T>), 둘레가 <T k="지평선">지평선</T>이에요. 두 사진을 비교해 계절을 골라 보세요.
         </p>
         <div className="card">
-          <h3>관찰 포인트</h3>
-          <ul>
-            <li>은하수 띠가 <b>넓고 밝은가</b>, 아니면 <b>가늘고 희미한가</b>?</li>
-            <li>은하수가 <b>검은 틈(먼지 띠)</b>으로 갈라져 보이는가?</li>
-            <li>은하수가 특히 <b>밝게 부풀어 오른 곳</b>이 있는가? 있다면 어디쯤인가?</li>
-          </ul>
-          <p className="note">사진마다 카메라 방향이 달라요. 사진 속 위치보다 은하수 자체의 모습을 비교하세요.</p>
+          <h3>이렇게 구별해요</h3>
+          <div className="pq-rule">
+            <span style={{ color: '#ff9d5c' }}>
+              은하수가 <b>두껍고 밝다</b> → <b>여름철</b>
+            </span>
+            <span style={{ color: '#7fd0ff' }}>
+              은하수가 <b>얇고 희미하다</b> → <b>겨울철</b>
+            </span>
+          </div>
         </div>
         {qStatus === 'wrong' && (
           <div className="feedback hint" role="status">
-            <b>다시 생각해 보세요.</b> ×표가 붙은 사진을 다시 보세요. 여름철 밤에는 별이 많은 은하 중심(팽대부) 쪽을 보게 되므로, 별과 성간 물질이 많아 은하수가 <b>넓고 밝으며 먼지 띠로 갈라져</b> 보여요. 밝은 별이 몇 개 있는 것과 은하수가 밝은 것은 달라요!
+            <b>다시 보세요.</b> ×표가 붙은 사진의 은하수 띠가 두꺼운가요, 얇은가요? 두꺼우면 여름철, 얇으면 겨울철이에요.
           </div>
         )}
         {qStatus === 'right' && (
@@ -631,8 +633,8 @@ export default function Module4({ meta, onReset, goTo, tab: ctlTab, onTab, subta
               <span key={i} style={{ display: 'block', marginTop: '.3rem' }}>
                 <b style={{ color: SEASON_COLOR[ph.season] }}>사진 {['가', '나'][i]} — {SEASON_NAME[ph.season]}철 은하수:</b>{' '}
                 {ph.season === 'summer'
-                  ? '은하 중심(궁수자리) 쪽을 본 모습. 넓고 밝으며 검은 먼지 띠로 갈라져 보이고, 가장 밝은 부분(팽대부 방향)이 남쪽 지평선 가까이에 있어요.'
-                  : '은하 중심 반대쪽(마차부·황소자리 부근)을 본 모습. 별이 적은 은하 바깥쪽이라 희미하고 가늘게 보여요.'}
+                  ? '은하수가 두껍고 밝아요. 별이 많은 은하 중심 쪽을 보기 때문이에요.'
+                  : '은하수가 얇고 희미해요. 별이 적은 은하 바깥쪽을 보기 때문이에요.'}
               </span>
             ))}
           </div>
